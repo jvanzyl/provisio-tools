@@ -1,6 +1,9 @@
 package ca.vanzyl.provisio.tools;
 
+import static ca.vanzyl.provisio.tools.ToolProvisioner.*;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.immutables.value.Value;
 
@@ -40,6 +43,21 @@ public abstract class ToolDescriptor {
   @Nullable
   public abstract String version();
 
+  @Value.Derived
+  public String downloadUrlTemplate() {
+    String urlTemplate = urlTemplate();
+    if(urlTemplate == null) {
+      if(OS.equals("Darwin")) {
+        urlTemplate = darwinUrlTemplate();
+      } else if (OS.equals("Linux")) {
+        urlTemplate = linuxUrlTemplate();
+      } else {
+        urlTemplate = "NO_TEMPLATE!";
+      }
+    }
+    return urlTemplate;
+  }
+
   @Nullable
   public abstract String urlTemplate();
 
@@ -51,6 +69,12 @@ public abstract class ToolDescriptor {
 
   @Nullable
   public abstract String windowsUrlTemplate();
+
+  @Nullable
+  public abstract Map<String,String> osMappings();
+
+  @Nullable
+  public abstract Map<String,String> archMappings();
 
   public abstract String defaultVersion();
 

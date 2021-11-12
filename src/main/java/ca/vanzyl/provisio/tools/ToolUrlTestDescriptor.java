@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@JsonDeserialize(as = ImmutableToolDescriptor.class)
+@JsonDeserialize(as = ImmutableToolUrlTestDescriptor.class)
 public abstract class ToolUrlTestDescriptor {
 
   public abstract String id();

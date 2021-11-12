@@ -1,17 +1,32 @@
 package ca.vanzyl.provisio.tools;
 
-import static kr.motd.maven.os.Detector.normalizeArch;
-import static kr.motd.maven.os.Detector.normalizeOs;
+import static ca.vanzyl.provisio.tools.ToolProvisioner.*;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class ToolUrlBuilder {
 
   public static String build(ToolDescriptor toolDescriptor, String version) {
     String toolVersion = version != null ? version : toolDescriptor.defaultVersion();
-    String architecture = normalizeArch(System.getProperty("os.arch"));
-    String os = normalizeOs(System.getProperty("os.name"));
-    return toolDescriptor.urlTemplate()
+    String os = OS;
+    String arch = ARCH;
+
+    if(toolDescriptor.osMappings() != null) {
+      if(toolDescriptor.osMappings().get(os) != null) {
+        os = toolDescriptor.osMappings().get(os);
+      }
+    }
+
+    if(toolDescriptor.archMappings() != null) {
+      if(toolDescriptor.archMappings().get(arch) != null) {
+        arch = toolDescriptor.archMappings().get(arch);
+      }
+    }
+
+    return toolDescriptor.downloadUrlTemplate()
         .replaceAll("\\{version\\}", toolVersion)
         .replaceAll("\\{os\\}", os)
-        .replaceAll("\\{arch\\}",architecture);
+        .replaceAll("\\{arch\\}",arch);
   }
 }

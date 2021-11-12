@@ -162,10 +162,12 @@ public abstract class Detector {
       }
     }
     if (value.startsWith("linux")) {
-      return "linux";
+      return "Linux";
+      ///return "linux";
     }
     if (value.startsWith("macosx") || value.startsWith("osx")) {
-      return "osx";
+      return "Darwin";
+      //return "osx";
     }
     if (value.startsWith("freebsd")) {
       return "freebsd";

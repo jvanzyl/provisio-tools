@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import kr.motd.maven.os.Detector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,9 @@ import org.slf4j.LoggerFactory;
 public class ToolProvisioner {
 
   private static final Logger logger = LoggerFactory.getLogger(ToolProvisioner.class);
+  public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
+  public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
+
   private final DownloadManager downloadManager;
   private final boolean debug = true;
 
