@@ -1,9 +1,7 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.ToolProvisioner.*;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import static ca.vanzyl.provisio.tools.ToolProvisioner.ARCH;
+import static ca.vanzyl.provisio.tools.ToolProvisioner.OS;
 
 public class ToolUrlBuilder {
 

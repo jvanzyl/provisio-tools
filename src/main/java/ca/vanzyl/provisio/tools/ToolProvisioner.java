@@ -52,6 +52,7 @@ public class ToolProvisioner {
   private static final Logger logger = LoggerFactory.getLogger(ToolProvisioner.class);
   public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
   public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
+  public static final Path PROVISIO_ROOT= Paths.get(System.getProperty("user.home"),".provisio/");
 
   private final DownloadManager downloadManager;
   private final boolean debug = true;

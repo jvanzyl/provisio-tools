@@ -1,5 +1,6 @@
 package ca.vanzyl.provisio.tools;
 
+import static ca.vanzyl.provisio.tools.ToolProvisioner.PROVISIO_ROOT;
 import static ca.vanzyl.provisio.tools.ToolProvisioner.collectToolDescriptors;
 import static ca.vanzyl.provisio.tools.ToolProvisioner.collectToolDescriptorsMap;
 import static ca.vanzyl.provisio.tools.ToolUrlBuilder.build;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import javax.tools.Tool;
 import org.junit.Test;
 
 public class ToolDescriptorMapperTest {
@@ -20,12 +20,14 @@ public class ToolDescriptorMapperTest {
         .forEach(System.out::println);
   }
 
+  // This validates that the way download URLs are built in the same way in the BASH version
+  // as they are in the Java version
+
   @Test
   public void validateToolUrlBuilding() throws Exception {
     Map<String, ToolDescriptor> toolDescriptorsById = collectToolDescriptorsMap();
-
     YamlMapper<ToolUrlTestDescriptor> mapper = new YamlMapper<>();
-    List<ToolUrlTestDescriptor> tools = mapper.read(Paths.get("/Users/jvanzyl/.provisio/tool-urls.yaml"), new TypeReference<>() {});
+    List<ToolUrlTestDescriptor> tools = mapper.read(PROVISIO_ROOT.resolve("tool-urls.yaml"), new TypeReference<>() {});
     tools.forEach(t -> {
       String id = t.id();
       String version = t.version();
@@ -34,7 +36,5 @@ public class ToolDescriptorMapperTest {
       String actualUrl = build(td, version);
       assertThat(actualUrl).isEqualTo(expectedUrl);
     });
-
-
   }
 }
