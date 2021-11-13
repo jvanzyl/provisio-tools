@@ -5,7 +5,7 @@ import static ca.vanzyl.provisio.tools.ToolProvisioner.OS;
 
 public class ToolUrlBuilder {
 
-  public static String build(ToolDescriptor toolDescriptor, String version) {
+  public static String buildUrlFor(ToolDescriptor toolDescriptor, String version) {
     String toolVersion = version != null ? version : toolDescriptor.defaultVersion();
     String os = OS;
     String arch = ARCH;

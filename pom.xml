@@ -16,66 +16,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <!-- Dependency versions -->
-    <concord.version>1.86.2</concord.version>
-    <fabric8.k8s.version>4.9.0</fabric8.k8s.version>
-    <jooq.version>3.12.3</jooq.version>
-    <liquibase.version>3.5.1</liquibase.version>
-    <mockito.version>3.2.4</mockito.version>
-    <okio.version>1.17.2</okio.version>
-    <aws.version>1.11.769</aws.version>
-    <provisio.version>1.0.12</provisio.version>
-    <!-- Maven plugin versions -->
-    <build.helper.plugin.version>3.2.0</build.helper.plugin.version>
-    <docker.maven.plugin.version>0.33.0</docker.maven.plugin.version>
-    <maven-shade-plugin.version>3.2.3</maven-shade-plugin.version>
-    <testcontainers.concord.version>0.0.29</testcontainers.concord.version>
-    <testcontainers.version>1.15.0-rc2</testcontainers.version>
+    <javax.inject.version>1</javax.inject.version>
+    <slf4j.version>1.7.25</slf4j.version>
+    <jackson.version>2.10.2</jackson.version>
+    <errorproneannotations.version>2.3.4</errorproneannotations.version>
+    <jsr305.version>3.0.2</jsr305.version>
+    <junit.version>4.13</junit.version>
+
     <!-- Takari -->
     <takari.annotationProcessing>proc</takari.annotationProcessing>
     <takari.release.gpg.skip>false</takari.release.gpg.skip>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.walmartlabs.concord</groupId>
-        <artifactId>concord-targetplatform</artifactId>
-        <version>${concord.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.awaitility</groupId>
-        <artifactId>awaitility</artifactId>
-        <version>4.0.3</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.spullara.mustache.java</groupId>
-        <artifactId>compiler</artifactId>
-        <version>0.9.6</version>
-      </dependency>
-      <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>logging-interceptor</artifactId>
-        <version>3.14.1</version>
-      </dependency>
-      <dependency>
-        <groupId>com.squareup.okio</groupId>
-        <artifactId>okio</artifactId>
-        <version>${okio.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>25.1-jre</version>
-      </dependency>
-      <dependency>
-        <groupId>org.assertj</groupId>
-        <artifactId>assertj-core</artifactId>
-        <version>3.15.0</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -86,16 +37,12 @@
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
-      <scope>provided</scope>
+      <version>${javax.inject.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.squareup.okhttp3</groupId>
-      <artifactId>okhttp</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
     <!-- ToolProvisioner -->
     <dependency>
@@ -106,48 +53,49 @@
     <!-- Jackson -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <scope>provided</scope>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <scope>provided</scope>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
-      <scope>provided</scope>
+      <version>${jackson.version}</version>
     </dependency>
-    <!-- EksCtl configuration generator -->
-    <dependency>
-      <groupId>com.github.spullara.mustache.java</groupId>
-      <artifactId>compiler</artifactId>
-      <version>0.9.6</version>
-    </dependency>
-    <!-- These 4 are required for use of Immutables -->
+    <!-- These are required for use of Immutables -->
     <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
       <version>2.8.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <version>25.1-jre</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-guava</artifactId>
-      <version>2.9.9</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.errorprone</groupId>
       <artifactId>error_prone_annotations</artifactId>
+      <version>${errorproneannotations.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
+      <version>${jsr305.version}</version>
     </dependency>
     <!-- Secret -->
     <dependency>
@@ -159,11 +107,19 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <version>3.15.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.0.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -178,34 +134,6 @@
         <filtering>true</filtering>
       </resource>
     </resources>
-
-    <pluginManagement>
-      <plugins>
-        <!-- We should bake this into the Takari parent with a switch -->
-        <plugin>
-          <groupId>io.takari.maven.plugins</groupId>
-          <artifactId>takari-lifecycle-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>default-sisu-index</id>
-              <phase>process-classes</phase>
-              <goals>
-                <goal>sisu-index</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>default-sisu-test-index</id>
-              <phase>process-test-classes</phase>
-              <goals>
-                <goal>sisu-test-index</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <deployAtEnd>true</deployAtEnd>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
-</project>
+
+ </project>

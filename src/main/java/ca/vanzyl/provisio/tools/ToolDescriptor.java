@@ -52,7 +52,7 @@ public abstract class ToolDescriptor {
       } else if (OS.equals("Linux")) {
         urlTemplate = linuxUrlTemplate();
       } else {
-        urlTemplate = "NO_TEMPLATE!";
+        throw new RuntimeException("There is no download url template for " + id());
       }
     }
     return urlTemplate;
@@ -80,7 +80,7 @@ public abstract class ToolDescriptor {
 
   public enum Packaging {
     FILE,
-    GIT,
+    GIT, // at least on github you can get a tarball or zip
     INSTALLER,
     TARGZ,
     TARGZ_STRIP,
