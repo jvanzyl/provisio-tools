@@ -1,7 +1,9 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.ToolProvisioner.ARCH;
-import static ca.vanzyl.provisio.tools.ToolProvisioner.OS;
+import static ca.vanzyl.provisio.tools.Provisio.ARCH;
+import static ca.vanzyl.provisio.tools.Provisio.OS;
+
+import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 
 public class ToolUrlBuilder {
 

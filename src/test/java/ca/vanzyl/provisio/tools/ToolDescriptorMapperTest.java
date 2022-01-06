@@ -1,10 +1,13 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.ToolProvisioner.PROVISIO_ROOT;
-import static ca.vanzyl.provisio.tools.ToolProvisioner.collectToolDescriptorsMap;
+import static ca.vanzyl.provisio.tools.Provisio.PROVISIO_ROOT;
+import static ca.vanzyl.provisio.tools.Provisio.collectToolDescriptorsMap;
 import static ca.vanzyl.provisio.tools.ToolUrlBuilder.buildUrlFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ca.vanzyl.provisio.tools.model.ToolDescriptor;
+import ca.vanzyl.provisio.tools.model.ToolProfile;
+import ca.vanzyl.provisio.tools.model.ToolUrlTestDescriptor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.nio.file.Path;
 import java.util.List;

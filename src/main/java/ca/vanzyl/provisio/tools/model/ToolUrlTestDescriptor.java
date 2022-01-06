@@ -1,7 +1,6 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import javax.annotation.Nullable;
 import org.immutables.value.Value;
 
 @Value.Immutable

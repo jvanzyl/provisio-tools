@@ -1,4 +1,4 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.model;
 
 import java.nio.file.Path;
 import org.immutables.value.Value;

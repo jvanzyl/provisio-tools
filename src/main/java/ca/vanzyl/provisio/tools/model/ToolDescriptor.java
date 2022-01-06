@@ -1,6 +1,6 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.model;
 
-import static ca.vanzyl.provisio.tools.ToolProvisioner.*;
+import static ca.vanzyl.provisio.tools.Provisio.OS;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Map;
@@ -84,6 +84,7 @@ public abstract class ToolDescriptor {
     INSTALLER,
     TARGZ,
     TARGZ_STRIP,
-    ZIP
+    ZIP,
+    ZIP_JUNK
   }
 }
