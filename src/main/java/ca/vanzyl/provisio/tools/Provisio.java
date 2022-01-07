@@ -58,8 +58,8 @@ public class Provisio {
   // TARGZ
   // TARGZ_STRIP
   // ZIP
+  // ZIP_JUNK
   // FILE
-  // GIT, which can just be a tarball: https://stackoverflow.com/questions/8377081/github-api-download-zip-or-tarball-link
   // INSTALLER, relies on a script but maybe we repackage
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,15 +84,19 @@ public class Provisio {
   }
 
   public ToolProvisioningResult provisionTool(ToolDescriptor toolDescriptor, String version) throws Exception {
+    ImmutableToolProvisioningResult.Builder result = ImmutableToolProvisioningResult.builder();
     Path executable = binaryDirectory.resolve(toolDescriptor.executable());
     if (Files.exists(executable)) {
       return ImmutableToolProvisioningResult.builder().executable(executable).build();
     }
     Path artifact = downloadManager.resolve(toolDescriptor, version);
-    if (toolDescriptor.packaging().equals(Packaging.TARGZ) || toolDescriptor.packaging().equals(Packaging.TARGZ_STRIP) || toolDescriptor.packaging().equals(Packaging.ZIP)) {
-      boolean useRoot = !toolDescriptor.packaging().equals(Packaging.TARGZ_STRIP);
+    Packaging packaging = toolDescriptor.packaging();
+    if (packaging.equals(Packaging.TARGZ) || packaging.equals(Packaging.TARGZ_STRIP) || packaging.equals(Packaging.ZIP) || packaging.equals(Packaging.ZIP_JUNK)) {
+      boolean useRoot = !packaging.equals(Packaging.TARGZ_STRIP);
+      boolean flatten = packaging.equals(Packaging.ZIP_JUNK);
       UnArchiverBuilder unArchiverBuilder = UnArchiver.builder()
-          .useRoot(useRoot);
+          .useRoot(useRoot)
+          .flatten(flatten);
 
       // TODO: make an unarchiver processor to rename tarSingleFileToExtract files to the executable
       if(toolDescriptor.tarSingleFileToExtract() != null) {
@@ -101,20 +105,38 @@ public class Provisio {
       }
 
       UnArchiver unArchiver = unArchiverBuilder.build();
-      unArchiver.unarchive(artifact.toFile(), binaryDirectory.toFile());
 
-      if(toolDescriptor.tarSingleFileToExtract() != null) {
-        String tarSingleFileToExtract = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version);
-        Path original = binaryDirectory.resolve(tarSingleFileToExtract);
-        move(original, executable, StandardCopyOption.REPLACE_EXISTING);
-        executable.toFile().setExecutable(true);
+      if(toolDescriptor.layout().equals("file")) {
+        unArchiver.unarchive(artifact.toFile(), binaryDirectory.toFile());
+        // Single binaries are placed directly in our binary directory
+        if (toolDescriptor.tarSingleFileToExtract() != null) {
+          String tarSingleFileToExtract = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version);
+          Path original = binaryDirectory.resolve(tarSingleFileToExtract);
+          move(original, executable, StandardCopyOption.REPLACE_EXISTING);
+          executable.toFile().setExecutable(true);
+        }
+        result.executable(executable);
+      } else if(toolDescriptor.layout().equals("directory")){
+        // An installation is placed in a directory of the form {tool}/{version}/{tree}:
+        //
+        // jbang
+        // └── 0.79.0
+        //     ├── jbang
+        //     ├── jbang.cmd
+        //     ├── jbang.jar
+        //     └── jbang.ps1
+        //
+        Path installationDirectory = binaryDirectory.resolve(toolDescriptor.id()).resolve(version);
+        unArchiver.unarchive(artifact.toFile(), installationDirectory.toFile());
+        result.installation(installationDirectory);
       }
     } else {
       // Copy the single file over and make executable
       copy(artifact, executable, StandardCopyOption.REPLACE_EXISTING);
       executable.toFile().setExecutable(true);
+      result.executable(executable);
     }
-    return ImmutableToolProvisioningResult.builder().executable(executable).build();
+    return result.build();
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

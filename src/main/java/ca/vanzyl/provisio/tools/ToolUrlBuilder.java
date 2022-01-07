@@ -32,17 +32,18 @@ public class ToolUrlBuilder {
         .replaceAll("\\{arch\\}",arch);
   }
 
-  public static String buildUrlFor(ToolDescriptor toolDescriptor, String version) {
+  public static String toolDownloadUrlFor(ToolDescriptor toolDescriptor, String version) {
     return interpolateToolPath(toolDescriptor.downloadUrlTemplate(), toolDescriptor, version);
   }
 
-  public static Path cachePathForTool(Path cacheDirectory, ToolDescriptor tool, String version) {
-    // This takes the various different forms of paths based on where the tool has been deployed
-    String url = buildUrlFor(tool, version);
-    Path directory = cacheDirectory.resolve(Paths.get(tool.id(), version));
-    // This is not always going to be a file name
+  public static Path cachePathFor(Path cacheDirectory, ToolDescriptor tool, String version) {
+    String url = toolDownloadUrlFor(tool, version);
     String file = url.substring(url.lastIndexOf('/') + 1);
-    return directory.resolve(file);
+    return cachePathFor(cacheDirectory, tool, version, file);
+  }
+
+  public static Path cachePathFor(Path cacheDirectory, ToolDescriptor tool, String version, String fileName) {
+    return cacheDirectory.resolve(Paths.get(tool.id(), version)).resolve(fileName);
   }
 
 }

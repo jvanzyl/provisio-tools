@@ -36,9 +36,16 @@ public abstract class ToolDescriptor {
 
   public abstract String name();
 
+  public abstract Packaging packaging();
+
+  public abstract String layout();
+
   public abstract String executable();
 
-  public abstract Packaging packaging();
+  @Value.Default
+  public boolean fileNameFromContentDisposition() {
+    return false;
+  }
 
   @Nullable
   public abstract String version();
@@ -83,7 +90,6 @@ public abstract class ToolDescriptor {
 
   public enum Packaging {
     FILE,
-    GIT, // at least on github you can get a tarball or zip
     INSTALLER,
     TARGZ,
     TARGZ_STRIP,
