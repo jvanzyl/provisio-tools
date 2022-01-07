@@ -8,6 +8,7 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableToolProfile.class)
 public abstract class ToolProfile {
 
+  @JsonDeserialize(contentUsing = MapKeyDeserializer.class)
   public abstract Map<String,ToolProfileEntry> tools();
 
 }

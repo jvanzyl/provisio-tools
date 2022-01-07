@@ -71,6 +71,9 @@ public abstract class ToolDescriptor {
   public abstract String windowsUrlTemplate();
 
   @Nullable
+  public abstract String tarSingleFileToExtract();
+
+  @Nullable
   public abstract Map<String,String> osMappings();
 
   @Nullable
