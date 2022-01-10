@@ -1,4 +1,4 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.util;
 
 import static ca.vanzyl.provisio.tools.Provisio.ARCH;
 import static ca.vanzyl.provisio.tools.Provisio.OS;
@@ -13,19 +13,16 @@ public class ToolUrlBuilder {
     String toolVersion = version != null ? version : toolDescriptor.defaultVersion();
     String os = OS;
     String arch = ARCH;
-
     if(toolDescriptor.osMappings() != null) {
       if(toolDescriptor.osMappings().get(os) != null) {
         os = toolDescriptor.osMappings().get(os);
       }
     }
-
     if(toolDescriptor.archMappings() != null) {
       if(toolDescriptor.archMappings().get(arch) != null) {
         arch = toolDescriptor.archMappings().get(arch);
       }
     }
-
     return toolPath
         .replaceAll("\\{version\\}", toolVersion)
         .replaceAll("\\{os\\}", os)

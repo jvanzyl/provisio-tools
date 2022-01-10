@@ -1,4 +1,4 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.util;
 
 import java.io.File;
 import java.io.IOException;

@@ -40,6 +40,11 @@ public abstract class ToolDescriptor {
 
   public abstract String layout();
 
+  @Value.Default
+  public String paths() {
+    return "bin";
+  }
+
   public abstract String executable();
 
   @Value.Default

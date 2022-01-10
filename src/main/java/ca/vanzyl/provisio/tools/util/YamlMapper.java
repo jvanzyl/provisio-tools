@@ -1,4 +1,4 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;

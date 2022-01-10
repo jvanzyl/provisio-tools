@@ -34,11 +34,18 @@
       <artifactId>throwing-function</artifactId>
       <version>1.5.1</version>
     </dependency>
+    <!-- Archive -->
     <dependency>
       <groupId>io.takari</groupId>
       <artifactId>takari-archiver</artifactId>
       <version>0.1.21</version>
     </dependency>
+    <dependency>
+      <groupId>com.sprylab.xar</groupId>
+      <artifactId>xar</artifactId>
+      <version>0.9.9</version>
+    </dependency>
+    <!-- CLI -->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-picocli</artifactId>

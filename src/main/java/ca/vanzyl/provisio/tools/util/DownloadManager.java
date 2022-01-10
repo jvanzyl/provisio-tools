@@ -1,7 +1,7 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.util;
 
-import static ca.vanzyl.provisio.tools.ToolUrlBuilder.cachePathFor;
-import static ca.vanzyl.provisio.tools.ToolUrlBuilder.toolDownloadUrlFor;
+import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.cachePathFor;
+import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.toolDownloadUrlFor;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.exists;
 
@@ -28,7 +28,7 @@ public class DownloadManager {
     String url = toolDownloadUrlFor(tool, version);
     Path target;
     if(tool.fileNameFromContentDisposition()) {
-      String fileName = fileNameFromContentDisposition(url);
+      String fileName = fileNameFromContentDisposition(url, tool);
       target = cachePathFor(cacheDirectory, tool, version, fileName);
     } else {
       target = cachePathFor(cacheDirectory, tool, version);
@@ -39,7 +39,7 @@ public class DownloadManager {
     createDirectories(target.getParent());
     // https://www.baeldung.com/java-9-http-client
     HttpRequest request = HttpRequest.newBuilder()
-        .uri(new URI(url))
+        .uri(new URI(correctMalformedUrl(url, tool)))
         // client will fallback to http/1.1 if http/2 is not supported
         .version(HttpClient.Version.HTTP_2)
         .GET()
@@ -48,16 +48,15 @@ public class DownloadManager {
         .followRedirects(Redirect.ALWAYS)
         .build();
     HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(target));
-    //HttpResponse<Path> response = client.send(request, BodyHandlers.ofFileDownload(target));
     if (response.statusCode() == 404) {
       throw new RuntimeException(String.format("The URL %s doesn't exist.", url));
     }
     return target;
   }
 
-  private String fileNameFromContentDisposition(String url) throws Exception {
+  private String fileNameFromContentDisposition(String url, ToolDescriptor tool) throws Exception {
     HttpRequest request = HttpRequest.newBuilder()
-        .uri(new URI(url))
+        .uri(new URI(correctMalformedUrl(url, tool)))
         // client will fallback to http/1.1 if http/2 is not supported
         .version(HttpClient.Version.HTTP_2)
         .method("HEAD", HttpRequest.BodyPublishers.noBody())
@@ -82,7 +81,16 @@ public class DownloadManager {
         }
       }
     }
-
     return null;
+  }
+
+  private String correctMalformedUrl(String url, ToolDescriptor tool) {
+    String corrected = url.replace(" ", "");
+    if(!corrected.equals(url)) {
+      System.out.println("!!! '" + url + "' corrected to '" + corrected + "'");
+      System.out.println("You'll want to look at the descriptor for " + tool.id() + " as the url template looks malformed.");
+      System.out.println(tool.downloadUrlTemplate());
+    }
+    return corrected;
   }
 }
