@@ -1,5 +1,5 @@
-registry: docker.io
-repository: jvanzyl
+registry: harbor-ci.cpie.io
+repository: mcp/worker
 image: provisio
 version: {{maven.version}}
 buildArgs:
