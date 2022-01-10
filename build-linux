@@ -1,0 +1,2 @@
+# https://quarkus.io/guides/building-native-image
+jenv exec ./mvnw package -DskipTests -Pnative -Dquarkus.native.container-build=true
