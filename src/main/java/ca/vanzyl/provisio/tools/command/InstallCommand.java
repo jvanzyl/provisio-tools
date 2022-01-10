@@ -4,7 +4,7 @@ import ca.vanzyl.provisio.tools.Provisio;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "provision", mixinStandardHelpOptions = true)
+@Command(name = "install", mixinStandardHelpOptions = true)
 public class InstallCommand implements Runnable {
 
   @Parameters(index = "0", description = "Install a profile")

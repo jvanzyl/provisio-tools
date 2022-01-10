@@ -12,6 +12,7 @@ import org.junit.Before;
 public class ProvisioningTestSupport {
 
   protected Provisio provisio;
+  protected Path realProvisioRoot = Paths.get(System.getProperty("user.home"), ".provisio");
   protected Path provisioRoot = Paths.get("target", "provisio");
   protected Path cacheDirectory = provisioRoot.resolve("bin").resolve("cache");
   protected Path installsDirectory = provisioRoot.resolve("bin").resolve("installs");
@@ -22,9 +23,20 @@ public class ProvisioningTestSupport {
     boolean useLocalCache = true;
     resetDirectory(installsDirectory);
     if(useLocalCache) {
-      provisio = new Provisio(Provisio.cache, installsDirectory, profilesDirectory, "jvanzyl");
+      Path userCache = realProvisioRoot.resolve(".bin").resolve(".cache");
+      provisio = new Provisio(
+          userCache,
+          installsDirectory,
+          profilesDirectory,
+          realProvisioRoot.resolve("tool"),
+          realProvisioRoot.resolve("profiles"),
+          "jvanzyl");
     } else {
       provisio = new Provisio(provisioRoot, "jvanzyl");
     }
+  }
+
+  public Path provisioRoot() {
+    return Paths.get(System.getProperty("user.home"), ".provisio");
   }
 }

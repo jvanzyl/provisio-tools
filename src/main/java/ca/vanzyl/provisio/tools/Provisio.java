@@ -39,23 +39,20 @@ public class Provisio {
   // These 4 probably belong somewhere else
   public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
   public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
-  public static final Path PROVISIO_ROOT = Paths.get(System.getProperty("user.home"), ".provisio");
-  public final static Path toolDescriptorDirectory = PROVISIO_ROOT.resolve("tools");
-  public final static Path userProfilesDirectory = PROVISIO_ROOT.resolve("profiles");
-  public final static Path cache = PROVISIO_ROOT.resolve(".bin").resolve(".cache");
-  public final static Path bin = PROVISIO_ROOT.resolve(".bin");
-
   private final DownloadManager downloadManager;
   private final Map<String, ToolDescriptor> toolDescriptorMap;
   private final YamlMapper<ToolProfile> profileMapper;
-  private final YamlMapper<ToolDescriptor> toolMapper;
+  // ${HOME}/.provisio/bin/{cache|installs|profiles}
   private final Path cacheDirectory;
   private final Path installsDirectory;
   private final Path profilesDirectory;
+  // ${HOME}/.provisio/{tools|profiles}
+  public final Path toolDescriptorDirectory;
+  public final Path userProfilesDirectory;
   private final String userProfile;
 
   public Provisio(String userProfile) throws Exception {
-    this(PROVISIO_ROOT, userProfile);
+    this(Paths.get(System.getProperty("user.home"), ".provisio"), userProfile);
   }
 
   public Provisio(Path provisioRoot, String userProfile) throws Exception {
@@ -63,18 +60,32 @@ public class Provisio {
         provisioRoot.resolve("bin").resolve("cache"),
         provisioRoot.resolve("bin").resolve("installs"),
         provisioRoot.resolve("bin").resolve("profiles"),
+        provisioRoot.resolve("tools"),
+        provisioRoot.resolve("profiles"),
         userProfile);
   }
 
-  public Provisio(Path cacheDirectory, Path installsDirectory, Path profilesDirectory, String userProfile) throws Exception {
+  public Provisio(
+      Path cacheDirectory,
+      Path installsDirectory,
+      Path profilesDirectory,
+      Path toolDescriptorDirectory,
+      Path userProfilesDirectory,
+      String userProfile) throws Exception {
     this.downloadManager = new DownloadManager(cacheDirectory);
     this.toolDescriptorMap = collectToolDescriptorsMap();
     this.profileMapper = new YamlMapper<>();
-    this.toolMapper = new YamlMapper<>();
     this.installsDirectory = installsDirectory;
     this.cacheDirectory = cacheDirectory;
+    this.toolDescriptorDirectory = toolDescriptorDirectory;
+    this.userProfilesDirectory = userProfilesDirectory;
     this.profilesDirectory = profilesDirectory;
+
     this.userProfile = userProfile;
+
+    System.out.println("System.getProperty(\"user.name\") = " + System.getProperty("user.name"));
+    System.out.println("System.getProperty(\"user.home\") = " + System.getProperty("user.home"));
+    System.out.println("System.getProperty(\"user.dir\") = " + System.getProperty("user.dir"));
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -219,7 +230,8 @@ public class Provisio {
       path -> new YamlMapper<ToolProfile>().read(path, ToolProfile.class);
 
   public static Map<String, ToolDescriptor> collectToolDescriptorsMap() throws Exception {
-    try (Stream<Path> stream = Files.walk(toolDescriptorDirectory, 3)) {
+    Path tools = Paths.get(System.getProperty("user.home"), ".provisio").resolve("tools");
+    try (Stream<Path> stream = Files.walk(tools, 3)) {
       return stream
           .filter(p -> p.toString().endsWith(DESCRIPTOR))
           .map(unchecked(toolDescriptorFrom))

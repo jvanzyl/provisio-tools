@@ -1,6 +1,5 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.Provisio.PROVISIO_ROOT;
 import static ca.vanzyl.provisio.tools.Provisio.collectToolDescriptorsMap;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.toolDownloadUrlFor;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,11 +15,11 @@ import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ToolDescriptorMapperTest {
+public class ToolDescriptorMapperTest extends ProvisioningTestSupport{
 
-  protected final static Path testResources = PROVISIO_ROOT.resolve("target/test-resources");
-  protected final static String testToolUrls = "test-tool-urls.yaml";
-  protected final static String testProfile = "test-profile.yaml";
+  protected final Path testResources = provisioRoot().resolve("target/test-resources");
+  protected final String testToolUrls = "test-tool-urls.yaml";
+  protected final String testProfile = "test-profile.yaml";
 
   //
   // This validates that the way download URLs are built in the same way in the BASH version
