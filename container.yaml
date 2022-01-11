@@ -1,6 +1,6 @@
 registry: harbor-ci.cpie.io
-repository: mcp/worker
-image: provisio
+repository: mcp
+image: worker
 version: {{maven.version}}
 buildArgs:
   VERSION: {{maven.version}}
