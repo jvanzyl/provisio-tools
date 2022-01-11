@@ -7,5 +7,7 @@ spec:
   containers:
   - name: worker
     image: harbor-ci.cpie.io/mcp/worker
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; do sleep 30; done;" ]
   imagePullSecrets:
   - name: regcred
