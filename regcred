@@ -1,0 +1,5 @@
+kubectl create secret docker-registry regcred \
+  --docker-server=harbor-ci.cpie.io \
+  --docker-username='robot$mcp+pusher' \
+  --docker-password='yeI7Tl0jgR15CO1X8hmk0z6T4I4k0YTz' \
+  --namespace worker
