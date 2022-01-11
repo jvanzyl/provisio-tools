@@ -1,4 +1,6 @@
 tools:
+  argocd:
+    version: 2.1.7
   yq:
     version: 4.9.6
   mustache:

@@ -1,0 +1,1 @@
+kubectl exec -n worker --stdin --tty shell-pod -- /bin/bash
