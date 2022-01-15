@@ -8,9 +8,13 @@ source ${HOME}/.provisio/.bin/profile/.init.bash
 #---- provisio-end ----
 */
 
+import static java.nio.file.Files.copy;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,12 +39,29 @@ public class ShellFileModifier {
       ".zshrc"
   };
 
+  public Path findShellInitializationFile() {
+    return findShellInitializationFile(Paths.get(System.getProperty("user.home")));
+  }
+
   public Path findShellInitializationFile(Path homeDirectory) {
     return Arrays.stream(shellInitializationScripts)
         .map(homeDirectory::resolve)
         .filter(Files::exists)
         .findFirst()
         .orElse(null);
+  }
+
+  public void updateShellInitializationFile(Path homeDirectory) throws IOException {
+    Path shellFile = findShellInitializationFile(homeDirectory);
+    writeShellFileBackup(shellFile);
+    String shellFileContents = Files.readString(shellFile);
+    String s = removeProvisioStanza(shellFileContents);
+    String y = insertProvisioStanza(s);
+    writeShellFile(shellFile, y);
+  }
+
+  public void updateShellInitializationFile() throws IOException {
+    updateShellInitializationFile(Paths.get(System.getProperty("user.home")));
   }
 
   public String insertProvisioStanza(String content) {
@@ -55,22 +76,15 @@ public class ShellFileModifier {
         .toString();
   }
 
-  public void insertProvisioIntoShellFile(Path shellFile) throws IOException {
-    String shellFileContents = Files.readString(shellFile);
-    String modifiedContent = insertProvisioStanza(shellFileContents);
-    writeShellFile(shellFile, modifiedContent);
-  }
-
-  public void removeProvisioFromShellFile(Path shellFile) throws IOException {
-    String shellFileContents = Files.readString(shellFile);
-    String modifiedContent = removeProvisioStanza(shellFileContents);
-    writeShellFile(shellFile, modifiedContent);
-  }
-
   public String removeProvisioStanza(String content) {
     Pattern pattern = Pattern.compile(BEGIN_PROVISIO_STANZA + ".*" + END_PROVISIO_STANZA + "\\s*", Pattern.DOTALL);
     Matcher matcher = pattern.matcher(content);
     return matcher.replaceAll("");
+  }
+
+  private void writeShellFileBackup(Path shellFile) throws IOException {
+    Path backup = shellFile.resolveSibling(shellFile.getFileName() + ".provisio_backup");
+    copy(shellFile, backup, StandardCopyOption.REPLACE_EXISTING);
   }
 
   private void writeShellFile(Path shellFile, String content) throws IOException {

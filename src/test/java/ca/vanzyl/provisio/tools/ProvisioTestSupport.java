@@ -62,5 +62,11 @@ public class ProvisioTestSupport {
     return path;
   }
 
+  protected Path touch(String name) throws IOException {
+    Path path = Paths.get("target").resolve(name);
+    Files.createDirectories(path.getParent());
+    Files.writeString(path, name);
+    return path;
+  }
 
 }

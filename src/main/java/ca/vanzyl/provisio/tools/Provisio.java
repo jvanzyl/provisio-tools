@@ -17,6 +17,7 @@ import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import ca.vanzyl.provisio.tools.util.DownloadManager;
+import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import com.pivovarit.function.ThrowingFunction;
 import io.tesla.proviso.archive.UnArchiver;
@@ -203,6 +204,10 @@ public class Provisio {
       createSymbolicLink(link, target);
     }
     touch(profilesDirectory.resolve("current"), userProfile);
+
+    // Shell init file update
+    ShellFileModifier modifier = new ShellFileModifier();
+    modifier.updateShellInitializationFile();
 
     return profileProvisioningResult.build();
   }

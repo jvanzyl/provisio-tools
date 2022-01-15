@@ -10,7 +10,6 @@ import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,25 +35,7 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
   }
 
   @Test
-  public void provisioStanzaRemovalFromShellInitializationFile() throws Exception {
-    String shellFileContents = createFileContentsWith(
-        "# first",
-        BEGIN_PROVISIO_STANZA,
-        PROVISIO_STANZA_BODY,
-        END_PROVISIO_STANZA,
-        "# last");
-    Path shellFile = target("bash_profile-result-no-provisio");
-    Files.writeString(shellFile, shellFileContents);
-    modifier.removeProvisioFromShellFile(shellFile);
-    List<String> a = Files.readAllLines(shellFile);
-    assertThat(linesOf(shellFile.toFile())).containsExactly(
-      "# first",
-      "# last"
-    );
-  }
-
-  @Test
-  public void provisioStanzaInsertionIntoShellInitializationContent() throws Exception {
+  public void provisioStanzaInsertionIntoShellInitializationContent() {
     String shellFileContent = createFileContentsWith(
       "# first",
       "# last"
@@ -70,15 +51,27 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
   }
 
   @Test
-  public void provisioStanzaInsertionIntoShellInitializationFile() throws Exception {
+  public void findingCorrectShellInitializationFile() throws Exception {
+    touch("target/shell/.bash_profile");
+    touch("target/shell/.bash_login");
+    touch("target/shell/.zprofile");
+    touch("target/shell/.zshrc");
+    Path shellFile = modifier.findShellInitializationFile(target("target/shell"));
+    assertThat(shellFile).hasFileName(".bash_profile");
+  }
+
+  @Test
+  public void provisioUpdateShellInitializationFile() throws Exception {
+    Path shellFile = target("shell/.bash_profile");
     String shellFileContents = createFileContentsWith(
         "# first",
         "# last"
     );
-    Path shellFile = target("bash_profile-result-with-provisio");
     Files.writeString(shellFile, shellFileContents);
-    modifier.insertProvisioIntoShellFile(shellFile);
-    List<String> a = Files.readAllLines(shellFile);
+    touch("shell/.bash_login");
+    touch("shell/.zprofile");
+    touch("shell/.zshrc");
+    modifier.updateShellInitializationFile(target("shell"));
     assertThat(linesOf(shellFile.toFile())).containsExactly(
         BEGIN_PROVISIO_STANZA,
         PROVISIO_STANZA_BODY,
@@ -86,15 +79,16 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
         "# first",
         "# last"
     );
+    assertThat(shellFileBackup(shellFile)).exists();
+  }
+
+  protected Path shellFileBackup(Path shellFile) {
+    return shellFile.resolveSibling(shellFile.getFileName() + ".provisio_backup");
   }
 
   protected String createFileContentsWith(String... lines) {
     StringBuilder builder = new StringBuilder();
     Arrays.stream(lines).forEach(l -> builder.append(l).append(System.lineSeparator()));
     return builder.toString();
-  }
-
-  protected Path shellFile(String name) {
-    return test().resolve("shell").resolve(name);
   }
 }
