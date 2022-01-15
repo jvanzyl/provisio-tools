@@ -15,6 +15,10 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.util.List;
 
+// TODO: retry on Connection reset by peer
+// TODO: progress file
+// TODO: use range header and resume
+
 public class DownloadManager {
 
   private final Path cacheDirectory;

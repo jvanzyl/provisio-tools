@@ -6,7 +6,7 @@ import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ProfileProvisioningTest extends ProvisioningTestSupport {
+public class ProfileProvisioningTest extends ProvisioTestSupport {
 
   @Test
   @Ignore

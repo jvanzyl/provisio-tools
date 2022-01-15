@@ -13,14 +13,8 @@ import org.junit.Test;
 
 // TODO: Generate all the various packaging types and startup a local webserver. These are really integration tests for tools that exist in the world.
 
-public class SingleBinaryProvisioningTest extends ProvisioningTestSupport {
-
-  // TARGZ with single entry
-  // TARGZ
-  // TARGZ_STRIP
-  // ZIP
-  // FILE
-
+public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
+  
   @Test
   public void provisioningBinaryFromTarGzWithSingleEntryWithLeadingDotSlash() throws Exception {
     // There are some archives published that only contain a single entry that needs to be extracted. The archive can contain

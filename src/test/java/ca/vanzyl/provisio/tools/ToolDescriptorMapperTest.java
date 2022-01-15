@@ -15,7 +15,7 @@ import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ToolDescriptorMapperTest extends ProvisioningTestSupport{
+public class ToolDescriptorMapperTest extends ProvisioTestSupport {
 
   protected final Path testResources = provisioRoot().resolve("target/test-resources");
   protected final String testToolUrls = "test-tool-urls.yaml";
