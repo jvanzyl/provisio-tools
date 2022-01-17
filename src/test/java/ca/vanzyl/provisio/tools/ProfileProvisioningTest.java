@@ -15,5 +15,6 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
     deleteDirectory(provisio.userProfileDirectory());
     ToolProfileProvisioningResult result = provisio.provisionProfile();
 
+    // A lot to check to make sure the installation is good
   }
 }

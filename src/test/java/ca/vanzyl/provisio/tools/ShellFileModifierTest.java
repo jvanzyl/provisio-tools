@@ -18,8 +18,9 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
   protected ShellFileModifier modifier;
 
   @Before
-  public void setUp() {
-    modifier = new ShellFileModifier();
+  public void setUp() throws Exception {
+    super.setUp();
+    modifier = new ShellFileModifier(target("shell"), provisioRoot);
   }
 
   @Test
@@ -56,7 +57,7 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
     touch("target/shell/.bash_login");
     touch("target/shell/.zprofile");
     touch("target/shell/.zshrc");
-    Path shellFile = modifier.findShellInitializationFile(target("target/shell"));
+    Path shellFile = modifier.findShellInitializationFile();
     assertThat(shellFile).hasFileName(".bash_profile");
   }
 
@@ -71,7 +72,7 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
     touch("shell/.bash_login");
     touch("shell/.zprofile");
     touch("shell/.zshrc");
-    modifier.updateShellInitializationFile(target("shell"));
+    modifier.updateShellInitializationFile();
     assertThat(linesOf(shellFile.toFile())).containsExactly(
         BEGIN_PROVISIO_STANZA,
         PROVISIO_STANZA_BODY,

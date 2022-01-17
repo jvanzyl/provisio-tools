@@ -11,22 +11,31 @@ public class ToolUrlBuilder {
 
   public static String interpolateToolPath(String toolPath, ToolDescriptor toolDescriptor, String version) {
     String toolVersion = version != null ? version : toolDescriptor.defaultVersion();
-    String os = OS;
-    String arch = ARCH;
+    String os = mapOs(OS, toolDescriptor);
+    String arch = mapArch(ARCH, toolDescriptor);
+
+    return toolPath
+        .replaceAll("\\{version\\}", toolVersion)
+        .replaceAll("\\{os\\}", os)
+        .replaceAll("\\{arch\\}",arch);
+  }
+
+  public static String mapOs(String os, ToolDescriptor toolDescriptor) {
     if(toolDescriptor.osMappings() != null) {
       if(toolDescriptor.osMappings().get(os) != null) {
         os = toolDescriptor.osMappings().get(os);
       }
     }
+    return os;
+  }
+
+  public static String mapArch(String arch, ToolDescriptor toolDescriptor) {
     if(toolDescriptor.archMappings() != null) {
       if(toolDescriptor.archMappings().get(arch) != null) {
         arch = toolDescriptor.archMappings().get(arch);
       }
     }
-    return toolPath
-        .replaceAll("\\{version\\}", toolVersion)
-        .replaceAll("\\{os\\}", os)
-        .replaceAll("\\{arch\\}",arch);
+    return arch;
   }
 
   public static String toolDownloadUrlFor(ToolDescriptor toolDescriptor, String version) {

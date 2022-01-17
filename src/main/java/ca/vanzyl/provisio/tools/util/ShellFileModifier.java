@@ -32,6 +32,8 @@ public class ShellFileModifier {
   // ${HOME}/.zprofile
   // ${HOME}/.zshrc
 
+  // TODO: make sure this conforms to most shells read shell-init-files.md
+
   private final static String[] shellInitializationScripts = new String[]{
       ".bash_profile",
       ".bash_login",
@@ -39,20 +41,24 @@ public class ShellFileModifier {
       ".zshrc"
   };
 
-  public Path findShellInitializationFile() {
-    return findShellInitializationFile(Paths.get(System.getProperty("user.home")));
+  private final Path userHomeDirectory;
+  private final Path provisioRoot;
+
+  public ShellFileModifier(Path userHomeDirectory, Path provisioRoot) {
+    this.userHomeDirectory = userHomeDirectory;
+    this.provisioRoot = provisioRoot;
   }
 
-  public Path findShellInitializationFile(Path homeDirectory) {
+  public Path findShellInitializationFile() {
     return Arrays.stream(shellInitializationScripts)
-        .map(homeDirectory::resolve)
+        .map(userHomeDirectory::resolve)
         .filter(Files::exists)
         .findFirst()
         .orElse(null);
   }
 
-  public void updateShellInitializationFile(Path homeDirectory) throws IOException {
-    Path shellFile = findShellInitializationFile(homeDirectory);
+  public void updateShellInitializationFile() throws IOException {
+    Path shellFile = findShellInitializationFile();
     writeShellFileBackup(shellFile);
     String shellFileContents = Files.readString(shellFile);
     String s = removeProvisioStanza(shellFileContents);
@@ -60,15 +66,14 @@ public class ShellFileModifier {
     writeShellFile(shellFile, y);
   }
 
-  public void updateShellInitializationFile() throws IOException {
-    updateShellInitializationFile(Paths.get(System.getProperty("user.home")));
-  }
-
   public String insertProvisioStanza(String content) {
+
+    String provisioRootRelativeToHome = userHomeDirectory.relativize(provisioRoot).toString();
+
     return new StringBuilder()
         .append(BEGIN_PROVISIO_STANZA)
         .append(System.lineSeparator())
-        .append("source ${HOME}/.provisio/.bin/profile/.init.bash")
+        .append(String.format("source ${HOME}/%s/bin/profiles/profile/.init.bash", provisioRootRelativeToHome))
         .append(System.lineSeparator())
         .append(END_PROVISIO_STANZA)
         .append(System.lineSeparator())
