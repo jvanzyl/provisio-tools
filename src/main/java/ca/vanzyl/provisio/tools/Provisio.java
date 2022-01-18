@@ -9,6 +9,7 @@ import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.createSymbolicLink;
 import static java.nio.file.Files.exists;
+import static java.util.Objects.requireNonNull;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.archive.UnArchiver.UnArchiverBuilder;
@@ -25,8 +26,9 @@ import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import com.pivovarit.function.ThrowingFunction;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,11 +36,14 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import kr.motd.maven.os.Detector;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
 
 public class Provisio {
 
@@ -92,7 +97,6 @@ public class Provisio {
       Path userProfilesDirectory,
       String userProfile) throws Exception {
     this.downloadManager = new DownloadManager(cacheDirectory);
-    this.toolDescriptorMap = collectToolDescriptorsMap();
     this.profileMapper = new YamlMapper<>();
 
     this.provisioRoot = provisioRoot;
@@ -107,16 +111,41 @@ public class Provisio {
     this.userProfileYaml = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
     this.userProfilesDirectory = userProfilesDirectory;
     this.userHome = Paths.get(System.getProperty("user.home"));
+
+    initialize();
+    this.toolDescriptorMap = collectToolDescriptorsMap();
+  }
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Initialization
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  public void initialize() throws Exception {
+    System.out.println("Initializing provisio");
+    String prefix = "provisioRoot";
+    int index = prefix.length();
+    Reflections reflections = new Reflections(prefix, Scanners.Resources);
+    Set<String> resources = reflections.getResources(".*");
+    for (String resource : resources) {
+      Path path = provisioRoot.resolve(resource.substring(index + 1));
+      createDirectories(path.getParent());
+      try (InputStream is = Provisio.class.getClassLoader().getResource(resource).openStream();
+          OutputStream os = Files.newOutputStream(path)) {
+        is.transferTo(os);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   // Tool provisioning
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO: remove this and build it into testing
   public Path userProfileDirectory() {
     return profilesDirectory.resolve(userProfile);
   }
 
+  // TODO: remove this and build it into testing
   public Path cacheDirectory() {
     return cacheDirectory;
   }
@@ -139,25 +168,30 @@ public class Provisio {
   }
 
   public ToolProvisioningResult provisionTool(ToolDescriptor toolDescriptor, String version) throws Exception {
+    Path toolInstallation = installsDirectory.resolve(toolDescriptor.id()).resolve(version);
+    Path executable = toolInstallation.resolve(toolDescriptor.executable());
+
     ImmutableToolProvisioningResult.Builder result = ImmutableToolProvisioningResult.builder();
-    Path installation = installsDirectory.resolve(toolDescriptor.id()).resolve(version);
-    Path executable = installation.resolve(toolDescriptor.executable());
-    if (exists(installation)) {
-      return ImmutableToolProvisioningResult.builder().installation(installation).build();
+    // We want the path relative to the user profile binary directory
+    result.addPaths(installsDirectory.relativize(toolInstallation.resolve(toolDescriptor.paths())));
+    result.installation(toolInstallation);
+
+    if (!exists(toolInstallation)) {
+      Path artifact = downloadManager.resolve(toolDescriptor, version);
+      Packaging packaging = toolDescriptor.packaging();
+      if (packaging.equals(Packaging.TARGZ) || packaging.equals(Packaging.TARGZ_STRIP) || packaging.equals(Packaging.ZIP) || packaging.equals(Packaging.ZIP_JUNK)) {
+        boolean useRoot = !packaging.equals(Packaging.TARGZ_STRIP);
+        boolean flatten = packaging.equals(Packaging.ZIP_JUNK);
+        UnArchiverBuilder unArchiverBuilder = UnArchiver.builder().useRoot(useRoot).flatten(flatten);
+        UnArchiver unArchiver = unArchiverBuilder.build();
+        unArchiver.unarchive(artifact.toFile(), toolInstallation.toFile());
+      } else {
+        createDirectories(toolInstallation);
+        copy(artifact, executable, StandardCopyOption.REPLACE_EXISTING);
+        executable.toFile().setExecutable(true);
+      }
     }
-    Path artifact = downloadManager.resolve(toolDescriptor, version);
-    Packaging packaging = toolDescriptor.packaging();
-    if (packaging.equals(Packaging.TARGZ) || packaging.equals(Packaging.TARGZ_STRIP) || packaging.equals(Packaging.ZIP) || packaging.equals(Packaging.ZIP_JUNK)) {
-      boolean useRoot = !packaging.equals(Packaging.TARGZ_STRIP);
-      boolean flatten = packaging.equals(Packaging.ZIP_JUNK);
-      UnArchiverBuilder unArchiverBuilder = UnArchiver.builder().useRoot(useRoot).flatten(flatten);
-      UnArchiver unArchiver = unArchiverBuilder.build();
-      unArchiver.unarchive(artifact.toFile(), installation.toFile());
-    } else {
-      createDirectories(installation);
-      copy(artifact, executable, StandardCopyOption.REPLACE_EXISTING);
-      executable.toFile().setExecutable(true);
-    }
+
     // The symllinking might possibly only be for installing not provisioning
     // Create instructions for symlinks and path entries
     // TODO: this needs to be cleaned up as we really only have an installation and it is a single file or dir with
@@ -166,20 +200,20 @@ public class Provisio {
       Path link = binaryProfileDirectory.resolve(toolDescriptor.executable());
       Path target;
       if (toolDescriptor.tarSingleFileToExtract() != null) {
-        String path = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version);
-        target = installation.resolve(path).toAbsolutePath();
+        String path = interpolateToolPath(requireNonNull(toolDescriptor.tarSingleFileToExtract()), toolDescriptor, version);
+        target = toolInstallation.resolve(path).toAbsolutePath();
       } else {
         target = executable.toAbsolutePath();
       }
       createDirectories(link.getParent());
       if (!exists(link)) {
-        createSymbolicLink(link, target);
+        //   target = ${provisioRoot}/bin/installs/argocd/2.1.7/argocd
+        //     link = ${provisioRoot}/bin/profiles/jvanzyl/argocd
+        // relative = ../../installs/argocd/2.1.7/argocd
+        createSymbolicLink(link, link.getParent().relativize(target));
       }
-    } else if (toolDescriptor.layout().equals("directory")) {
-      // We want the path relative to the user profile binary directory
-      result.addPaths(installsDirectory.relativize(installation.resolve(toolDescriptor.paths())));
     }
-    return result.installation(installation).build();
+    return result.build();
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -195,17 +229,18 @@ public class Provisio {
   }
 
   public ToolProfileProvisioningResult provisionProfile(ToolProfile profile) throws Exception {
+    initialize();
 
     String provisioRootRelativeToUserHome = userHome.relativize(provisioRoot).toString();
 
     Path initBash = binaryProfileDirectory.resolve(".init.bash");
     touch(initBash);
-    line(initBash,"export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
-    line(initBash,"export PROVISIO_BIN=${PROVISIO_ROOT}%n");
-    line(initBash,"export PROVISIO_INSTALLS=${PROVISIO_ROOT}/bin/installs%n");
-    line(initBash,"export PROVISIO_PROFILES=${PROVISIO_ROOT}/bin/profiles%n");
-    line(initBash,"export PROVISIO_ACTIVE_PROFILE=${PROVISIO_ROOT}/bin/profiles/profile%n");
-    line(initBash,"export PATH=${PROVISIO_BIN}:${PROVISIO_ACTIVE_PROFILE}:${PATH}%n%n");
+    line(initBash, "export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
+    line(initBash, "export PROVISIO_BIN=${PROVISIO_ROOT}%n");
+    line(initBash, "export PROVISIO_INSTALLS=${PROVISIO_ROOT}/bin/installs%n");
+    line(initBash, "export PROVISIO_PROFILES=${PROVISIO_ROOT}/bin/profiles%n");
+    line(initBash, "export PROVISIO_ACTIVE_PROFILE=${PROVISIO_ROOT}/bin/profiles/profile%n");
+    line(initBash, "export PATH=${PROVISIO_BIN}:${PROVISIO_ACTIVE_PROFILE}:${PATH}%n%n");
 
     ImmutableToolProfileProvisioningResult.Builder profileProvisioningResult = ImmutableToolProfileProvisioningResult.builder();
     for (ToolProfileEntry entry : profile.tools().values()) {
@@ -215,9 +250,10 @@ public class Provisio {
       for (String version : entry.version().split("[\\s,]+")) {
         ToolProvisioningResult result = provisionTool(tool, version);
 
-        // This needs to be more testable
+        // TODO: should the policy be these scripts be idempotent? yes
+        // This needs to be more testable.
         Path postInstallScript = toolDirectory.resolve(POST_INSTALL);
-        if(exists(postInstallScript)) {
+        if (exists(postInstallScript)) {
           List<String> args = List.of(
               postInstallScript.toAbsolutePath().toString(),
               // ${1}
@@ -236,24 +272,26 @@ public class Provisio {
               // ${7}
               tool.id(),
               // ${8}
-              result.installation() != null ? result.installation().toAbsolutePath().toString(): "location",
+              result.installation() != null ? result.installation().toAbsolutePath().toString() : "location",
               // ${9} : this is the straight version not mapped from descriptor
               mapOs(OS, tool),
               // ${10} : this is the straight version not mapped from descriptor
               mapArch(ARCH, tool),
               // ${11}
-              installsDirectory.toAbsolutePath().toString()
+              installsDirectory.toAbsolutePath().toString(),
+              // ${12}: relative installation directroy from binary profile directory
+              result.installation() != null ? binaryProfileDirectory.relativize(result.installation()).toString() : "relative"
           );
           PostInstall postInstall = new PostInstall(toolDirectory, args);
           postInstall.execute();
         }
 
         // These are installations where the path needs to be added to the environment
-        if(tool.layout().equals("directory") && entry.pathManagedBy() == null) {
+        if (tool.layout().equals("directory") && entry.pathManagedBy() == null) {
           // Shell template additions
           Path shellTemplate = toolDirectory.resolve(SHELL_TEMPLATE);
           line(initBash, "# -------------- " + tool.id() + "  --------------%n");
-          if(exists(shellTemplate)) {
+          if (exists(shellTemplate)) {
             String shellTemplateContents = interpolateToolPath(Files.readString(shellTemplate), tool, version);
             line(initBash, shellTemplateContents + "%n");
           } else {
@@ -267,15 +305,9 @@ public class Provisio {
       }
     }
 
-    /*
-./jenv/bash-template.txt
-./fzf/bash-template.txt
-./krew/bash-template.txt
-     */
-
     Path link = profilesDirectory.resolve("profile");
     Path target = profilesDirectory.resolve(userProfile).toAbsolutePath();
-    if(!exists(link)) {
+    if (!exists(link)) {
       createSymbolicLink(link, target);
     }
     touch(profilesDirectory.resolve("current"), userProfile);
@@ -317,11 +349,5 @@ public class Provisio {
           .map(unchecked(toolDescriptorFrom))
           .collect(Collectors.toMap(ToolDescriptor::id, Function.identity(), (i, j) -> j, TreeMap::new));
     }
-  }
-
-  public static void main(String[] args) throws Exception {
-    UnArchiverBuilder unArchiverBuilder = UnArchiver.builder().useRoot(false).flatten(false);
-    UnArchiver unArchiver = unArchiverBuilder.build();
-    unArchiver.unarchive(new File("/Users/jvanzyl/.provisio/.bin/.cache/jenv/master/jenv-jenv-0.5.4-12-g7053916.tar.gz"), new File("/tmp/jenv"));
   }
 }

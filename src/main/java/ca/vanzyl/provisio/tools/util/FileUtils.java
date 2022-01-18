@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class FileUtils {
@@ -40,5 +42,11 @@ public class FileUtils {
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage(), e);
     }
+  }
+
+  public static void makeExecutable(Path path ) throws IOException {
+    final Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(path);
+    permissions.add(PosixFilePermission.OWNER_EXECUTE);
+    Files.setPosixFilePermissions(path, permissions);
   }
 }

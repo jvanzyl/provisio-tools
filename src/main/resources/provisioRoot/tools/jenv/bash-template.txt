@@ -1,0 +1,4 @@
+# JENV_ROOT needs to be exported for jenv init to pick it up
+export JENV_ROOT=${PROVISIO_INSTALLS}/jenv/{version}
+export PATH="${JENV_ROOT}/bin:$PATH"
+eval "$(jenv init -)"

@@ -55,9 +55,11 @@ profileBinDirectory=${3}
 
 */
 
-import static ca.vanzyl.provisio.tools.Provisio.POST_INSTALL;
+import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +74,11 @@ public class PostInstall {
   }
 
   public void execute() throws Exception {
+    // For any reason if the post-install.sh script is not executable then correct that before attempting to execute.
+    Path postInstall = Paths.get(args.get(0));
+    if(!Files.isExecutable((postInstall))) {
+      makeExecutable(postInstall);
+    }
     CliCommand command = new CliCommand(args, toolDirectory, Map.of(), false);
     CliCommand.Result result = command.execute();
   }

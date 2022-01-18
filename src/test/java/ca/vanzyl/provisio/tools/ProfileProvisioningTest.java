@@ -9,6 +9,11 @@ import org.junit.Test;
 public class ProfileProvisioningTest extends ProvisioTestSupport {
 
   @Test
+  public void initializingProvisioRoot() throws Exception {
+    provisio.initialize();
+  }
+
+  @Test
   @Ignore
   public void validateProfileProvisioning() throws Exception {
     // We need to be able to do this repeatedly

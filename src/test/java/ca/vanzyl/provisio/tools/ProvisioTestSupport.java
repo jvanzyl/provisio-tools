@@ -23,13 +23,10 @@ public class ProvisioTestSupport {
 
   @Before
   public void setUp() throws Exception {
-    boolean useLocalCache = true;
+    boolean useLocalCache = false;
     resetDirectory(installsDirectory);
     if(useLocalCache) {
-      Path userCache = realProvisioRoot.resolve(".bin").resolve(".cache");
-      copyFolder(realProvisioRoot.resolve("libexec"), provisioRoot.resolve("libexec"));
-      copyFolder(realProvisioRoot.resolve("tools"), provisioRoot.resolve("tools"));
-
+      Path userCache = realProvisioRoot.resolve("bin").resolve("cache");
       provisio = new Provisio(
           provisioRoot,
           userCache,
@@ -39,7 +36,8 @@ public class ProvisioTestSupport {
           realProvisioRoot.resolve("profiles"),
           "jvanzyl");
     } else {
-      provisio = new Provisio(provisioRoot, "jvanzyl");
+      provisio = new Provisio("jvanzyl");
+      //provisio = new Provisio(provisioRoot, "jvanzyl");
     }
   }
 
@@ -59,5 +57,4 @@ public class ProvisioTestSupport {
     Files.writeString(path, name);
     return path;
   }
-
 }
