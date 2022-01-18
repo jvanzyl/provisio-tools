@@ -1,6 +1,7 @@
 package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
+import static ca.vanzyl.provisio.tools.util.FileUtils.*;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
@@ -11,6 +12,7 @@ import static java.nio.file.Files.createFile;
 import static java.nio.file.Files.createSymbolicLink;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.exists;
+import static java.nio.file.Files.move;
 import static java.util.Objects.requireNonNull;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
@@ -23,6 +25,7 @@ import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
+import ca.vanzyl.provisio.tools.util.FileUtils;
 import ca.vanzyl.provisio.tools.util.http.DownloadManager;
 import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
@@ -52,6 +55,7 @@ public class Provisio {
   public static final String POST_INSTALL = "post-install.sh";
   public static final String TOOL_DESCRIPTOR = "descriptor.yml";
   public static final String SHELL_TEMPLATE = "bash-template.txt";
+  public final static String IN_PROGRESS_EXTENSION = ".in-progress";
 
   public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
   public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
@@ -183,12 +187,22 @@ public class Provisio {
     if (!exists(toolInstallation)) {
       Path artifact = downloadManager.resolve(toolDescriptor, version);
       Packaging packaging = toolDescriptor.packaging();
-      if (packaging.equals(Packaging.TARGZ) || packaging.equals(Packaging.TARGZ_STRIP) || packaging.equals(Packaging.ZIP) || packaging.equals(Packaging.ZIP_JUNK)) {
+      if (packaging.equals(Packaging.TARGZ) ||
+          packaging.equals(Packaging.TARGZ_STRIP) ||
+          packaging.equals(Packaging.ZIP) ||
+          packaging.equals(Packaging.ZIP_JUNK)) {
         boolean useRoot = !packaging.equals(Packaging.TARGZ_STRIP);
         boolean flatten = packaging.equals(Packaging.ZIP_JUNK);
+        //
+        // When we unarchive artifacts we do so in an in progress directory so that if the unarchiving is interrupted
+        // we can remove the partially unarchived artifact and start over.
+        //
+        Path inProgress = toolInstallation.resolveSibling(toolInstallation.getFileName() + IN_PROGRESS_EXTENSION);
+        deleteDirectoryIfExists(inProgress);
         UnArchiverBuilder unArchiverBuilder = UnArchiver.builder().useRoot(useRoot).flatten(flatten);
         UnArchiver unArchiver = unArchiverBuilder.build();
-        unArchiver.unarchive(artifact.toFile(), toolInstallation.toFile());
+        unArchiver.unarchive(artifact.toFile(), inProgress.toFile());
+        move(inProgress, toolInstallation, StandardCopyOption.ATOMIC_MOVE);
       } else {
         createDirectories(toolInstallation);
         copy(artifact, executable, StandardCopyOption.REPLACE_EXISTING);
@@ -211,9 +225,11 @@ public class Provisio {
       }
       createDirectories(link.getParent());
       if (!exists(link)) {
+        //
         //   target = ${provisioRoot}/bin/installs/argocd/2.1.7/argocd
         //     link = ${provisioRoot}/bin/profiles/jvanzyl/argocd
         // relative = ../../installs/argocd/2.1.7/argocd
+        //
         createSymbolicLink(link, link.getParent().relativize(target));
       }
     }

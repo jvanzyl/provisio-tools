@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class FileUtils {
 
-  public static void deleteDirectory(Path target) throws IOException {
+  public static void deleteDirectoryIfExists(Path target) throws IOException {
     if(exists(target)) {
       walk(target)
           .sorted(Comparator.reverseOrder())
@@ -24,7 +24,7 @@ public class FileUtils {
   }
 
   public static void resetDirectory(Path target) throws IOException {
-    deleteDirectory(target);
+    deleteDirectoryIfExists(target);
     createDirectories(target);
   }
 

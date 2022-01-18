@@ -1,8 +1,10 @@
 package ca.vanzyl.provisio.tools.util.http;
 
+import static ca.vanzyl.provisio.tools.Provisio.IN_PROGRESS_EXTENSION;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.cachePathFor;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.toolDownloadUrlFor;
 import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.move;
 
@@ -27,8 +29,6 @@ import java.util.List;
 
 public class DownloadManager {
 
-  private final static String PROGRESS_EXTENSION = ".progress";
-
   private final Path cacheDirectory;
 
   public DownloadManager(Path cacheDirectory) {
@@ -43,6 +43,7 @@ public class DownloadManager {
     //
     String url = toolDownloadUrlFor(tool, version);
     Path target;
+    //
     // When downloading from endpoints that are APIs are other non-file endpoints, we may need to look at the
     // Content-Disposition header to determine what the intended file name is. Whereas sources like GitHub releases
     // make the file names available as it is part of the url.
@@ -57,12 +58,14 @@ public class DownloadManager {
       return target;
     }
     createDirectories(target.getParent());
-
+    //
     // When we download artifacts into their cache locations we do so with a file name that indicates that
     // the download is in progress. If the process is interrupted we can either remove the progress file and
     // start over or attempt to use a range head to resume the download.
     //
-    Path progress = target.resolveSibling(target.getFileName() + PROGRESS_EXTENSION);
+    Path inProgress = target.resolveSibling(target.getFileName() + IN_PROGRESS_EXTENSION);
+    // Right now we will delete in progress files, we can improve later and resume
+    deleteIfExists(inProgress);
     HttpRequest request = HttpRequest.newBuilder()
         .uri(new URI(correctMalformedUrl(url, tool)))
         // client will fallback to http/1.1 if http/2 is not supported
@@ -72,13 +75,13 @@ public class DownloadManager {
     HttpClient client = HttpClient.newBuilder()
         .followRedirects(Redirect.ALWAYS)
         .build();
-    HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(progress));
+    HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(inProgress));
     if (response.statusCode() == 404) {
       throw new RuntimeException(String.format("The URL %s doesn't exist.", url));
     }
 
     // Now we attempt to atomically move our file into place
-    move(progress, target, StandardCopyOption.ATOMIC_MOVE);
+    move(inProgress, target, StandardCopyOption.ATOMIC_MOVE);
 
     return target;
   }
