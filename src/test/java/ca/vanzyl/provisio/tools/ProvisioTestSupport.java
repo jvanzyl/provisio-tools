@@ -24,7 +24,7 @@ public class ProvisioTestSupport {
   @Before
   public void setUp() throws Exception {
     boolean useLocalCache = false;
-    resetDirectory(installsDirectory);
+    //resetDirectory(installsDirectory);
     if(useLocalCache) {
       Path userCache = realProvisioRoot.resolve("bin").resolve("cache");
       provisio = new Provisio(

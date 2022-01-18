@@ -7,7 +7,9 @@ import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
 import static com.pivovarit.function.ThrowingFunction.unchecked;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.createFile;
 import static java.nio.file.Files.createSymbolicLink;
+import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.exists;
 import static java.util.Objects.requireNonNull;
 
@@ -26,9 +28,12 @@ import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import com.pivovarit.function.ThrowingFunction;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,14 +41,11 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import kr.motd.maven.os.Detector;
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
 
 public class Provisio {
 
@@ -121,17 +123,19 @@ public class Provisio {
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   public void initialize() throws Exception {
+    // This reflection code doesn't work in Graal
     System.out.println("Initializing provisio");
     String prefix = "provisioRoot";
     int index = prefix.length();
-    Reflections reflections = new Reflections(prefix, Scanners.Resources);
-    Set<String> resources = reflections.getResources(".*");
-    for (String resource : resources) {
-      Path path = provisioRoot.resolve(resource.substring(index + 1));
-      createDirectories(path.getParent());
-      try (InputStream is = Provisio.class.getClassLoader().getResource(resource).openStream();
-          OutputStream os = Files.newOutputStream(path)) {
-        is.transferTo(os);
+    try(InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
+      List<String> resources = new BufferedReader(new InputStreamReader(resourceDescriptorInput, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+      for (String resource : resources) {
+        Path path = provisioRoot.resolve(resource);
+        createDirectories(path.getParent());
+        try (InputStream is = Provisio.class.getClassLoader().getResource("provisioRoot/" + resource).openStream();
+            OutputStream os = Files.newOutputStream(path)) {
+          is.transferTo(os);
+        }
       }
     }
   }
@@ -229,8 +233,6 @@ public class Provisio {
   }
 
   public ToolProfileProvisioningResult provisionProfile(ToolProfile profile) throws Exception {
-    initialize();
-
     String provisioRootRelativeToUserHome = userHome.relativize(provisioRoot).toString();
 
     Path initBash = binaryProfileDirectory.resolve(".init.bash");
@@ -325,7 +327,9 @@ public class Provisio {
 
   private void touch(Path path) throws IOException {
     createDirectories(path.getParent());
-    Files.createFile(path);
+    // Without this line it fails in Graal, some some default modes must be different
+    deleteIfExists(path);
+    createFile(path);
   }
 
   private void touch(Path path, String content) throws IOException {

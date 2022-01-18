@@ -14,6 +14,7 @@ profileBinaryDirectory=${11}
 
 source ${provisioFunctions}
 create_variables $profile
+export KREW_ROOT=${installLocation}
 
 # It seems like it's not possible to put the krew binary in the ${KREW_ROOT}/bin or yout
 # get a "krew home outdated" error. So to work around this we put the krew binary in the normal
@@ -21,15 +22,17 @@ create_variables $profile
 # this at least keeps krew from contaminating ${HOME}.
 # TODO: report a bug with a test
 
-export KREW_ROOT=${installLocation}
-#export KREW_ROOT=${profileBinaryDirectory}/krew
-mkdir -p ${KREW_ROOT}/bin 2>&1
+mkdir -p ${installLocation}/bin 2>&1
 
 # Krew is packaged oddly, but we want to make a self-contained installation
 # where everything released to krew is in one directory.
-mv ${KREW_ROOT}/krew-${os}_${arch} ${KREW_ROOT}/krew
+# TODO: The installation shouldn't be mutated, make a symlink to the original
+if [ ! -f "${installLocation}/krew" ]; then
+  mv ${installLocation}/krew-${os}_${arch} ${installLocation}/krew
+fi
 
-for plugin in ${tools_krew_plugins[*]}
-do
-  ${KREW_ROOT}/krew install ${plugin}
+for plugin in ${tools_krew_plugins[*]}; do
+  if [ ! -L "${installLocation}/bin/kubectl-${plugin}" ]; then
+    ${installLocation}/krew install ${plugin}
+  fi
 done

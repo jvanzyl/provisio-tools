@@ -9,6 +9,7 @@ profileBinaryDirectory=${11}
 source ${provisioFunctions}
 create_variables ${profileYaml}
 mkdir -p ${installLocation}/{plugins,versions} 2>&1
+export JENV_ROOT=${installLocation}
 
 for plugin in ${tools_jenv_plugins[*]}; do
   # Make symlinks to the available plugins directory relative so that PROVISIO_ROOT is relocatable
@@ -25,6 +26,7 @@ elif [ "${os}" = "Linux" ]; then
   jdkHome=""
 fi
 
+# TODO: check if the JVMs have been added already
 for jdk in $(ls ${profileBinaryDirectory}/java); do
   ${installLocation}/bin/jenv add "${profileBinaryDirectory}/java/${jdk}/${jdkHome}"
 done
