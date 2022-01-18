@@ -3,6 +3,7 @@ id: dimg
 name: Dimg
 defaultVersion: master
 layout: directory
+paths: .
 executable: dimg
 packaging: TARGZ_STRIP
 urlTemplate: https://api.github.com/repos/jvanzyl/dimg/tarball/{version}

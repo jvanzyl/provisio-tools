@@ -40,6 +40,7 @@ public abstract class ToolDescriptor {
 
   public abstract String layout();
 
+  // For an installation which directories to add to the path
   @Value.Default
   public String paths() {
     return "bin";
