@@ -15,3 +15,4 @@
   - jenv has an installation, but modifications are made to that installation adding new JVMs and plugins
   - krew has an installation, but modifications are made to that installation adding new plugins
 - care is taken to make sure all downlads are intact
+- docker images are built such that each tool is in its own layer so deltas are efficient, like JIB
