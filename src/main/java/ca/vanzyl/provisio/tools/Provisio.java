@@ -23,7 +23,7 @@ import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
-import ca.vanzyl.provisio.tools.util.DownloadManager;
+import ca.vanzyl.provisio.tools.util.http.DownloadManager;
 import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
