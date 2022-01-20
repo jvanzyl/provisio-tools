@@ -6,6 +6,7 @@ import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
 import static com.pivovarit.function.ThrowingFunction.unchecked;
+import static java.lang.String.format;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.createFile;
@@ -240,20 +241,39 @@ public class Provisio {
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  // Profile provisioning
+  // Install profile
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Provision profile
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   public ToolProfileProvisioningResult provisionProfile() throws Exception {
-    return provisionProfile(profileMapper.read(userProfilesDirectory.resolve(userProfile).resolve("profile.yaml"), ToolProfile.class));
+    Path workingDirectoryProfile = Paths.get(System.getProperty("user.dir")).resolve(".provisio").resolve("profiles").resolve(userProfile).resolve("profile.yaml");
+    if(exists(workingDirectoryProfile)) {
+      return provisionProfile(workingDirectoryProfile);
+    }
+
+    Path provisioRootProfile = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
+    if(exists(provisioRootProfile)) {
+      return provisionProfile(provisioRootProfile);
+    }
+
+    // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles doesn't contain the requested profile
+
+    String errorMessage = format("The profile %s doesn't exists in: %n%n %s %n%n or %n%n %s %n%n Do you have the right profile name?",
+        userProfile, workingDirectoryProfile, provisioRootProfile);
+
+    return ImmutableToolProfileProvisioningResult.builder()
+        .provisioningSuccessful(false)
+        .errorMessage(errorMessage)
+        .build();
   }
 
-  public ToolProfileProvisioningResult provisionProfile(Path profile) throws Exception {
-    return provisionProfile(profileMapper.read(profile, ToolProfile.class));
-  }
-
-  public ToolProfileProvisioningResult provisionProfile(ToolProfile profile) throws Exception {
+  public ToolProfileProvisioningResult provisionProfile(Path profileYaml) throws Exception {
+    ToolProfile profile = profileMapper.read(profileYaml, ToolProfile.class);
     String provisioRootRelativeToUserHome = userHome.relativize(provisioRoot).toString();
-
     Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
     touch(initBash);
     line(initBash, "export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
@@ -280,7 +300,7 @@ public class Provisio {
               // ${1}
               provisioRoot.resolve("libexec").resolve("provisio-functions.bash").toAbsolutePath().toString(),
               // ${2}
-              userProfileYaml.toAbsolutePath().toString(),
+              profileYaml.toAbsolutePath().toString(),
               // ${3}
               binaryProfileDirectory.toString(),
               //result.executable() != null ?result.executable().toAbsolutePath().toString() : "executable",
@@ -347,7 +367,7 @@ public class Provisio {
   }
 
   private void line(Path path, String line, Object... options) throws IOException {
-    Files.writeString(path, String.format(line, options), StandardOpenOption.APPEND);
+    Files.writeString(path, format(line, options), StandardOpenOption.APPEND);
   }
 
   private void touch(Path path) throws IOException {

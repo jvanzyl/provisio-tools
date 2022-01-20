@@ -1,6 +1,7 @@
 package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
+import static org.assertj.core.api.Fail.fail;
 
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import org.junit.Ignore;
@@ -20,6 +21,9 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
     deleteDirectoryIfExists(provisio.userProfileDirectory());
     ToolProfileProvisioningResult result = provisio.provisionProfile();
 
+    if(!result.provisioningSuccessful()) {
+      fail(result.errorMessage());
+    }
     // A lot to check to make sure the installation is good
 
     // Profiles with all tools as an integration test

@@ -1,6 +1,7 @@
 package ca.vanzyl.provisio.tools.command;
 
 import ca.vanzyl.provisio.tools.Provisio;
+import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -14,7 +15,7 @@ public class InstallCommand implements Runnable {
   public void run() {
     try {
       Provisio provisio = new Provisio(profile);
-      provisio.provisionProfile();
+      ToolProfileProvisioningResult result = provisio.provisionProfile();
     } catch(Exception e) {
       throw new RuntimeException(e);
     }

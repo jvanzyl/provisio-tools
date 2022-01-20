@@ -23,7 +23,7 @@ public class ProvisioTestSupport {
 
   @Before
   public void setUp() throws Exception {
-    String userProfile = "mandiant";
+    String userProfile = "jvanzyl";
     boolean useLocalCache = false;
     //resetDirectory(installsDirectory);
     if(useLocalCache) {
