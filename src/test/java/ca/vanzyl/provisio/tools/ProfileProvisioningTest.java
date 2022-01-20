@@ -21,5 +21,12 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
     ToolProfileProvisioningResult result = provisio.provisionProfile();
 
     // A lot to check to make sure the installation is good
+
+    // Profiles with all tools as an integration test
+    // Wrong permission on the disk and warning/correcting
+    // No space left on disk and warning/correcting
+    // Switching profiles that files are changed correctly
+    // Adding profile.shell
+    // Upgrading from old provisio
   }
 }

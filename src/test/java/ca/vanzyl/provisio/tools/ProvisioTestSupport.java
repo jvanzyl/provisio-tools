@@ -23,6 +23,7 @@ public class ProvisioTestSupport {
 
   @Before
   public void setUp() throws Exception {
+    String userProfile = "mandiant";
     boolean useLocalCache = false;
     //resetDirectory(installsDirectory);
     if(useLocalCache) {
@@ -34,9 +35,9 @@ public class ProvisioTestSupport {
           profilesDirectory,
           realProvisioRoot.resolve("tools"),
           realProvisioRoot.resolve("profiles"),
-          "jvanzyl");
+          userProfile);
     } else {
-      provisio = new Provisio("jvanzyl");
+      provisio = new Provisio(userProfile);
       //provisio = new Provisio(provisioRoot, "jvanzyl");
     }
   }

@@ -2,6 +2,8 @@ package ca.vanzyl.provisio.tools.model;
 
 import static ca.vanzyl.provisio.tools.Provisio.OS;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -36,17 +38,19 @@ public abstract class ToolDescriptor {
 
   public abstract String name();
 
-  public abstract Packaging packaging();
+  public abstract String defaultVersion();
 
   public abstract String layout();
+
+  public abstract String executable();
+
+  public abstract Packaging packaging();
 
   // For an installation which directories to add to the path
   @Value.Default
   public String paths() {
     return "bin";
   }
-
-  public abstract String executable();
 
   @Value.Default
   public boolean fileNameFromContentDisposition() {
@@ -57,6 +61,7 @@ public abstract class ToolDescriptor {
   public abstract String version();
 
   @Value.Derived
+  @JsonIgnore
   public String downloadUrlTemplate() {
     String urlTemplate = urlTemplate();
     if(urlTemplate == null) {
@@ -72,6 +77,12 @@ public abstract class ToolDescriptor {
   }
 
   @Nullable
+  public abstract Map<String,String> osMappings();
+
+  @Nullable
+  public abstract Map<String,String> archMappings();
+
+  @Nullable
   public abstract String urlTemplate();
 
   @Nullable
@@ -85,14 +96,6 @@ public abstract class ToolDescriptor {
 
   @Nullable
   public abstract String tarSingleFileToExtract();
-
-  @Nullable
-  public abstract Map<String,String> osMappings();
-
-  @Nullable
-  public abstract Map<String,String> archMappings();
-
-  public abstract String defaultVersion();
 
   public enum Packaging {
     FILE,

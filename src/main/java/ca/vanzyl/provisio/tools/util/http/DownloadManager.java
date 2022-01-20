@@ -68,7 +68,6 @@ public class DownloadManager {
     deleteIfExists(inProgress);
     HttpRequest request = HttpRequest.newBuilder()
         .uri(new URI(correctMalformedUrl(url, tool)))
-        // client will fallback to http/1.1 if http/2 is not supported
         .version(HttpClient.Version.HTTP_2)
         .GET()
         .build();

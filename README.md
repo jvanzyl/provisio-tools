@@ -16,3 +16,6 @@
   - krew has an installation, but modifications are made to that installation adding new plugins
 - care is taken to make sure all downlads are intact
 - docker images are built such that each tool is in its own layer so deltas are efficient, like JIB
+- when provisio is activated all resources modified that are used by your applications are restore: jdk.table.xml for IDEA for example
+- utility for automating the generation of new tool descriptors 
+- command to update versions of tools

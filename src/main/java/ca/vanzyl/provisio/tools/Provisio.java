@@ -52,6 +52,7 @@ import kr.motd.maven.os.Detector;
 
 public class Provisio {
 
+  public static final String PROVISiO_SHELL_INIT = ".init.bash";
   public static final String POST_INSTALL = "post-install.sh";
   public static final String TOOL_DESCRIPTOR = "descriptor.yml";
   public static final String SHELL_TEMPLATE = "bash-template.txt";
@@ -78,6 +79,7 @@ public class Provisio {
 
   // Current profile.yaml file that lists all the tools
   private final Path userProfileYaml;
+  private final Path userProfileShell;
 
   public Provisio(String userProfile) throws Exception {
     this(Paths.get(System.getProperty("user.home"), ".provisio"), userProfile);
@@ -115,6 +117,7 @@ public class Provisio {
     this.binaryProfileDirectory = profilesDirectory.resolve(userProfile);
     // config
     this.userProfileYaml = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
+    this.userProfileShell = userProfilesDirectory.resolve(userProfile).resolve("profile.shell");
     this.userProfilesDirectory = userProfilesDirectory;
     this.userHome = Paths.get(System.getProperty("user.home"));
 
@@ -251,7 +254,7 @@ public class Provisio {
   public ToolProfileProvisioningResult provisionProfile(ToolProfile profile) throws Exception {
     String provisioRootRelativeToUserHome = userHome.relativize(provisioRoot).toString();
 
-    Path initBash = binaryProfileDirectory.resolve(".init.bash");
+    Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
     touch(initBash);
     line(initBash, "export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
     line(initBash, "export PROVISIO_BIN=${PROVISIO_ROOT}%n");
@@ -323,11 +326,17 @@ public class Provisio {
       }
     }
 
-    Path link = profilesDirectory.resolve("profile");
-    Path target = profilesDirectory.resolve(userProfile).toAbsolutePath();
-    if (!exists(link)) {
-      createSymbolicLink(link, target);
+    // If the profile.shell exists then make the addition to the .init.bash
+    if(exists(userProfileShell)) {
+      String userProfileShellContents = Files.readString(userProfileShell);
+      line(initBash, userProfileShellContents);
     }
+
+    // Update the symlink to the currently active profile
+    Path target = profilesDirectory.resolve(userProfile).toAbsolutePath();
+    Path link = profilesDirectory.resolve("profile");
+    deleteIfExists(link);
+    createSymbolicLink(link, profilesDirectory.relativize(target));
     touch(profilesDirectory.resolve("current"), userProfile);
 
     // Shell init file update
