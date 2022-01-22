@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-image="harbor-ci.cpie.io/mcp/worker:latest"
-kubectl run my-shell --rm -i --tty --image ${image} -- bash

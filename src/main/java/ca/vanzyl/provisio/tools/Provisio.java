@@ -1,7 +1,8 @@
 package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
-import static ca.vanzyl.provisio.tools.util.FileUtils.*;
+import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
+import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
@@ -26,11 +27,11 @@ import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
-import ca.vanzyl.provisio.tools.util.FileUtils;
-import ca.vanzyl.provisio.tools.util.http.DownloadManager;
+import ca.vanzyl.provisio.tools.util.CliCommand;
 import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
+import ca.vanzyl.provisio.tools.util.http.DownloadManager;
 import com.pivovarit.function.ThrowingFunction;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -133,8 +134,6 @@ public class Provisio {
   public void initialize() throws Exception {
     // This reflection code doesn't work in Graal
     System.out.println("Initializing provisio");
-    String prefix = "provisioRoot";
-    int index = prefix.length();
     try(InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
       List<String> resources = new BufferedReader(new InputStreamReader(resourceDescriptorInput, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
       for (String resource : resources) {
@@ -166,13 +165,13 @@ public class Provisio {
     return toolDescriptorMap.get(tool);
   }
 
-  public ToolProvisioningResult provisionTool(String tool) throws Exception {
-    return provisionTool(tool, null);
-  }
-
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   // Tool provisioning
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  public ToolProvisioningResult provisionTool(String tool) throws Exception {
+    return provisionTool(tool, null);
+  }
 
   public ToolProvisioningResult provisionTool(String tool, String version) throws Exception {
     ToolDescriptor toolDescriptor = toolDescriptorMap.get(tool);
@@ -254,17 +253,14 @@ public class Provisio {
     if(exists(workingDirectoryProfile)) {
       return provisionProfile(workingDirectoryProfile);
     }
-
     Path provisioRootProfile = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
     if(exists(provisioRootProfile)) {
       return provisionProfile(provisioRootProfile);
     }
 
-    // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles doesn't contain the requested profile
-
+    // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles directories don't contain the requested profile
     String errorMessage = format("The profile %s doesn't exists in: %n%n %s %n%n or %n%n %s %n%n Do you have the right profile name?",
         userProfile, workingDirectoryProfile, provisioRootProfile);
-
     return ImmutableToolProfileProvisioningResult.builder()
         .provisioningSuccessful(false)
         .errorMessage(errorMessage)
@@ -272,6 +268,17 @@ public class Provisio {
   }
 
   public ToolProfileProvisioningResult provisionProfile(Path profileYaml) throws Exception {
+    // Install prereqs for the OS by running the OS specific script to bootstrap things. Trying to move core
+    // utils to a binary build for not requiring brew at all.
+    Path prereqs = provisioRoot.resolve("libexec").resolve(OS.toLowerCase() + ".bash");
+    if(exists(prereqs)) {
+      if(!Files.isExecutable((prereqs))) {
+        makeExecutable(prereqs);
+      }
+      CliCommand command = new CliCommand(List.of(prereqs.toAbsolutePath().toString()), prereqs.getParent(), Map.of(), false);
+      CliCommand.Result result = command.execute();
+    }
+
     ToolProfile profile = profileMapper.read(profileYaml, ToolProfile.class);
     String provisioRootRelativeToUserHome = userHome.relativize(provisioRoot).toString();
     Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
@@ -290,7 +297,6 @@ public class Provisio {
       Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
       for (String version : entry.version().split("[\\s,]+")) {
         ToolProvisioningResult result = provisionTool(tool, version);
-
         // TODO: should the policy be these scripts be idempotent? yes
         // This needs to be more testable.
         Path postInstallScript = toolDirectory.resolve(POST_INSTALL);

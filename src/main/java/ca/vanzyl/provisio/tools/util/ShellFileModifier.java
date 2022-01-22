@@ -13,7 +13,6 @@ import static java.nio.file.Files.copy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -34,12 +33,16 @@ public class ShellFileModifier {
 
   // TODO: make sure this conforms to most shells read shell-init-files.md
 
-  private final static String[] shellInitializationScripts = new String[]{
+  private final static String[] bashInitScripts = new String[]{
       ".bash_profile",
-      ".bash_login",
+      ".bash_login"
+  };
+
+  private final static String[] zshInitScripts = new String[]{
       ".zprofile",
       ".zshrc"
   };
+
 
   private final Path userHomeDirectory;
   private final Path provisioRoot;
@@ -50,20 +53,34 @@ public class ShellFileModifier {
   }
 
   public Path findShellInitializationFile() {
-    return Arrays.stream(shellInitializationScripts)
-        .map(userHomeDirectory::resolve)
-        .filter(Files::exists)
-        .findFirst()
-        .orElse(null);
+    String shell = System.getenv("SHELL");
+    if(shell.endsWith("bash")) {
+      System.out.println("Detected the use of BASH");
+      return Arrays.stream(bashInitScripts)
+          .map(userHomeDirectory::resolve)
+          .filter(Files::exists)
+          .findFirst()
+          .orElse(null);
+    } else if(shell.endsWith("zsh")) {
+      System.out.println("Detected the use of ZSH");
+      return Arrays.stream(zshInitScripts)
+          .map(userHomeDirectory::resolve)
+          .filter(Files::exists)
+          .findFirst()
+          .orElse(null);
+    }
+    throw new RuntimeException("Cannot find supported shell initialization script. Only bash and zsh are supported.");
   }
 
   public void updateShellInitializationFile() throws IOException {
+    System.out.println();
     Path shellFile = findShellInitializationFile();
     writeShellFileBackup(shellFile);
     String shellFileContents = Files.readString(shellFile);
     String s = removeProvisioStanza(shellFileContents);
     String y = insertProvisioStanza(s);
     writeShellFile(shellFile, y);
+    System.out.println("Updated: " + shellFile);
   }
 
   public String insertProvisioStanza(String content) {

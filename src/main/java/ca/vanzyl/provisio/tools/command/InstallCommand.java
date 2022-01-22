@@ -16,6 +16,10 @@ public class InstallCommand implements Runnable {
     try {
       Provisio provisio = new Provisio(profile);
       ToolProfileProvisioningResult result = provisio.provisionProfile();
+      if(!result.provisioningSuccessful()) {
+        System.out.println(result.errorMessage());
+        System.exit(1);
+      }
     } catch(Exception e) {
       throw new RuntimeException(e);
     }

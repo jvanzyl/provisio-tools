@@ -32,5 +32,6 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
     // Switching profiles that files are changed correctly
     // Adding profile.shell
     // Upgrading from old provisio
+    // test the profile.shell additions
   }
 }

@@ -1,0 +1,9 @@
+---
+id: gnupg
+name: GnuPG
+defaultVersion: 2.3.4
+layout: directory
+paths: bin
+executable: gpg
+packaging: TARGZ
+urlTemplate: https://github.com/jvanzyl/repackage-gnupg/releases/download/{version}/gnupg-{os}-{arch}-{version}.tar.gz

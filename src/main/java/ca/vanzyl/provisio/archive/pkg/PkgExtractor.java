@@ -60,11 +60,12 @@ public class PkgExtractor {
     File pkg = new File("/Users/jvanzyl/.provisio/.bin/.cache/aws-cli/2.2.14/AWSCLIV2-2.2.14.pkg");
     new PkgExtractor().extract(pkg, Paths.get("/tmp/provisio/0"));
 
+    /*
     pkg = new File("/Users/jvanzyl/downloads/UniFi.pkg");
     new PkgExtractor().extract(pkg, Paths.get("/tmp/provisio/1"));
 
     pkg = new File("/Users/jvanzyl/downloads/OpenJDK17U-jdk_x64_mac_hotspot_17.0.1_12.pkg");
     new PkgExtractor().extract(pkg, Paths.get("/tmp/provisio/2"));
-
+     */
   }
 }
