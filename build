@@ -1,1 +1,2 @@
 jenv exec ./mvnw clean package -DskipTests -Pnative
+mv target/provisio-tools-1.0.0-SNAPSHOT-runner ../provisio-binaries/provisio-Darwin-x86_64

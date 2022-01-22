@@ -1,4 +1,5 @@
 ---
+# https://github.com/Homebrew/homebrew-core/blob/master/Formula/gnupg.rb
 id: gnupg
 name: GnuPG
 defaultVersion: 2.3.4

@@ -1,0 +1,17 @@
+---
+id: pulumi
+name: pulumi
+defaultVersion: 3.22.1
+layout: file
+executable: pulumi
+packaging: TARGZ
+paths: bin
+fileNameFromContentDisposition: false
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: x64
+  arm64: arm
+urlTemplate: https://github.com/pulumi/pulumi/releases/download/v{version}/pulumi-v{version}-{os}-{arch}.tar.gz
+

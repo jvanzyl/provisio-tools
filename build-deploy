@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+./build
+./build-linux
+(
+cd ../provisio-binaries
+gacp
+version="$(cat VERSION | tr -d '\n')"
+version=$((version+1))
+git tag 0.0.${version}
+git push --tags
+)

@@ -192,9 +192,9 @@ public class ToolDescriptorGenerator {
         ))
         .version("1.23.0")
         .build();
-    generator.analyze(info);
+    //generator.analyze(info);
 
     // Pulumi
-    //generator.generate("https://github.com/pulumi/pulumi/releases");
+    generator.generate("https://github.com/pulumi/pulumi/releases");
   }
 }

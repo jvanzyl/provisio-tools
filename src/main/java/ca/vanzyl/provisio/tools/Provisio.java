@@ -124,6 +124,7 @@ public class Provisio {
     this.userHome = Paths.get(System.getProperty("user.home"));
 
     initialize();
+    // TODO We probably don't want to read them all in. What happens when there are 10k of these?
     this.toolDescriptorMap = collectToolDescriptorsMap();
   }
 

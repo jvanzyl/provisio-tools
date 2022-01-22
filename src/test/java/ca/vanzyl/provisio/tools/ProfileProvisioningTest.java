@@ -26,6 +26,7 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
     }
     // A lot to check to make sure the installation is good
 
+    // updating a profile so if versions change or configurations change the update is performed
     // Profiles with all tools as an integration test
     // Wrong permission on the disk and warning/correcting
     // No space left on disk and warning/correcting
