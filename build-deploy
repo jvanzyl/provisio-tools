@@ -4,9 +4,10 @@
 ./build-linux
 (
 cd ../provisio-binaries
-gacp
 version="$(cat VERSION | tr -d '\n')"
 version=$((version+1))
+echo ${version} > VERSION
+gacp
 git tag 0.0.${version}
 git push --tags
 )

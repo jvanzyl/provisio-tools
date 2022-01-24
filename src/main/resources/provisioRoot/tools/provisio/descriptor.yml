@@ -1,0 +1,8 @@
+---
+id: provisio
+name: Provisio
+defaultVersion: 0.0.10
+layout: file
+executable: provisio
+packaging: FILE
+urlTemplate: https://github.com/jvanzyl/provisio-binaries/releases/download/{version}/provisio-{os}-{arch}

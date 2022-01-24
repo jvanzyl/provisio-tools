@@ -1,3 +1,3 @@
 # https://quarkus.io/guides/building-native-image
-jenv exec ./mvnw package -DskipTests -Pnative -Dquarkus.native.container-build=true
+jenv exec ./mvnw package -DskipTests -Pnative -Dgit.commit.id=$(git rev-parse --short HEAD) -Dquarkus.native.container-build=true
 mv target/provisio-tools-1.0.0-SNAPSHOT-runner ../provisio-binaries/provisio-Linux-x86_64

@@ -1,5 +1,6 @@
 ---
 # https://github.com/Homebrew/homebrew-core/blob/master/Formula/gnupg.rb
+# https://carreno.me/articles/how-to-build-gnupg-2-from-source-on-os-x
 id: gnupg
 name: GnuPG
 defaultVersion: 2.3.4

@@ -13,7 +13,8 @@ import picocli.CommandLine.IVersionProvider;
     versionProvider = VersionProviderWithConfigProvider.class,
     subcommands = {
         ProvisionCommand.class,
-        InstallCommand.class
+        InstallCommand.class,
+        SelfUpdateCommand.class
     })
 public class Main {
 

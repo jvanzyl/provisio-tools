@@ -3,6 +3,7 @@ package ca.vanzyl.provisio.tools;
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
+import static ca.vanzyl.provisio.tools.util.FileUtils.updateSymlink;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
@@ -19,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.archive.UnArchiver.UnArchiverBuilder;
+import ca.vanzyl.provisio.tools.generator.github.GitHubLatestReleaseFinder;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
@@ -59,6 +61,8 @@ public class Provisio {
   public static final String TOOL_DESCRIPTOR = "descriptor.yml";
   public static final String SHELL_TEMPLATE = "bash-template.txt";
   public final static String IN_PROGRESS_EXTENSION = ".in-progress";
+  public final static String PROFILE_YAML = "profile.yaml";
+  public final static String PROFILE_SHELL = "profile.shell";
 
   public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
   public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
@@ -75,13 +79,12 @@ public class Provisio {
   // ${HOME}/.provisio/{tools|profiles}
   public final Path toolDescriptorDirectory;
   public final Path userProfilesDirectory;
-  private final String userProfile;
-
   private final Path userHome;
 
+  // This is context specific
   // Current profile.yaml file that lists all the tools
+  private final String userProfile;
   private final Path userProfileYaml;
-  private final Path userProfileShell;
 
   public Provisio(String userProfile) throws Exception {
     this(Paths.get(System.getProperty("user.home"), ".provisio"), userProfile);
@@ -117,11 +120,10 @@ public class Provisio {
     this.userProfile = userProfile; // name of the profile
     this.profilesDirectory = profilesDirectory;
     this.binaryProfileDirectory = profilesDirectory.resolve(userProfile);
-    // config
-    this.userProfileYaml = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
-    this.userProfileShell = userProfilesDirectory.resolve(userProfile).resolve("profile.shell");
-    this.userProfilesDirectory = userProfilesDirectory;
+    // config, really all user profile context
     this.userHome = Paths.get(System.getProperty("user.home"));
+    this.userProfilesDirectory = userProfilesDirectory;
+    this.userProfileYaml = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
 
     initialize();
     // TODO We probably don't want to read them all in. What happens when there are 10k of these?
@@ -149,13 +151,28 @@ public class Provisio {
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  // Tool provisioning
+  // Self update
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO: remove this and build it into testing
-  public Path userProfileDirectory() {
-    return profilesDirectory.resolve(userProfile);
+  public void selfUpdate() throws Exception {
+    // TODO: make these all constants
+    // TODO: don't update if already up to date
+    // Fetch the latest release of provisio and replace the main executable with a symlink
+    GitHubLatestReleaseFinder finder = new GitHubLatestReleaseFinder();
+    String latestProvisioVersion = finder
+        .find("https://github.com/jvanzyl/provisio-binaries/releases")
+        .version();
+    ToolProvisioningResult result = provisionTool("provisio", latestProvisioVersion);
+    // this is null?
+    // Path target = result.executable();
+    Path target = result.installation().resolve("provisio");
+    Path link = provisioRoot.resolve("provisio");
+    updateSymlink(link, target);
   }
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Tool provisioning
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO: remove this and build it into testing
   public Path cacheDirectory() {
@@ -208,9 +225,10 @@ public class Provisio {
         unArchiver.unarchive(artifact.toFile(), inProgress.toFile());
         move(inProgress, toolInstallation, StandardCopyOption.ATOMIC_MOVE);
       } else {
+        // Combine all these in FileUtils
         createDirectories(toolInstallation);
         copy(artifact, executable, StandardCopyOption.REPLACE_EXISTING);
-        executable.toFile().setExecutable(true);
+        makeExecutable(executable);
       }
     }
 
@@ -254,14 +272,13 @@ public class Provisio {
     if(exists(workingDirectoryProfile)) {
       return provisionProfile(workingDirectoryProfile);
     }
-    Path provisioRootProfile = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
-    if(exists(provisioRootProfile)) {
-      return provisionProfile(provisioRootProfile);
+    if(exists(userProfileYaml)) {
+      return provisionProfile(userProfileYaml);
     }
 
     // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles directories don't contain the requested profile
     String errorMessage = format("The profile %s doesn't exists in: %n%n %s %n%n or %n%n %s %n%n Do you have the right profile name?",
-        userProfile, workingDirectoryProfile, provisioRootProfile);
+        userProfile, workingDirectoryProfile, userProfileYaml);
     return ImmutableToolProfileProvisioningResult.builder()
         .provisioningSuccessful(false)
         .errorMessage(errorMessage)
@@ -354,6 +371,7 @@ public class Provisio {
     }
 
     // If the profile.shell exists then make the addition to the .init.bash
+    Path userProfileShell = profileYaml.getParent().resolve(PROFILE_SHELL);
     if(exists(userProfileShell)) {
       String userProfileShellContents = Files.readString(userProfileShell);
       line(initBash, userProfileShellContents);

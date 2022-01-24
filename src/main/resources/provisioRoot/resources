@@ -7,6 +7,7 @@ tools/terraform/config/.terraformrc
 tools/bats/descriptor.yml
 tools/yq/descriptor.yml
 tools/imgpkg/descriptor.yml
+tools/provisio/descriptor.yml
 tools/go/descriptor.yml
 tools/go/README.md
 tools/octant/descriptor.yml

@@ -18,7 +18,7 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
   @Ignore
   public void validateProfileProvisioning() throws Exception {
     // We need to be able to do this repeatedly
-    deleteDirectoryIfExists(provisio.userProfileDirectory());
+    deleteDirectoryIfExists(userProfileDirectory());
     ToolProfileProvisioningResult result = provisio.provisionProfile();
 
     if(!result.provisioningSuccessful()) {
@@ -34,5 +34,10 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
     // Adding profile.shell
     // Upgrading from old provisio
     // test the profile.shell additions
+  }
+
+  @Test
+  public void selfUpdating() throws Exception {
+    provisio.selfUpdate();
   }
 }

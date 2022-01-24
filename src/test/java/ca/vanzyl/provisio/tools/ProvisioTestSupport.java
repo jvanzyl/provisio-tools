@@ -20,10 +20,11 @@ public class ProvisioTestSupport {
   protected Path cacheDirectory = provisioRoot.resolve("bin").resolve("cache");
   protected Path installsDirectory = provisioRoot.resolve("bin").resolve("installs");
   protected Path profilesDirectory = provisioRoot.resolve("bin").resolve("profiles");
+  protected String userProfile;
 
   @Before
   public void setUp() throws Exception {
-    String userProfile = "jvanzyl";
+    userProfile = "jvanzyl";
     boolean useLocalCache = false;
     //resetDirectory(installsDirectory);
     if(useLocalCache) {
@@ -40,6 +41,10 @@ public class ProvisioTestSupport {
       provisio = new Provisio(userProfile);
       //provisio = new Provisio(provisioRoot, "jvanzyl");
     }
+  }
+
+  protected Path userProfileDirectory() {
+    return profilesDirectory.resolve(userProfile);
   }
 
   protected Path test() {

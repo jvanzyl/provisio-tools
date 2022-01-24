@@ -44,9 +44,14 @@ public class FileUtils {
     }
   }
 
-  public static void makeExecutable(Path path ) throws IOException {
+  public static void makeExecutable(Path path) throws IOException {
     final Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(path);
     permissions.add(PosixFilePermission.OWNER_EXECUTE);
     Files.setPosixFilePermissions(path, permissions);
+  }
+
+  public static void updateSymlink(Path link, Path target) throws IOException {
+    deleteIfExists(link);
+    createSymbolicLink(link, link.getParent().relativize(target));
   }
 }
