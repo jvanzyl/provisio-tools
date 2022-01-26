@@ -156,7 +156,7 @@ public class Provisio {
 
   public void initialize() throws Exception {
     // This reflection code doesn't work in Graal
-    System.out.println("Initializing provisio");
+    System.out.println("Initializing provisio[profile=" + userProfile + " from " + userProfilesDirectory + "]");
     try(InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
       List<String> resources = new BufferedReader(new InputStreamReader(resourceDescriptorInput, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
       for (String resource : resources) {
