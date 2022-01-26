@@ -407,6 +407,7 @@ public class Provisio {
     // Shell init file update
     ShellFileModifier modifier = new ShellFileModifier(userHome, provisioRoot);
     modifier.updateShellInitializationFile();
+    System.out.println();
 
     return profileProvisioningResult.build();
   }
