@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class ShellFileModifier {
 
   public final static String BEGIN_PROVISIO_STANZA = "#---- provisio-start ----";
-  public final static String PROVISIO_STANZA_BODY = "source ${HOME}/.provisio/.bin/profile/.init.bash";
+  public final static String PROVISIO_STANZA_BODY = "source ${HOME}/.provisio/bin/profiles/profile/.init.bash";
   public final static String END_PROVISIO_STANZA = "#---- provisio-end ----";
 
   // Search order for shell initialization scripts
@@ -53,15 +53,15 @@ public class ShellFileModifier {
   }
 
   public Path findShellInitializationFile() {
-    String shell = System.getenv("SHELL");
-    if(shell.endsWith("bash")) {
+    String userShell = System.getenv("SHELL");
+    if(userShell.endsWith("bash")) {
       System.out.println("Detected the use of BASH");
       return Arrays.stream(bashInitScripts)
           .map(userHomeDirectory::resolve)
           .filter(Files::exists)
           .findFirst()
           .orElse(null);
-    } else if(shell.endsWith("zsh")) {
+    } else if(userShell.endsWith("zsh")) {
       System.out.println("Detected the use of ZSH");
       return Arrays.stream(zshInitScripts)
           .map(userHomeDirectory::resolve)
@@ -84,13 +84,10 @@ public class ShellFileModifier {
   }
 
   public String insertProvisioStanza(String content) {
-
-    String provisioRootRelativeToHome = userHomeDirectory.relativize(provisioRoot).toString();
-
     return new StringBuilder()
         .append(BEGIN_PROVISIO_STANZA)
         .append(System.lineSeparator())
-        .append(String.format("source ${HOME}/%s/bin/profiles/profile/.init.bash", provisioRootRelativeToHome))
+        .append(PROVISIO_STANZA_BODY)
         .append(System.lineSeparator())
         .append(END_PROVISIO_STANZA)
         .append(System.lineSeparator())
@@ -105,7 +102,7 @@ public class ShellFileModifier {
   }
 
   private void writeShellFileBackup(Path shellFile) throws IOException {
-    Path backup = shellFile.resolveSibling(shellFile.getFileName() + ".provisio_backup");
+     Path backup = shellFile.resolveSibling(shellFile.getFileName() + ".provisio_backup");
     copy(shellFile, backup, StandardCopyOption.REPLACE_EXISTING);
   }
 

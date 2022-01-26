@@ -16,6 +16,7 @@ import static java.nio.file.Files.createSymbolicLink;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.move;
+import static java.nio.file.Files.readString;
 import static java.util.Objects.requireNonNull;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
@@ -86,6 +87,10 @@ public class Provisio {
   private final String userProfile;
   private final Path userProfileYaml;
 
+  public Provisio() throws Exception {
+    this(Paths.get(System.getProperty("user.home"), ".provisio"), null);
+  }
+
   public Provisio(String userProfile) throws Exception {
     this(Paths.get(System.getProperty("user.home"), ".provisio"), userProfile);
   }
@@ -117,17 +122,32 @@ public class Provisio {
     this.cacheDirectory = cacheDirectory;
     this.toolDescriptorDirectory = toolDescriptorDirectory;
     //
-    this.userProfile = userProfile; // name of the profile
     this.profilesDirectory = profilesDirectory;
-    this.binaryProfileDirectory = profilesDirectory.resolve(userProfile);
+    this.userProfile = userProfile != null ? userProfile : findCurrentProfile();
+    this.binaryProfileDirectory = profilesDirectory.resolve(this.userProfile);
     // config, really all user profile context
     this.userHome = Paths.get(System.getProperty("user.home"));
     this.userProfilesDirectory = userProfilesDirectory;
-    this.userProfileYaml = userProfilesDirectory.resolve(userProfile).resolve("profile.yaml");
+    this.userProfileYaml = userProfilesDirectory.resolve(this.userProfile).resolve("profile.yaml");
 
     initialize();
     // TODO We probably don't want to read them all in. What happens when there are 10k of these?
     this.toolDescriptorMap = collectToolDescriptorsMap();
+  }
+
+  private String findCurrentProfile() throws Exception {
+    Path currentProfilePath = profilesDirectory.resolve("current");
+    if(exists(currentProfilePath)) {
+      return readString(profilesDirectory.resolve("current"));
+    }
+    Path currentProfileSymlink = profilesDirectory.resolve("profile");
+    if(exists(currentProfileSymlink)) {
+      return currentProfileSymlink.toString();
+    }
+    throw new RuntimeException(
+        format("The current profile cannot be determined. You should have file called " + currentProfilePath + "%n"
+            + "with the name of the current profile or a symlink called " + currentProfileSymlink + " with a pointer %n"
+            + "to the current profile. Run 'provisio install <profile>' to correct the issue."));
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

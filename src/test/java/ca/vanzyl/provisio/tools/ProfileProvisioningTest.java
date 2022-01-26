@@ -38,6 +38,7 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void selfUpdating() throws Exception {
+    Provisio provisio = new Provisio();
     provisio.selfUpdate();
   }
 }

@@ -2,6 +2,8 @@ package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.util.FileUtils.*;
 import static ca.vanzyl.provisio.tools.util.FileUtils.resetDirectory;
+import static java.nio.file.Files.*;
+import static java.nio.file.Paths.get;
 
 import ca.vanzyl.provisio.tools.util.FileUtils;
 import java.io.IOException;
@@ -15,8 +17,8 @@ import org.junit.Before;
 public class ProvisioTestSupport {
 
   protected Provisio provisio;
-  protected Path realProvisioRoot = Paths.get(System.getProperty("user.home"), ".provisio");
-  protected Path provisioRoot = Paths.get("target", "provisio").toAbsolutePath();
+  protected Path realProvisioRoot = get(System.getProperty("user.home"), ".provisio");
+  protected Path provisioRoot = get("target", ".provisio").toAbsolutePath();
   protected Path cacheDirectory = provisioRoot.resolve("bin").resolve("cache");
   protected Path installsDirectory = provisioRoot.resolve("bin").resolve("installs");
   protected Path profilesDirectory = provisioRoot.resolve("bin").resolve("profiles");
@@ -48,19 +50,33 @@ public class ProvisioTestSupport {
   }
 
   protected Path test() {
-    return Paths.get("src").resolve("test");
+    return get("src").resolve("test");
   }
 
-  protected Path target(String name) throws IOException {
-    Path path = Paths.get("target").resolve(name);
-    Files.createDirectories(path.getParent());
+  protected Path path(String name) throws IOException {
+    Path path = get("target").resolve(name).toAbsolutePath();
+    createDirectories(path.getParent());
+    return path;
+  }
+
+  protected Path path(Path directory, String name) throws IOException {
+    Path path = directory.resolve(name).toAbsolutePath();
+    createDirectories(path.getParent());
+    return path;
+  }
+
+
+  protected Path touch(Path directory, String name) throws IOException {
+    Path path = directory.resolve(name);
+    createDirectories(directory);
+    writeString(path, name);
     return path;
   }
 
   protected Path touch(String name) throws IOException {
-    Path path = Paths.get("target").resolve(name);
-    Files.createDirectories(path.getParent());
-    Files.writeString(path, name);
+    Path path = get("target").resolve(name);
+    createDirectories(path.getParent());
+    writeString(path, name);
     return path;
   }
 }

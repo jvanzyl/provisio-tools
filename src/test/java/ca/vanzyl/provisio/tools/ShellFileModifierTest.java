@@ -3,11 +3,11 @@ package ca.vanzyl.provisio.tools;
 import static ca.vanzyl.provisio.tools.util.ShellFileModifier.BEGIN_PROVISIO_STANZA;
 import static ca.vanzyl.provisio.tools.util.ShellFileModifier.END_PROVISIO_STANZA;
 import static ca.vanzyl.provisio.tools.util.ShellFileModifier.PROVISIO_STANZA_BODY;
+import static java.nio.file.Files.writeString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
 
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.Before;
@@ -16,11 +16,13 @@ import org.junit.Test;
 public class ShellFileModifierTest extends ProvisioTestSupport {
 
   protected ShellFileModifier modifier;
+  protected Path homeDirectory;
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    modifier = new ShellFileModifier(target("shell"), provisioRoot);
+    homeDirectory = path("homeDirectory");
+    modifier = new ShellFileModifier(homeDirectory, homeDirectory.resolve(".provisio"));
   }
 
   @Test
@@ -53,25 +55,25 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
 
   @Test
   public void findingCorrectShellInitializationFile() throws Exception {
-    touch("target/shell/.bash_profile");
-    touch("target/shell/.bash_login");
-    touch("target/shell/.zprofile");
-    touch("target/shell/.zshrc");
+    touch(homeDirectory, ".bash_profile");
+    touch(homeDirectory, ".bash_login");
+    touch(homeDirectory, ".zprofile");
+    touch(homeDirectory, ".zshrc");
     Path shellFile = modifier.findShellInitializationFile();
     assertThat(shellFile).hasFileName(".bash_profile");
   }
 
   @Test
   public void provisioUpdateShellInitializationFile() throws Exception {
-    Path shellFile = target("shell/.bash_profile");
+    Path shellFile = path(homeDirectory, ".bash_profile");
     String shellFileContents = createFileContentsWith(
         "# first",
         "# last"
     );
-    Files.writeString(shellFile, shellFileContents);
-    touch("shell/.bash_login");
-    touch("shell/.zprofile");
-    touch("shell/.zshrc");
+    writeString(shellFile, shellFileContents);
+    touch(homeDirectory, ".bash_login");
+    touch(homeDirectory, ".zprofile");
+    touch(homeDirectory, ".zshrc");
     modifier.updateShellInitializationFile();
     assertThat(linesOf(shellFile.toFile())).containsExactly(
         BEGIN_PROVISIO_STANZA,
