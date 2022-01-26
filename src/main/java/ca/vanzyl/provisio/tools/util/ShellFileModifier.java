@@ -77,9 +77,8 @@ public class ShellFileModifier {
     Path shellFile = findShellInitializationFile();
     writeShellFileBackup(shellFile);
     String shellFileContents = Files.readString(shellFile);
-    String s = removeProvisioStanza(shellFileContents);
-    String y = insertProvisioStanza(s);
-    writeShellFile(shellFile, y);
+    // Remove and then insert just to be safe
+    writeShellFile(shellFile, insertProvisioStanza(removeProvisioStanza(shellFileContents)));
     System.out.println("Updated: " + shellFile);
   }
 
