@@ -19,7 +19,7 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
   public void validateProfileProvisioning() throws Exception {
     // We need to be able to do this repeatedly
     deleteDirectoryIfExists(userProfileDirectory());
-    ToolProfileProvisioningResult result = provisio.provisionProfile();
+    ToolProfileProvisioningResult result = provisio.installProfile();
 
     if(!result.provisioningSuccessful()) {
       fail(result.errorMessage());
@@ -38,7 +38,6 @@ public class ProfileProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void selfUpdating() throws Exception {
-    Provisio provisio = new Provisio();
     provisio.selfUpdate();
   }
 }

@@ -3,7 +3,6 @@ package ca.vanzyl.provisio.tools.command;
 import ca.vanzyl.provisio.tools.Provisio;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "install", mixinStandardHelpOptions = true)
 public class InstallCommand extends CommandWithProfileSupport implements Runnable {
@@ -12,7 +11,7 @@ public class InstallCommand extends CommandWithProfileSupport implements Runnabl
   public void run() {
     try {
       Provisio provisio = new Provisio(profileValue());
-      ToolProfileProvisioningResult result = provisio.provisionProfile();
+      ToolProfileProvisioningResult result = provisio.installProfile();
       if(!result.provisioningSuccessful()) {
         System.out.println(result.errorMessage());
         System.exit(1);

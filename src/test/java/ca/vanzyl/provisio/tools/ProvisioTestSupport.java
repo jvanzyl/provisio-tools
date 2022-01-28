@@ -1,56 +1,46 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.util.FileUtils.*;
-import static ca.vanzyl.provisio.tools.util.FileUtils.resetDirectory;
-import static java.nio.file.Files.*;
+import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.writeString;
 import static java.nio.file.Paths.get;
 
-import ca.vanzyl.provisio.tools.util.FileUtils;
+import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
+import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest.Builder;
+import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.Before;
 
 // TODO: Generate all the various packaging types and startup a local webserver. These are really integration tests for tools that exist in the world.
 
 public class ProvisioTestSupport {
 
+  protected ProvisioningRequest request;
   protected Provisio provisio;
   protected Path realProvisioRoot = get(System.getProperty("user.home"), ".provisio");
   protected Path provisioRoot = get("target", ".provisio").toAbsolutePath();
-  protected Path cacheDirectory = provisioRoot.resolve("bin").resolve("cache");
-  protected Path installsDirectory = provisioRoot.resolve("bin").resolve("installs");
-  protected Path profilesDirectory = provisioRoot.resolve("bin").resolve("profiles");
   protected String userProfile;
 
   @Before
   public void setUp() throws Exception {
     userProfile = "jvanzyl";
     boolean useLocalCache = false;
-    //resetDirectory(installsDirectory);
-    if(useLocalCache) {
-      Path userCache = realProvisioRoot.resolve("bin").resolve("cache");
-      provisio = new Provisio(
-          provisioRoot,
-          userCache,
-          installsDirectory,
-          profilesDirectory,
-          realProvisioRoot.resolve("tools"),
-          realProvisioRoot.resolve("profiles"),
-          userProfile);
+    boolean useRealProvisioRoot = true;
+    Builder builder = ImmutableProvisioningRequest.builder();
+    if(useRealProvisioRoot) {
+      builder.provisioRoot(realProvisioRoot);
     } else {
-      provisio = new Provisio(userProfile);
-      //provisio = new Provisio(provisioRoot, "jvanzyl");
+      builder.provisioRoot(provisioRoot);
     }
+    if (!useRealProvisioRoot && useLocalCache) {
+      builder.cacheDirectory(realProvisioRoot.resolve("bin").resolve("cache"));
+    }
+    request = builder.build();
+    provisio = new Provisio(builder.build(), userProfile);
   }
 
   protected Path userProfileDirectory() {
-    return profilesDirectory.resolve(userProfile);
-  }
-
-  protected Path test() {
-    return get("src").resolve("test");
+    return request.binaryProfilesDirectory().resolve(userProfile);
   }
 
   protected Path path(String name) throws IOException {
@@ -64,7 +54,6 @@ public class ProvisioTestSupport {
     createDirectories(path.getParent());
     return path;
   }
-
 
   protected Path touch(Path directory, String name) throws IOException {
     Path path = directory.resolve(name);
