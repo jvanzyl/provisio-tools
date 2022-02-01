@@ -12,6 +12,7 @@ import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -68,7 +69,8 @@ public class DownloadManager {
     deleteIfExists(inProgress);
     HttpRequest request = HttpRequest.newBuilder()
         .uri(new URI(correctMalformedUrl(url, tool)))
-        .version(HttpClient.Version.HTTP_2)
+        // In 11 it does not gracefully downgrade: #urlTemplate: https://bugs.openjdk.java.net/browse/JDK-8218623
+        .version(Version.HTTP_1_1)
         .GET()
         .build();
     HttpClient client = HttpClient.newBuilder()

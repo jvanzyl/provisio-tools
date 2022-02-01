@@ -18,7 +18,7 @@ public class ProvisioTestSupport {
   protected ProvisioningRequest request;
   protected Provisio provisio;
   protected Path realProvisioRoot = get(System.getProperty("user.home"), ".provisio");
-  protected Path provisioRoot = get("target", ".provisio").toAbsolutePath();
+  protected Path testProvisioRoot = get("target", ".provisio").toAbsolutePath();
   protected String userProfile;
 
   @Before
@@ -27,11 +27,7 @@ public class ProvisioTestSupport {
     boolean useLocalCache = false;
     boolean useRealProvisioRoot = true;
     Builder builder = ImmutableProvisioningRequest.builder();
-    if(useRealProvisioRoot) {
-      builder.provisioRoot(realProvisioRoot);
-    } else {
-      builder.provisioRoot(provisioRoot);
-    }
+    builder.provisioRoot(useRealProvisioRoot ? realProvisioRoot : testProvisioRoot);
     if (!useRealProvisioRoot && useLocalCache) {
       builder.cacheDirectory(realProvisioRoot.resolve("bin").resolve("cache"));
     }
@@ -39,7 +35,7 @@ public class ProvisioTestSupport {
     provisio = new Provisio(builder.build(), userProfile);
   }
 
-  protected Path userProfileDirectory() {
+  protected Path userBinaryProfileDirectory() {
     return request.binaryProfilesDirectory().resolve(userProfile);
   }
 
@@ -58,13 +54,6 @@ public class ProvisioTestSupport {
   protected Path touch(Path directory, String name) throws IOException {
     Path path = directory.resolve(name);
     createDirectories(directory);
-    writeString(path, name);
-    return path;
-  }
-
-  protected Path touch(String name) throws IOException {
-    Path path = get("target").resolve(name);
-    createDirectories(path.getParent());
     writeString(path, name);
     return path;
   }

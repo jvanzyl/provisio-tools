@@ -9,6 +9,7 @@ import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
 import static com.pivovarit.function.ThrowingFunction.unchecked;
 import static java.lang.String.format;
+import static java.nio.file.Files.*;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.createFile;
@@ -112,7 +113,7 @@ public class Provisio {
     this.userHome = get(System.getProperty("user.home"));
     this.userProfile = userProfile != null ? userProfile : findCurrentProfile();
     this.binaryProfileDirectory = binaryProfilesDirectory.resolve(this.userProfile);
-    this.dotProvisioUserProfileYaml = request.provisioRootProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
+    this.dotProvisioUserProfileYaml = request.userProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
     this.workingDirectoryUserProfileYaml = request.workingDirectoryProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
 
     initialize();
@@ -133,7 +134,7 @@ public class Provisio {
         Path path = provisioRoot.resolve(resource);
         createDirectories(path.getParent());
         try (InputStream is = Provisio.class.getClassLoader().getResource("provisioRoot/" + resource).openStream();
-            OutputStream os = Files.newOutputStream(path)) {
+            OutputStream os = newOutputStream(path)) {
           is.transferTo(os);
         }
       }
@@ -152,6 +153,10 @@ public class Provisio {
     Path currentProfileSymlink = binaryProfilesDirectory.resolve("profile");
     if(exists(currentProfileSymlink)) {
       return currentProfileSymlink.toString();
+    }
+    Path profileDirectory = list(binaryProfilesDirectory).filter(Files::isDirectory).findFirst().orElse(null);
+    if(profileDirectory != null) {
+      return profileDirectory.getFileName().toString();
     }
     throw new RuntimeException(
         format("The current profile cannot be determined. You should have file called " + currentProfilePath + "%n"
@@ -304,7 +309,7 @@ public class Provisio {
     // utils to a binary build for not requiring brew at all.
     Path prereqs = provisioRoot.resolve("libexec").resolve(OS.toLowerCase() + ".bash");
     if(exists(prereqs)) {
-      if(!Files.isExecutable((prereqs))) {
+      if(!isExecutable((prereqs))) {
         makeExecutable(prereqs);
       }
       CliCommand command = new CliCommand(List.of(prereqs.toAbsolutePath().toString()), prereqs.getParent(), Map.of(), false);
@@ -371,7 +376,7 @@ public class Provisio {
           Path shellTemplate = toolDirectory.resolve(SHELL_TEMPLATE);
           line(initBash, "# -------------- " + tool.id() + "  --------------%n");
           if (exists(shellTemplate)) {
-            String shellTemplateContents = interpolateToolPath(Files.readString(shellTemplate), tool, version);
+            String shellTemplateContents = interpolateToolPath(readString(shellTemplate), tool, version);
             line(initBash, shellTemplateContents + "%n");
           } else {
             String pathToExport = result.paths().get(0).toString();
@@ -387,7 +392,7 @@ public class Provisio {
     // If the profile.shell exists then make the addition to the .init.bash
     Path userProfileShell = profileYaml.getParent().resolve(PROFILE_SHELL);
     if(exists(userProfileShell)) {
-      String userProfileShellContents = Files.readString(userProfileShell);
+      String userProfileShellContents = readString(userProfileShell);
       line(initBash, userProfileShellContents);
     }
 
@@ -407,7 +412,7 @@ public class Provisio {
   }
 
   private void line(Path path, String line, Object... options) throws IOException {
-    Files.writeString(path, format(line, options), StandardOpenOption.APPEND);
+    writeString(path, format(line, options), StandardOpenOption.APPEND);
   }
 
   private void touch(Path path) throws IOException {
@@ -419,7 +424,7 @@ public class Provisio {
 
   private void touch(Path path, String content) throws IOException {
     createDirectories(path.getParent());
-    Files.writeString(path, content);
+    writeString(path, content);
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -432,7 +437,7 @@ public class Provisio {
 
   public static Map<String, ToolDescriptor> collectToolDescriptorsMap() throws Exception {
     Path tools = get(System.getProperty("user.home"), ".provisio").resolve("tools");
-    try (Stream<Path> stream = Files.walk(tools, 3)) {
+    try (Stream<Path> stream = walk(tools, 3)) {
       return stream
           .filter(p -> p.toString().endsWith(DESCRIPTOR))
           .map(unchecked(toolDescriptorFrom))

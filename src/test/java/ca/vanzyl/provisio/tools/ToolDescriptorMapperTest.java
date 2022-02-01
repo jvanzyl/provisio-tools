@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class ToolDescriptorMapperTest extends ProvisioTestSupport {
 
-  protected final Path testResources = provisioRoot.resolve("target/test-resources");
+  protected final Path testResources = testProvisioRoot.resolve("target/test-resources");
   protected final String testToolUrls = "test-tool-urls.yaml";
   protected final String testProfile = "test-profile.yaml";
 

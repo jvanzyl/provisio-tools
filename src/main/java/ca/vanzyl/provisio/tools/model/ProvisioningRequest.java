@@ -10,6 +10,11 @@ import org.immutables.value.Value;
 @JsonDeserialize(as = ImmutableProvisioningRequest.class)
 public abstract class ProvisioningRequest {
 
+  public static final String PROVISIO_BIN = "bin";
+  public static final String PROVISIO_CACHE = "cache";
+  public static final String PROVISIO_INSTALLS = "installs";
+  public static final String PROVISIO_PROFILES = "profiles";
+
   @Value.Default
   public Path provisioRoot() {
     return get(System.getProperty("user.home"), ".provisio");
@@ -18,7 +23,7 @@ public abstract class ProvisioningRequest {
   // Configuration: where the users yaml profiles live that describe the version of the tools they want provisioned
 
   @Value.Default
-  public Path provisioRootProfilesDirectory() {
+  public Path userProfilesDirectory() {
     return provisioRoot().resolve("profiles");
   }
 
@@ -36,7 +41,7 @@ public abstract class ProvisioningRequest {
 
   @Value.Default
   public Path binDirectory() {
-    return provisioRoot().resolve("bin");
+    return provisioRoot().resolve(PROVISIO_BIN);
   }
 
   @Value.Default

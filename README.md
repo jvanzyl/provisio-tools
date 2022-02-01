@@ -19,6 +19,7 @@
 - docker images are built such that each tool is in its own layer so deltas are efficient, like JIB
 - when provisio is activated all resources modified that are used by your applications are restore: jdk.table.xml for IDEA for example
 - utility for automating the generation of new tool descriptors 
+- multi field version support
 - command to update versions of tools
 - schemas/versions for tool descriptors
 - schemas/versions for profile descriptors
