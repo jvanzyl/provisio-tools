@@ -52,6 +52,11 @@ public class FileUtils {
 
   public static void updateSymlink(Path link, Path target) throws IOException {
     deleteIfExists(link);
+    createSymbolicLink(link, target);
+  }
+
+  public static void updateRelativeSymlink(Path link, Path target) throws IOException {
+    deleteIfExists(link);
     createSymbolicLink(link, link.getParent().relativize(target));
   }
 }

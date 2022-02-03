@@ -28,4 +28,9 @@ public class YamlMapper<T> {
   public List<T> read(Path input, TypeReference<List<T>> clazz) throws IOException {
     return mapper.readValue(input.toFile(), clazz);
   }
+
+  public String write(T object) throws IOException {
+    return mapper.writeValueAsString(object);
+  }
+
 }

@@ -3,7 +3,7 @@ package ca.vanzyl.provisio.tools;
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
-import static ca.vanzyl.provisio.tools.util.FileUtils.updateSymlink;
+import static ca.vanzyl.provisio.tools.util.FileUtils.updateRelativeSymlink;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
@@ -35,6 +35,7 @@ import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import ca.vanzyl.provisio.tools.util.CliCommand;
+import ca.vanzyl.provisio.tools.util.FileUtils;
 import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
@@ -75,7 +76,6 @@ public class Provisio {
   private final DownloadManager downloadManager;
   private final Map<String, ToolDescriptor> toolDescriptorMap;
   private final YamlMapper<ToolProfile> profileMapper;
-  private final Path provisioRoot;
   // ${HOME}/.provisio/bin/{cache|installs|profiles}
   private final Path cacheDirectory;
   private final Path installsDirectory;
@@ -91,16 +91,14 @@ public class Provisio {
   private final Path dotProvisioUserProfileYaml;
   private final Path workingDirectoryUserProfileYaml;
 
+  private final ProvisioningRequest request;
+
   public Provisio() throws Exception {
-    this(ImmutableProvisioningRequest.builder().build(), null);
+    this(ImmutableProvisioningRequest.builder().build());
   }
 
-  public Provisio(String userProfile) throws Exception {
-    this(ImmutableProvisioningRequest.builder().build(), userProfile);
-  }
-
-  public Provisio(ProvisioningRequest request, String userProfile) throws Exception {
-    this.provisioRoot = request.provisioRoot();
+  public Provisio(ProvisioningRequest request) throws Exception {
+    this.request = request;
     this.installsDirectory = request.installsDirectory();
     this.cacheDirectory = request.cacheDirectory();
     this.binaryProfilesDirectory = request.binaryProfilesDirectory();
@@ -111,7 +109,8 @@ public class Provisio {
 
     // config, really all user profile context
     this.userHome = get(System.getProperty("user.home"));
-    this.userProfile = userProfile != null ? userProfile : findCurrentProfile();
+    //this.userProfile = userProfile != null ? userProfile : findCurrentProfile();
+    this.userProfile = request.activeUserProfile();
     this.binaryProfileDirectory = binaryProfilesDirectory.resolve(this.userProfile);
     this.dotProvisioUserProfileYaml = request.userProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
     this.workingDirectoryUserProfileYaml = request.workingDirectoryProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
@@ -131,7 +130,7 @@ public class Provisio {
     try(InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
       List<String> resources = new BufferedReader(new InputStreamReader(resourceDescriptorInput, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
       for (String resource : resources) {
-        Path path = provisioRoot.resolve(resource);
+        Path path = request.provisioRoot().resolve(resource);
         createDirectories(path.getParent());
         try (InputStream is = Provisio.class.getClassLoader().getResource("provisioRoot/" + resource).openStream();
             OutputStream os = newOutputStream(path)) {
@@ -144,25 +143,6 @@ public class Provisio {
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  private String findCurrentProfile() throws Exception {
-    Path currentProfilePath = binaryProfilesDirectory.resolve("current");
-    if(exists(currentProfilePath)) {
-      return readString(binaryProfilesDirectory.resolve("current"));
-    }
-    Path currentProfileSymlink = binaryProfilesDirectory.resolve("profile");
-    if(exists(currentProfileSymlink)) {
-      return currentProfileSymlink.toString();
-    }
-    Path profileDirectory = list(binaryProfilesDirectory).filter(Files::isDirectory).findFirst().orElse(null);
-    if(profileDirectory != null) {
-      return profileDirectory.getFileName().toString();
-    }
-    throw new RuntimeException(
-        format("The current profile cannot be determined. You should have file called " + currentProfilePath + "%n"
-            + "with the name of the current profile or a symlink called " + currentProfileSymlink + " with a pointer %n"
-            + "to the current profile. Run 'provisio install <profile>' to correct the issue."));
-  }
 
   private Path findUserProfileYaml() {
     if(exists(workingDirectoryUserProfileYaml)) {
@@ -188,8 +168,8 @@ public class Provisio {
     // this is null?
     // Path target = result.executable();
     Path target = result.installation().resolve("provisio");
-    Path link = provisioRoot.resolve("provisio");
-    updateSymlink(link, target);
+    Path link = request.provisioRoot().resolve("provisio");
+    updateRelativeSymlink(link, target);
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -268,14 +248,12 @@ public class Provisio {
         target = executable.toAbsolutePath();
       }
       createDirectories(link.getParent());
-      if (!exists(link)) {
-        //
-        //   target = ${provisioRoot}/bin/installs/argocd/2.1.7/argocd
-        //     link = ${provisioRoot}/bin/profiles/jvanzyl/argocd
-        // relative = ../../installs/argocd/2.1.7/argocd
-        //
-        createSymbolicLink(link, link.getParent().relativize(target));
-      }
+      //
+      //   target = ${provisioRoot}/bin/installs/argocd/2.1.7/argocd
+      //     link = ${provisioRoot}/bin/profiles/jvanzyl/argocd
+      // relative = ../../installs/argocd/2.1.7/argocd
+      //
+      updateRelativeSymlink(link, target);
     }
     return result.build();
   }
@@ -304,10 +282,20 @@ public class Provisio {
     }
   }
 
+  // This should be installation result
   public ToolProfileProvisioningResult installProfile(Path profileYaml) throws Exception {
+    ToolProfile profile = profileMapper.read(profileYaml, ToolProfile.class);
+    Path profileYamlRecord = binaryProfileDirectory.resolve(PROFILE_YAML);
+    ToolProfile profileRecord;
+    if(exists(profileYamlRecord)) {
+      // This profile has been provisioned previously
+      profileRecord = profileMapper.read(profileYaml, ToolProfile.class);
+    } else {
+      profileRecord = profile;
+    }
     // Install prereqs for the OS by running the OS specific script to bootstrap things. Trying to move core
     // utils to a binary build for not requiring brew at all.
-    Path prereqs = provisioRoot.resolve("libexec").resolve(OS.toLowerCase() + ".bash");
+    Path prereqs = request.provisioRoot().resolve("libexec").resolve(OS.toLowerCase() + ".bash");
     if(exists(prereqs)) {
       if(!isExecutable((prereqs))) {
         makeExecutable(prereqs);
@@ -315,9 +303,7 @@ public class Provisio {
       CliCommand command = new CliCommand(List.of(prereqs.toAbsolutePath().toString()), prereqs.getParent(), Map.of(), false);
       CliCommand.Result result = command.execute();
     }
-
-    ToolProfile profile = profileMapper.read(profileYaml, ToolProfile.class);
-    String provisioRootRelativeToUserHome = userHome.relativize(provisioRoot).toString();
+    String provisioRootRelativeToUserHome = userHome.relativize(request.provisioRoot()).toString();
     Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
     touch(initBash);
     line(initBash, "export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
@@ -329,10 +315,18 @@ public class Provisio {
 
     ImmutableToolProfileProvisioningResult.Builder profileProvisioningResult = ImmutableToolProfileProvisioningResult.builder();
     for (ToolProfileEntry entry : profile.tools().values()) {
-      System.out.println(entry);
+      ToolProfileEntry entryRecord = profileRecord.tools().get(entry.name());
+      if(entryRecord.version().equals(entryRecord.version())) {
+        System.out.println(entry + " Up to date");
+      } else {
+        System.out.println(entry + " Updating ...");
+      }
       ToolDescriptor tool = toolDescriptorMap.get(entry.name());
       Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
       for (String version : entry.version().split("[\\s,]+")) {
+        //
+        // Old versus new profile on a per tool basis to check for up-to-date
+        //
         ToolProvisioningResult result = provisionTool(tool, version);
         // TODO: should the policy be these scripts be idempotent? yes
         // This needs to be more testable.
@@ -341,7 +335,7 @@ public class Provisio {
           List<String> args = List.of(
               postInstallScript.toAbsolutePath().toString(),
               // ${1}
-              provisioRoot.resolve("libexec").resolve("provisio-functions.bash").toAbsolutePath().toString(),
+              request.provisioRoot().resolve("libexec").resolve("provisio-functions.bash").toAbsolutePath().toString(),
               // ${2}
               profileYaml.toAbsolutePath().toString(),
               // ${3}
@@ -404,9 +398,12 @@ public class Provisio {
     touch(binaryProfilesDirectory.resolve("current"), userProfile);
 
     // Shell init file update
-    ShellFileModifier modifier = new ShellFileModifier(userHome, provisioRoot);
+    ShellFileModifier modifier = new ShellFileModifier(userHome, request.provisioRoot());
     modifier.updateShellInitializationFile();
     System.out.println();
+
+    // We record what was installed for the profile
+    copy(profileYaml, profileYamlRecord);
 
     return profileProvisioningResult.build();
   }

@@ -7,7 +7,10 @@ import static java.nio.file.Paths.get;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest.Builder;
 import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
+import ca.vanzyl.provisio.tools.model.ToolProfile;
+import ca.vanzyl.provisio.tools.util.YamlMapper;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Before;
 
@@ -27,12 +30,30 @@ public class ProvisioTestSupport {
     boolean useLocalCache = false;
     boolean useRealProvisioRoot = true;
     Builder builder = ImmutableProvisioningRequest.builder();
+    builder.userProfile(userProfile);
     builder.provisioRoot(useRealProvisioRoot ? realProvisioRoot : testProvisioRoot);
     if (!useRealProvisioRoot && useLocalCache) {
       builder.cacheDirectory(realProvisioRoot.resolve("bin").resolve("cache"));
     }
     request = builder.build();
-    provisio = new Provisio(builder.build(), userProfile);
+    provisio = new Provisio(builder.build());
+  }
+
+  protected Provisio provisio(String userProfile) throws Exception {
+    Builder builder = ImmutableProvisioningRequest.builder();
+    builder.provisioRoot(realProvisioRoot);
+    builder.userProfile(userProfile);
+    return new Provisio(builder.build());
+  }
+
+  // Create profiles for testing
+  // We need to easily make new profiles and updated versions of profile to test mutation of profile
+  protected Path toolProfile(ToolProfile toolProfile) throws Exception {
+    YamlMapper<ToolProfile> mapper = new YamlMapper<>();
+    String toolProfileContent = mapper.write(toolProfile);
+    Path toolProfilePath = null;
+    Files.writeString(toolProfilePath, toolProfileContent);
+    return toolProfilePath;
   }
 
   protected Path userBinaryProfileDirectory() {

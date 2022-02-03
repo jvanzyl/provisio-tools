@@ -1,9 +1,15 @@
 package ca.vanzyl.provisio.tools.model;
 
+import static java.lang.String.format;
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.list;
+import static java.nio.file.Files.readString;
 import static java.nio.file.Paths.get;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.annotation.Nullable;
 import org.immutables.value.Value;
 
 @Value.Immutable
@@ -57,5 +63,49 @@ public abstract class ProvisioningRequest {
   @Value.Default
   public Path binaryProfilesDirectory() {
     return binDirectory().resolve("profiles");
+  }
+
+  // User Profile
+
+  @Value
+  @Nullable
+  public abstract String userProfile();
+
+  @Value.Default
+  public String activeUserProfile() {
+    return userProfile() != null ? userProfile() : findCurrentProfile();
+  }
+
+  @Value.Default
+  public Path binaryProfileDirectory() {
+    return binaryProfilesDirectory().resolve(activeUserProfile());
+  }
+
+  private String findCurrentProfile() {
+    Path currentProfilePath = binaryProfilesDirectory().resolve("current");
+    if(exists(currentProfilePath)) {
+      try {
+        return readString(binaryProfilesDirectory().resolve("current"));
+      } catch(Exception e) {
+        // let fall through
+      }
+    }
+    Path currentProfileSymlink = binaryProfilesDirectory().resolve("profile");
+    if(exists(currentProfileSymlink)) {
+      return currentProfileSymlink.toString();
+    }
+    // TODO: there can only be one directory or we may select the wrong one
+    try {
+      Path profileDirectory = list(binaryProfilesDirectory()).filter(Files::isDirectory).findFirst().orElse(null);
+      if (profileDirectory != null) {
+        return profileDirectory.getFileName().toString();
+      }
+    } catch (Exception e) {
+      // let fall through
+    }
+    throw new RuntimeException(
+        format("The current profile cannot be determined. You should have file called " + currentProfilePath + "%n"
+            + "with the name of the current profile or a symlink called " + currentProfileSymlink + " with a pointer %n"
+            + "to the current profile. Run 'provisio install <profile>' to correct the issue."));
   }
 }
