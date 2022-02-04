@@ -1,0 +1,15 @@
+---
+id: gh
+name: gh
+defaultVersion: 2.5.0
+layout: directory
+executable: gh
+packaging: TARGZ_STRIP
+paths: bin
+fileNameFromContentDisposition: false
+osMappings:
+  Darwin: macOS
+  Linux: linux
+archMappings:
+  x86_64: amd64
+urlTemplate: https://github.com/cli/cli/releases/download/v{version}/gh_{version}_{os}_{arch}.tar.gz

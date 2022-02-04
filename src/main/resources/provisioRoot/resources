@@ -10,6 +10,7 @@ tools/imgpkg/descriptor.yml
 tools/provisio/descriptor.yml
 tools/go/descriptor.yml
 tools/go/README.md
+tools/gh/descriptor.yml
 tools/octant/descriptor.yml
 tools/hugo/descriptor.yml
 tools/minikube/descriptor.yml

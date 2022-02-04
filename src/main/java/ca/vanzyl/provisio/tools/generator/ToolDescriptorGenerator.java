@@ -1,6 +1,7 @@
 package ca.vanzyl.provisio.tools.generator;
 
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
+import static java.nio.file.Files.*;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
@@ -75,8 +76,12 @@ public class ToolDescriptorGenerator {
       // OS mappings
       if (downloadUrl.contains("darwin")) {
         osMappings.put("Darwin", "darwin");
-        urlToAnalyze = downloadUrl;
         foundOsIdentifier = "darwin";
+        urlToAnalyze = downloadUrl;
+      } else if (downloadUrl.contains("macOS")) {
+        osMappings.put("Darwin", "macOS");
+        foundOsIdentifier = "macOS";
+        urlToAnalyze = downloadUrl;
       } else if (downloadUrl.contains("linux")) {
         osMappings.put("Linux", "linux");
       }
@@ -88,7 +93,7 @@ public class ToolDescriptorGenerator {
       } else if (downloadUrl.contains("amd64")) {
         archMappings.put("x86_64", "amd64");
         foundArchIdentifier = "amd64";
-      }else if (downloadUrl.contains("arm64")) {
+      } else if (downloadUrl.contains("arm64")) {
         archMappings.put("arm64", "arm");
         foundArchIdentifier = "arm64";
       }
@@ -123,9 +128,16 @@ public class ToolDescriptorGenerator {
         .replace(version, "{version}");
 
     String toolId;
-    String toolIdFromFile = fileName.indexOf("-") > 0 ? fileName.substring(0, fileName.indexOf("-")) : fileName;
+    String toolIdFromFile;
+    if(fileName.indexOf("-") > 0) {
+      toolIdFromFile = fileName.indexOf("-") > 0 ? fileName.substring(0, fileName.indexOf("-")) : fileName;
+    } else if (fileName.indexOf("_") > 0) {
+      toolIdFromFile = fileName.indexOf("_") > 0 ? fileName.substring(0, fileName.indexOf("_")) : fileName;
+    } else {
+      toolIdFromFile = fileName;
+    }
     String toolIdFromInfo = info.name();
-    if(toolIdFromInfo.equals(toolIdFromFile)) {
+    if (toolIdFromInfo.equals(toolIdFromFile)) {
       toolId = toolIdFromInfo;
     } else {
       toolId = toolIdFromFile;
@@ -136,11 +148,11 @@ public class ToolDescriptorGenerator {
     builder.id(toolId);
     builder.name(toolId);
 
-    List<Path> files = Files.list(tmpdir).collect(Collectors.toList());
     if (fileName.endsWith("tar.gz")) {
       // Unpack the archive an examine the structure, need a way to just inspect the entries
       UnArchiver unArchiver = UnArchiver.builder().build();
       unArchiver.unarchive(artifact.toFile(), tmpdir.toFile());
+      List<Path> files = list(tmpdir).collect(Collectors.toList());
       if (files.size() == 1 && isDirectory(files.get(0))) {
         // We have a top-level directory in the tarball
         builder.packaging(Packaging.TARGZ_STRIP);
@@ -156,9 +168,9 @@ public class ToolDescriptorGenerator {
         builder.packaging(Packaging.TARGZ);
         builder.layout("file");
       }
-    } else if(artifact.getFileName().endsWith(".zip")) {
+    } else if (artifact.getFileName().endsWith(".zip")) {
 
-    } else if(artifact.getFileName().endsWith(".xz")) {
+    } else if (artifact.getFileName().endsWith(".xz")) {
 
     } else {
       builder.packaging(Packaging.FILE);
@@ -195,6 +207,11 @@ public class ToolDescriptorGenerator {
     //generator.analyze(info);
 
     // Pulumi
-    generator.generate("https://github.com/pulumi/pulumi/releases");
+    //generator.generate("https://github.com/pulumi/pulumi/releases");
+
+    // GitHub CLI
+    generator.generate("https://github.com/cli/cli/releases");
+
+
   }
 }
