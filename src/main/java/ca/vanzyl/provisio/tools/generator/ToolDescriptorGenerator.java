@@ -71,7 +71,8 @@ public class ToolDescriptorGenerator {
     for (String downloadUrl : info.urls()) {
       System.out.println(downloadUrl);
 
-      // How to analyze these better
+      // How to analyze these better, really I can pull them out of existing descriptors, as they serve
+      // as the real examples
 
       // OS mappings
       if (downloadUrl.contains("darwin")) {
