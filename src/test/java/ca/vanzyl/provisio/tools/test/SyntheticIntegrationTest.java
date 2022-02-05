@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ArtifactServer extends ProvisioTestSupport {
+public class SyntheticIntegrationTest extends ProvisioTestSupport {
 
   private int port;
   private Path directoryOfArtifacts;
