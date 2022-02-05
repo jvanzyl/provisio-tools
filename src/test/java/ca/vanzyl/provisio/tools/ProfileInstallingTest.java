@@ -26,39 +26,58 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
       fail(result.errorMessage());
     }
 
-    // .provisio
-    // ├── bin
-    // ├── libexec
-    // ├── profiles
-    // ├── provisio -> bin/installs/provisio/0.0.17/provisio
-    // └── tools
-    //
+    // ----------------------------------------------------------------
+    // 1) .provisio
+    // 2) ├── bin
+    //    │   ├── cache
+    //    |   ├── installs
+    //    │   └── profiles
+    //    |       ├── current (should contain the content "test")
+    //    |       ├── profile -> test
+    //    |       └── test
+    //    ├── libexec
+    // 3) │   ├── darwin.bash
+    //    │   └── provisio-functions.bash
+    // 4) ├── profiles
+    //    |   └── test
+    // 5) ├── provisio -> bin/installs/provisio/0.0.17/provisio
+    // 6) └── tools
+    //        ├── argocd
+    //        ├── aws-cli
+    //        ├── aws-iam-authenticator
+    //        └── bats
+    // ----------------------------------------------------------------
+
+    // 1)
     assertThat(request.provisioRoot()).exists();
-    // This may not be the case if the profile is defined in ${PWD}
-    assertThat(request.userProfilesDirectory()).exists();
+    // 2)
     assertThat(request.binDirectory()).exists();
     assertThat(request.cacheDirectory()).exists();
     assertThat(request.installsDirectory()).exists();
     assertThat(request.binaryProfilesDirectory()).exists();
     assertThat(request.binaryProfileDirectory().resolve(PROFILE_YAML)).exists();
-
-    // profiles
-    // ├── current (should contain the content "jvanzyl")
-    // ├── jvanzyl
-    // ├── profile -> jvanzyl
-    // └── test
-    //
     assertThat(request.binaryProfilesDirectory().resolve("current")).exists().content().isEqualTo(userProfile);
-    Path profileSymlink = request.binaryProfilesDirectory().resolve("profile");
-    assertThat(profileSymlink).exists().isSymbolicLink();
-    // https://stackoverflow.com/questions/43720118/java-how-to-find-the-target-file-path-that-a-symbolic-link-points-to
-    assertThat(profileSymlink.toRealPath().toString()).endsWith(userProfile);
-    // Maybe don't use resolve here because it is a relative symlink that we want to test. Not sure what resolve
-    // is doing here. I want to test it's relative and the file name is the user profile. Might be assertj
-    //assertThat(profileSymlink.toRealPath()).isRelative();
+    assertThat(request.binaryProfilesDirectory().resolve("profile")).exists().isSymbolicLink();
+    assertThat(request.binaryProfilesDirectory().resolve("profile").toRealPath().getFileName().toString()).isEqualTo(userProfile);
+    // 3)
+    assertThat(request.provisioRoot().resolve("libexec")).exists();
+    assertThat(request.provisioRoot().resolve("libexec").resolve("darwin.bash")).exists();
+    assertThat(request.provisioRoot().resolve("libexec").resolve("provisio-functions.bash")).exists();
+    // 4)
+    assertThat(request.userProfilesDirectory()).exists();
+    assertThat(request.userProfilesDirectory().resolve(userProfile)).exists();
+    // 5) This will not exist during tests but should be present in integration tests
+    assertThat(request.provisioRoot().resolve("provisio")).exists();
+    // 6)
+    assertThat(request.provisioRoot().resolve("tools")).exists();
+
+    // generate profiles
+    // mutate profiles
+    // check updates
+    // webserver that generates all types of artifacts so I can do everything from scratch
+
 
     // A lot to check to make sure the installation is good
-
     // updating a profile so if versions change or configurations change the update is performed
     // Profiles with all tools as an integration test
     // Wrong permission on the disk and warning/correcting
