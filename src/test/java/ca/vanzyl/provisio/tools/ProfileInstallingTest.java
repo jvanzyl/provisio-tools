@@ -5,6 +5,7 @@ import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
+import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,13 +19,20 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
 
   @Test
   @Ignore
-  public void validateProfileInstallation() throws Exception {
+  public void validateProfileInstallationXXX() throws Exception {
     deleteDirectoryIfExists(userBinaryProfileDirectory());
     ToolProfileProvisioningResult result = provisio.installProfile();
     if(!result.provisioningSuccessful()) {
       fail(result.errorMessage());
     }
+    validateProfileInstallation(request, true);
+  }
 
+  public static void validateProfileInstallation(ProvisioningRequest request) throws Exception {
+    validateProfileInstallation(request, false);
+  }
+
+  public static void validateProfileInstallation(ProvisioningRequest request, boolean checkProvsioSymlink) throws Exception {
     // ----------------------------------------------------------------
     // 1) .provisio
     // 2) ├── bin
@@ -47,6 +55,8 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
     //        └── bats
     // ----------------------------------------------------------------
 
+    String userProfile = request.userProfile();
+
     // 1)
     assertThat(request.provisioRoot()).exists();
     // 2)
@@ -66,7 +76,9 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
     assertThat(request.userProfilesDirectory()).exists();
     assertThat(request.userProfilesDirectory().resolve(userProfile)).exists();
     // 5) This will not exist during tests but should be present in integration tests
-    assertThat(request.provisioRoot().resolve("provisio")).exists();
+    if(checkProvsioSymlink) {
+      assertThat(request.provisioRoot().resolve("provisio")).exists();
+    }
     // 6)
     assertThat(request.provisioRoot().resolve("tools")).exists();
 

@@ -1,5 +1,6 @@
 package ca.vanzyl.provisio.tools.test;
 
+import static ca.vanzyl.provisio.tools.ProfileInstallingTest.validateProfileInstallation;
 import static ca.vanzyl.provisio.tools.Provisio.ARCH;
 import static ca.vanzyl.provisio.tools.Provisio.OS;
 import static ca.vanzyl.provisio.tools.ProvisioTestSupport.directory;
@@ -54,8 +55,6 @@ public class SyntheticIntegrationTest {
         .userProfile("test")
         .provisioRoot(syntheticRoot.resolve(".provisio"))
         .build();
-
-
     toolDescriptorMapper = new YamlMapper<>();
     profileMapper = new YamlMapper<>();
   }
@@ -87,8 +86,9 @@ public class SyntheticIntegrationTest {
 
     Provisio provisio = provisio(request.provisioRoot(), request.userProfile());
     provisio.installProfile();
-
     stopServingToolArtifacts();
+
+    validateProfileInstallation(request);
   }
 
   private void entry(Builder profileBuilder, String id, String version) {
