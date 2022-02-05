@@ -61,9 +61,9 @@ import kr.motd.maven.os.Detector;
 
 public class Provisio {
 
+  // de-dupe these
   public static final String PROVISiO_SHELL_INIT = ".init.bash";
   public static final String POST_INSTALL = "post-install.sh";
-  public static final String TOOL_DESCRIPTOR = "descriptor.yml";
   public static final String SHELL_TEMPLATE = "bash-template.txt";
   public final static String IN_PROGRESS_EXTENSION = ".in-progress";
   public final static String PROFILE_YAML = "profile.yaml";
@@ -117,7 +117,7 @@ public class Provisio {
 
     initialize();
     // TODO We probably don't want to read them all in. What happens when there are 10k of these?
-    this.toolDescriptorMap = collectToolDescriptorsMap();
+    this.toolDescriptorMap = collectToolDescriptorsMap(request.toolDescriptorsDirectory());
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -432,8 +432,7 @@ public class Provisio {
   public final static ThrowingFunction<Path, ToolProfile, IOException> profileDescriptorFrom =
       path -> new YamlMapper<ToolProfile>().read(path, ToolProfile.class);
 
-  public static Map<String, ToolDescriptor> collectToolDescriptorsMap() throws Exception {
-    Path tools = get(System.getProperty("user.home"), ".provisio").resolve("tools");
+  public static Map<String, ToolDescriptor> collectToolDescriptorsMap(Path tools) throws Exception {
     try (Stream<Path> stream = walk(tools, 3)) {
       return stream
           .filter(p -> p.toString().endsWith(DESCRIPTOR))

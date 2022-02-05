@@ -10,6 +10,6 @@ public class ProvisioTest extends ProvisioTestSupport {
 
   @Test
   public void toolDescriptors() throws Exception {
-    Map<String, ToolDescriptor> toolDescriptors = collectToolDescriptorsMap();
+    Map<String, ToolDescriptor> toolDescriptors = collectToolDescriptorsMap(request.toolDescriptorsDirectory());
   }
 }

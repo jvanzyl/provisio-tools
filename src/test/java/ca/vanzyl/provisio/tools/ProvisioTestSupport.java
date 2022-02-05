@@ -39,46 +39,36 @@ public class ProvisioTestSupport {
     provisio = new Provisio(builder.build());
   }
 
-  protected Provisio provisio(String userProfile) throws Exception {
-    Builder builder = ImmutableProvisioningRequest.builder();
-    builder.provisioRoot(realProvisioRoot);
-    builder.userProfile(userProfile);
-    return new Provisio(builder.build());
-  }
-
-  // Create profiles for testing
-  // We need to easily make new profiles and updated versions of profile to test mutation of profile
-  protected Path toolProfile(ToolProfile toolProfile) throws Exception {
-    YamlMapper<ToolProfile> mapper = new YamlMapper<>();
-    String toolProfileContent = mapper.write(toolProfile);
-    Path toolProfilePath = null;
-    Files.writeString(toolProfilePath, toolProfileContent);
-    return toolProfilePath;
-  }
-
   protected Path userBinaryProfileDirectory() {
     return request.binaryProfilesDirectory().resolve(userProfile);
   }
 
-  protected Path directory(String name) throws IOException {
+  public static Provisio provisio(Path provisioRoot, String userProfile) throws Exception {
+    Builder builder = ImmutableProvisioningRequest.builder();
+    builder.provisioRoot(provisioRoot);
+    builder.userProfile(userProfile);
+    return new Provisio(builder.build());
+  }
+
+  public static Path directory(String name) throws IOException {
     Path path = get("target").resolve(name).toAbsolutePath();
     createDirectories(path);
     return path;
   }
 
-  protected Path path(String name) throws IOException {
+  public static Path path(String name) throws IOException {
     Path path = get("target").resolve(name).toAbsolutePath();
     createDirectories(path.getParent());
     return path;
   }
 
-  protected Path path(Path directory, String name) throws IOException {
+  public static Path path(Path directory, String name) throws IOException {
     Path path = directory.resolve(name).toAbsolutePath();
     createDirectories(path.getParent());
     return path;
   }
 
-  protected Path touch(Path directory, String name) throws IOException {
+  public static Path touch(Path directory, String name) throws IOException {
     Path path = directory.resolve(name);
     createDirectories(directory);
     writeString(path, name);

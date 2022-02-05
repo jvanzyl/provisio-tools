@@ -29,7 +29,7 @@ public class ToolDescriptorMapperTest extends ProvisioTestSupport {
   @Test
   @Ignore
   public void validateToolUrlBuilding() throws Exception {
-    Map<String, ToolDescriptor> toolDescriptorsById = collectToolDescriptorsMap();
+    Map<String, ToolDescriptor> toolDescriptorsById = collectToolDescriptorsMap(request.toolDescriptorsDirectory());
     YamlMapper<ToolUrlTestDescriptor> mapper = new YamlMapper<>();
     List<ToolUrlTestDescriptor> tools = mapper.read(testResources.resolve(testToolUrls), new TypeReference<>() {});
     tools.forEach(tool -> {

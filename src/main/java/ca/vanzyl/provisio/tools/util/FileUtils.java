@@ -59,4 +59,9 @@ public class FileUtils {
     deleteIfExists(link);
     createSymbolicLink(link, link.getParent().relativize(target));
   }
+
+  public static void writeFile(Path file, String content) throws IOException {
+    createDirectories(file.getParent());
+    writeString(file, content);
+  }
 }

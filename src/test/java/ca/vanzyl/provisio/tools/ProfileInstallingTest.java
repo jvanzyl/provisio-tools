@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
-import java.nio.file.Path;
 import org.junit.Ignore;
 import org.junit.Test;
 

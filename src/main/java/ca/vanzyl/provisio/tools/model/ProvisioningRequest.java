@@ -20,6 +20,9 @@ public abstract class ProvisioningRequest {
   public static final String PROVISIO_CACHE = "cache";
   public static final String PROVISIO_INSTALLS = "installs";
   public static final String PROVISIO_PROFILES = "profiles";
+  public static final String PROVISIO_PROFILE_YAML = "profile.yaml";
+  public static final String TOOL_DESCRIPTOR = "descriptor.yml";
+
 
   @Value.Default
   public Path provisioRoot() {
@@ -74,6 +77,11 @@ public abstract class ProvisioningRequest {
   @Value.Default
   public String activeUserProfile() {
     return userProfile() != null ? userProfile() : findCurrentProfile();
+  }
+
+  @Value.Default
+  public Path userProfileYaml() {
+    return userProfilesDirectory().resolve(activeUserProfile()).resolve(PROVISIO_PROFILE_YAML);
   }
 
   @Value.Default
