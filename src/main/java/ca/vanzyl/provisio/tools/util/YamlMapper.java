@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 //import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,7 +16,7 @@ public class YamlMapper<T> {
   private final ObjectMapper mapper;
 
   public YamlMapper() {
-    mapper = new ObjectMapper(new YAMLFactory());
+    mapper = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

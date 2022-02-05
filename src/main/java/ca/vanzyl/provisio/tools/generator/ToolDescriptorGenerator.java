@@ -10,7 +10,9 @@ import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.tools.generator.github.GitHubReleaseSource;
 import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor.Builder;
+import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging;
+import ca.vanzyl.provisio.tools.util.YamlMapper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -186,10 +188,8 @@ public class ToolDescriptorGenerator {
 
     System.out.println("Generating tool descriptor ...");
     System.out.println();
-    ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
-    yamlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    yamlMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-    System.out.println(yamlMapper.writerWithDefaultPrettyPrinter().writeValueAsString(builder.build()));
+    YamlMapper<ToolDescriptor> yamlMapper = new YamlMapper<>();
+    System.out.println(yamlMapper.write(builder.build()));
   }
 
   public static void main(String[] args) throws Exception {
@@ -212,7 +212,5 @@ public class ToolDescriptorGenerator {
 
     // GitHub CLI
     generator.generate("https://github.com/cli/cli/releases");
-
-
   }
 }

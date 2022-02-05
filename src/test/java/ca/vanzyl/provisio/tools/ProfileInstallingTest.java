@@ -75,6 +75,8 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
     // mutate profiles
     // check updates
     // webserver that generates all types of artifacts so I can do everything from scratch
+    // check content disposition header usage
+    // script generation
 
 
     // A lot to check to make sure the installation is good

@@ -60,6 +60,12 @@ public class ProvisioTestSupport {
     return request.binaryProfilesDirectory().resolve(userProfile);
   }
 
+  protected Path directory(String name) throws IOException {
+    Path path = get("target").resolve(name).toAbsolutePath();
+    createDirectories(path);
+    return path;
+  }
+
   protected Path path(String name) throws IOException {
     Path path = get("target").resolve(name).toAbsolutePath();
     createDirectories(path.getParent());
