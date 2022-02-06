@@ -6,6 +6,8 @@ import static ca.vanzyl.provisio.tools.Provisio.OS;
 import static ca.vanzyl.provisio.tools.ProvisioTestSupport.directory;
 import static ca.vanzyl.provisio.tools.ProvisioTestSupport.provisio;
 import static ca.vanzyl.provisio.tools.model.ProvisioningRequest.TOOL_DESCRIPTOR;
+import static ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging.TARGZ;
+import static ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging.ZIP;
 import static ca.vanzyl.provisio.tools.util.FileUtils.resetDirectory;
 import static ca.vanzyl.provisio.tools.util.FileUtils.writeFile;
 import static java.lang.String.format;
@@ -16,23 +18,26 @@ import static spark.Spark.port;
 import static spark.Spark.staticFiles;
 import static spark.Spark.stop;
 
+import ca.vanzyl.provisio.archive.generator.ArtifactEntry;
 import ca.vanzyl.provisio.archive.generator.ArtifactGenerator;
 import ca.vanzyl.provisio.archive.generator.TarGzArtifactGenerator;
-import ca.vanzyl.provisio.tools.Provisio;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
+import ca.vanzyl.provisio.tools.model.ImmutableSyntheticToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfile;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfile.Builder;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
+import ca.vanzyl.provisio.tools.model.SyntheticToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging;
 import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +49,7 @@ public class SyntheticIntegrationTest {
   private ProvisioningRequest request;
   private YamlMapper<ToolDescriptor> toolDescriptorMapper;
   private YamlMapper<ToolProfile> profileMapper;
+  private List<SyntheticToolProfileEntry> syntheticEntries;
 
   @Before
   public void setUp() throws Exception {
@@ -57,44 +63,54 @@ public class SyntheticIntegrationTest {
         .build();
     toolDescriptorMapper = new YamlMapper<>();
     profileMapper = new YamlMapper<>();
-  }
-
-  // Create profiles for testing
-  // We need to easily make new profiles and updated versions of profile to test mutation of profile
-  protected Path toolProfile(ToolProfile toolProfile) throws Exception {
-    YamlMapper<ToolProfile> mapper = new YamlMapper<>();
-    String toolProfileContent = mapper.write(toolProfile);
-    Path toolProfilePath = null;
-    Files.writeString(toolProfilePath, toolProfileContent);
-    return toolProfilePath;
+    syntheticEntries = new ArrayList<>();
   }
 
   @Test
   public void runningFromEndToEnd() throws Exception {
-    // Create the tool profile
-    Builder profileBuilder = ImmutableToolProfile.builder();
-    entry(profileBuilder, "tool001", "1.0.1");
-    //entry(profileBuilder, "tool002", "1.0.2");
-    String profileYamlContent = profileMapper.write(profileBuilder.build());
-    System.out.println(profileYamlContent);
+    // This needs nice builder to comprehensive archive content
+    testEntry("tool001", "1.0.1", TARGZ, "file",
+        List.of(artifactEntry("test001", "#!/bin/sh")));
+    testEntry("tool002", "1.0.2", TARGZ, "file",
+        List.of(artifactEntry("test002", "#!/bin/sh")));
+    testEntry("tool003", "1.0.3", ZIP, "file",
+        List.of(artifactEntry("test003", "#!/bin/sh")));
 
-    Path profile = request.userProfileYaml();
-    writeFile(profile, profileYamlContent);
-
+    toolProfile();
     generateToolArtifacts();
     startServingToolArtifacts();
-
-    Provisio provisio = provisio(request.provisioRoot(), request.userProfile());
-    provisio.installProfile();
+    provisio(request.provisioRoot(), request.userProfile()).installProfile();
     stopServingToolArtifacts();
-
     validateProfileInstallation(request);
   }
 
-  private void entry(Builder profileBuilder, String id, String version) {
-    profileBuilder.putTools(id, ImmutableToolProfileEntry.builder().name(id).version(version).build());
+  private ArtifactEntry artifactEntry(String name, String content) {
+    return new ArtifactEntry(name, content);
   }
 
+  private void testEntry(String id, String version, Packaging packaging, String layout, List<ArtifactEntry> entries) {
+    syntheticEntries.add(ImmutableSyntheticToolProfileEntry.builder()
+        .name(id)
+        .version(version)
+        .packaging(packaging)
+        .layout(layout)
+        .addAllArtifactEntries(entries)
+        .build());
+  }
+
+  private void toolProfile() throws IOException {
+    Builder profileBuilder = ImmutableToolProfile.builder();
+    for(SyntheticToolProfileEntry e : syntheticEntries) {
+      profileBuilder.putTools(e.name(), ImmutableToolProfileEntry.builder()
+          .name(e.name()).version(e.version()).build());
+    }
+    writeFile(request.userProfileYaml(), profileMapper.write(profileBuilder.build()));
+  }
+
+  //
+  // This is simplistic but will serve as a start. We need something where we can introduce
+  // errors and validate the errors recovered from or handled correctly.
+  //
   private void startServingToolArtifacts() {
     port(port);
     staticFiles.expireTime(600);
@@ -112,39 +128,30 @@ public class SyntheticIntegrationTest {
 
   // So these have to have some form of executable
   private void generateToolArtifacts() throws IOException {
-    String arch = ARCH;
-    String os = OS;
-
-    String toolId = "tool001";
-    String extension = "tar.gz";
-    String version = "1.0.1";
-
-    ToolDescriptor toolDescriptor = ImmutableToolDescriptor.builder()
-        .id(toolId)
-        .name(toolId)
-        .layout("file")
-        .packaging(Packaging.TARGZ)
-        .executable(toolId)
-        .defaultVersion(version)
-        .urlTemplate(url(toolId, extension))
-        .build();
-
-    String toolDescriptorContent = toolDescriptorMapper.write(toolDescriptor);
-    System.out.println(toolDescriptorContent);
-    Path toolDescriptorPath = request.toolDescriptorsDirectory().resolve(toolId).resolve(TOOL_DESCRIPTOR);
-    writeFile(toolDescriptorPath, toolDescriptorContent);
-
-    String fileName = format("%s-%s-%s-%s.%s", toolId, os, arch, version, extension);
-    System.out.println(fileName);
-
-    File artifactLayoutDirectory = syntheticRoot.resolve("build").toFile();
-    Path targetArchive = remoteRoot.resolve(fileName);
-    createDirectories(targetArchive.getParent());
-    ArtifactGenerator generator = new TarGzArtifactGenerator(targetArchive.toFile(), artifactLayoutDirectory)
-        .entry("1/one.txt", "one")
-        .entry("2/two.txt", "two")
-        .entry("3/three.txt", "three");
-    generator.generate();
+    for(SyntheticToolProfileEntry e : syntheticEntries) {
+      ToolDescriptor toolDescriptor = toolDescriptor(e);
+      String toolDescriptorContent = toolDescriptorMapper.write(toolDescriptor);
+      System.out.println(toolDescriptorContent);
+      Path toolDescriptorPath = request.toolDescriptorsDirectory().resolve(e.name()).resolve(TOOL_DESCRIPTOR);
+      writeFile(toolDescriptorPath, toolDescriptorContent);
+      String fileName = format("%s-%s-%s-%s.%s", e.name(), OS, ARCH, e.version(), e.extension());
+      File artifactLayoutDirectory = syntheticRoot.resolve("build").resolve(e.name()).toFile();
+      Path targetArchive = remoteRoot.resolve(fileName);
+      createDirectories(targetArchive.getParent());
+      ArtifactGenerator generator = new TarGzArtifactGenerator(targetArchive.toFile(), artifactLayoutDirectory, e.artifactEntries());
+      generator.generate();
+    }
   }
 
+  private ToolDescriptor toolDescriptor(SyntheticToolProfileEntry e) {
+    return ImmutableToolDescriptor.builder()
+        .id(e.name())
+        .name(e.name())
+        .layout(e.layout())
+        .packaging(e.packaging())
+        .executable(e.name())
+        .defaultVersion(e.version())
+        .urlTemplate(url(e.name(), e.extension()))
+        .build();
+  }
 }

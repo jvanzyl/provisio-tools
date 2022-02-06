@@ -1,6 +1,5 @@
 package ca.vanzyl.provisio.tools.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
@@ -12,7 +11,7 @@ import org.immutables.value.Value;
 public abstract class ToolProfileEntry {
 
   @Nullable
-  //@JsonIgnore // this seems to work for just serialization
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   public abstract String name();
 
   public abstract String version();
