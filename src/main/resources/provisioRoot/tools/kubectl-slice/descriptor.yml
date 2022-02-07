@@ -1,0 +1,11 @@
+---
+id: kubectl-slice
+name: kubectl-slice
+defaultVersion: 1.1.0
+layout: file
+executable: kubectl-slice
+packaging: TARGZ
+osMappings:
+  Darwin: darwin
+  Linux: linux
+urlTemplate: "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v{version}/kubectl-slice_{version}_{os}_{arch}.tar.gz"

@@ -93,12 +93,18 @@ public class ToolDescriptorGenerator {
       if (downloadUrl.contains("x64")) {
         archMappings.put("x86_64", "x64");
         foundArchIdentifier = "x64";
+      } else if (downloadUrl.contains("x86_64")) {
+        foundArchIdentifier = "x86_64";
       } else if (downloadUrl.contains("amd64")) {
         archMappings.put("x86_64", "amd64");
         foundArchIdentifier = "amd64";
       } else if (downloadUrl.contains("arm64")) {
         archMappings.put("arm64", "arm");
         foundArchIdentifier = "arm64";
+      }
+
+      if(urlToAnalyze != null) {
+        break;
       }
     }
 
@@ -140,7 +146,7 @@ public class ToolDescriptorGenerator {
       toolIdFromFile = fileName;
     }
     String toolIdFromInfo = info.name();
-    if (toolIdFromInfo.equals(toolIdFromFile)) {
+    if (!toolIdFromInfo.equals(toolIdFromFile)) {
       toolId = toolIdFromInfo;
     } else {
       toolId = toolIdFromFile;
@@ -209,8 +215,11 @@ public class ToolDescriptorGenerator {
 
     // Pulumi
     //generator.generate("https://github.com/pulumi/pulumi/releases");
-
     // GitHub CLI
-    generator.generate("https://github.com/cli/cli/releases");
+    //generator.generate("https://github.com/cli/cli/releases");
+    // Kubectl slice
+    //generator.generate("https://github.com/patrickdappollonio/kubectl-slice/releases");
+    // kubent
+    generator.generate("https://github.com/doitintl/kube-no-trouble/releases");
   }
 }

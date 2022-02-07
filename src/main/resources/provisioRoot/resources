@@ -55,7 +55,9 @@ tools/gnupg/descriptor.yml
 tools/fzf/post-install.sh
 tools/fzf/descriptor.yml
 tools/fzf/bash-template.txt
+tools/kubectl-slice/descriptor.yml
 tools/krew/post-install.sh
 tools/krew/descriptor.yml
 tools/packer/descriptor.yml
+tools/kubent/descriptor.yml
 tools/ytt/descriptor.yml
