@@ -19,6 +19,7 @@ import static java.nio.file.Files.exists;
 import static java.nio.file.Files.move;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Paths.get;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.requireNonNull;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
@@ -51,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -229,7 +231,7 @@ public class Provisio {
       } else {
         // Combine all these in FileUtils
         createDirectories(toolInstallation);
-        copy(artifact, executable, StandardCopyOption.REPLACE_EXISTING);
+        copy(artifact, executable, REPLACE_EXISTING);
         makeExecutable(executable);
       }
     }
@@ -364,6 +366,8 @@ public class Provisio {
           postInstall.execute();
         }
 
+        Map<String,Object> m = new HashMap<>();
+
         // These are installations where the path needs to be added to the environment
         if (tool.layout().equals("directory") && entry.pathManagedBy() == null) {
           // Shell template additions
@@ -403,7 +407,7 @@ public class Provisio {
     System.out.println();
 
     // We record what was installed for the profile
-    copy(profileYaml, profileYamlRecord);
+    copy(profileYaml, profileYamlRecord, REPLACE_EXISTING);
 
     return profileProvisioningResult.build();
   }
