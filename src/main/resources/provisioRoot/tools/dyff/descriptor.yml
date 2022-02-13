@@ -1,0 +1,13 @@
+---
+id: dyff
+name: dyff
+defaultVersion: 1.5.1
+layout: file
+executable: dyff
+packaging: TARGZ
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: amd64
+urlTemplate: "https://github.com/homeport/dyff/releases/download/v{version}/dyff_{version}_{os}_{arch}.tar.gz"

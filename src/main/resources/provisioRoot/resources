@@ -38,6 +38,7 @@ tools/jbang/descriptor.yml
 tools/eksctl/descriptor.yml
 tools/aws-cli/descriptor.yml
 tools/aws-iam-authenticator/descriptor.yml
+tools/dyff/descriptor.yml
 tools/pulumi/descriptor.yaml
 tools/node/post-install.sh
 tools/node/descriptor.yml

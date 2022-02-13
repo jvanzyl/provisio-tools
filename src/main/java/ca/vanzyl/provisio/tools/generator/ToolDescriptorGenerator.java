@@ -13,17 +13,12 @@ import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor.Builder;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -45,7 +40,7 @@ public class ToolDescriptorGenerator {
     releaseSources = List.of(new GitHubReleaseSource());
   }
 
-  public void generate(String url) throws Exception {
+  public void analyzeAndGenerate(String url) throws Exception {
     ReleaseInfo info = null;
     System.out.println("Attempting to analyze " + url + " ...");
     for (ReleaseSource s : releaseSources) {
@@ -58,10 +53,10 @@ public class ToolDescriptorGenerator {
       throw new Exception("Cannot find release analyzer for " + url);
     }
 
-    analyze(info);
+    analyzeAndGenerate(info);
   }
 
-  public void analyze(ReleaseInfo info) throws Exception {
+  public void analyzeAndGenerate(ReleaseInfo info) throws Exception {
 
     Map<String, String> osMappings = new HashMap<>();
     Map<String, String> archMappings = new HashMap<>();
@@ -220,6 +215,8 @@ public class ToolDescriptorGenerator {
     // Kubectl slice
     //generator.generate("https://github.com/patrickdappollonio/kubectl-slice/releases");
     // kubent
-    generator.generate("https://github.com/doitintl/kube-no-trouble/releases");
+    //generator.analyzeAndGenerate("https://github.com/doitintl/kube-no-trouble/releases");
+    generator.analyzeAndGenerate("https://github.com/homeport/dyff/releases");
+
   }
 }
