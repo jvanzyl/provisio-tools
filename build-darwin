@@ -1,0 +1,1 @@
+jenv exec ./mvnw clean package -DskipTests -Pnative

@@ -157,11 +157,16 @@ public class Provisio {
     return null;
   }
 
+  private void message(String message, String... formats) {
+    System.out.format(message, formats);
+  }
+
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   // Self update
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   public void selfUpdate() throws Exception {
+    message("Self updating provisio ...");
     // TODO: make these all constants
     // TODO: don't update if already up to date
     // Fetch the latest release of provisio and replace the main executable with a symlink
@@ -306,6 +311,7 @@ public class Provisio {
       CliCommand command = new CliCommand(List.of(prereqs.toAbsolutePath().toString()), prereqs.getParent(), Map.of(), false);
       CliCommand.Result result = command.execute();
     }
+
     String provisioRootRelativeToUserHome = userHome.relativize(request.provisioRoot()).toString();
     Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
     touch(initBash);
@@ -319,7 +325,7 @@ public class Provisio {
     ImmutableToolProfileProvisioningResult.Builder profileProvisioningResult = ImmutableToolProfileProvisioningResult.builder();
     for (ToolProfileEntry entry : profile.tools().values()) {
       ToolProfileEntry entryRecord = profileRecord.tools().get(entry.name());
-      if(entryRecord.version().equals(entryRecord.version())) {
+      if(entry.version().equals(entryRecord.version())) {
         System.out.println(entry + " Up to date");
       } else {
         System.out.println(entry + " Updating ...");
@@ -366,8 +372,6 @@ public class Provisio {
           PostInstall postInstall = new PostInstall(toolDirectory, args);
           postInstall.execute();
         }
-
-        Map<String,Object> m = new HashMap<>();
 
         // These are installations where the path needs to be added to the environment
         if (tool.layout().equals("directory") && entry.pathManagedBy() == null) {

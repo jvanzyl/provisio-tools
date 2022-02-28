@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-./build
+./build-darwin
+mv target/provisio-tools-1.0.0-SNAPSHOT-runner ../provisio-binaries/provisio-Darwin-x86_64
+
 ./build-linux
+mv target/provisio-tools-1.0.0-SNAPSHOT-runner ../provisio-binaries/provisio-Linux-x86_64
+
 (
 cd ../provisio-binaries
 version="$(cat VERSION | tr -d '\n')"

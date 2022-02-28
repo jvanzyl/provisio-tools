@@ -2,11 +2,10 @@
 id: pulumi
 name: pulumi
 defaultVersion: 3.22.1
-layout: file
+layout: directory
 executable: pulumi
-packaging: TARGZ
-paths: bin
-fileNameFromContentDisposition: false
+packaging: TARGZ_STRIP
+paths: .
 osMappings:
   Darwin: darwin
   Linux: linux

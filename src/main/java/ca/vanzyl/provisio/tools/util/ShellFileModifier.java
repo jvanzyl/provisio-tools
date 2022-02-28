@@ -35,7 +35,8 @@ public class ShellFileModifier {
 
   private final static String[] bashInitScripts = new String[]{
       ".bash_profile",
-      ".bash_login"
+      ".bash_login",
+      ".bashrc"
   };
 
   private final static String[] zshInitScripts = new String[]{
@@ -52,16 +53,17 @@ public class ShellFileModifier {
     this.provisioRoot = provisioRoot;
   }
 
+  // During a docker build is no SHELL envar so we'll assume BASH
   public Path findShellInitializationFile() {
     String userShell = System.getenv("SHELL");
-    if(userShell.endsWith("bash")) {
+    if (userShell == null || userShell.endsWith("bash")) {
       System.out.println("Detected the use of BASH");
       return Arrays.stream(bashInitScripts)
           .map(userHomeDirectory::resolve)
           .filter(Files::exists)
           .findFirst()
           .orElse(null);
-    } else if(userShell.endsWith("zsh")) {
+    } else if (userShell.endsWith("zsh")) {
       System.out.println("Detected the use of ZSH");
       return Arrays.stream(zshInitScripts)
           .map(userHomeDirectory::resolve)
@@ -101,7 +103,7 @@ public class ShellFileModifier {
   }
 
   private void writeShellFileBackup(Path shellFile) throws IOException {
-     Path backup = shellFile.resolveSibling(shellFile.getFileName() + ".provisio_backup");
+    Path backup = shellFile.resolveSibling(shellFile.getFileName() + ".provisio_backup");
     copy(shellFile, backup, StandardCopyOption.REPLACE_EXISTING);
   }
 

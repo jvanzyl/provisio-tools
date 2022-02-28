@@ -26,6 +26,9 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
       fail(result.errorMessage());
     }
     validateProfileInstallation(request, true);
+    //
+    // Test the actual tools that they are accessible and work. Krew had the wrong path so it didn't work
+    //
   }
 
   public static void validateProfileInstallation(ProvisioningRequest request) throws Exception {

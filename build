@@ -1,2 +1,0 @@
-jenv exec ./mvnw clean package -DskipTests -Pnative -Dgit.commit.id=$(git rev-parse --short HEAD)
-mv target/provisio-tools-1.0.0-SNAPSHOT-runner ../provisio-binaries/provisio-Darwin-x86_64

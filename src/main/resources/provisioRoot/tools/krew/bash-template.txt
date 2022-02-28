@@ -1,0 +1,2 @@
+export KREW_ROOT=${PROVISIO_INSTALLS}/krew/0.4.2
+export PATH=${KREW_ROOT}/bin:${KREW_ROOT}:${PATH}

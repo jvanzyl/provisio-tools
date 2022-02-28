@@ -39,7 +39,7 @@ tools/eksctl/descriptor.yml
 tools/aws-cli/descriptor.yml
 tools/aws-iam-authenticator/descriptor.yml
 tools/dyff/descriptor.yml
-tools/pulumi/descriptor.yaml
+tools/pulumi/descriptor.yml
 tools/node/post-install.sh
 tools/node/descriptor.yml
 tools/node/README.md
@@ -59,6 +59,7 @@ tools/fzf/bash-template.txt
 tools/kubectl-slice/descriptor.yml
 tools/krew/post-install.sh
 tools/krew/descriptor.yml
+tools/krew/bash-template.txt
 tools/packer/descriptor.yml
 tools/kubent/descriptor.yml
 tools/ytt/descriptor.yml

@@ -216,7 +216,8 @@ public class ToolDescriptorGenerator {
     //generator.generate("https://github.com/patrickdappollonio/kubectl-slice/releases");
     // kubent
     //generator.analyzeAndGenerate("https://github.com/doitintl/kube-no-trouble/releases");
-    generator.analyzeAndGenerate("https://github.com/homeport/dyff/releases");
+    //generator.analyzeAndGenerate("https://github.com/homeport/dyff/releases");
+    generator.analyzeAndGenerate("https://github.com/cert-manager/cert-manager/releases");
 
   }
 }
