@@ -1,6 +1,7 @@
 # TODO
 
 - [ ] if there are no symlink or current file for the profile use the default profile directory
+- [ ] need tests on a per tool basis
 - [ ] allow specification of the shell init files to generate (docker builds have no SHELL envar)
 - [ ] progress meters when downloading/updating
 - [ ] fix message when updating, tool says up-to-date when it's not
