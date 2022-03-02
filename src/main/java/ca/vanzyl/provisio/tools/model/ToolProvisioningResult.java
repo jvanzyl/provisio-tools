@@ -8,6 +8,13 @@ import org.immutables.value.Value;
 @Value.Immutable
 public abstract class ToolProvisioningResult {
 
+  public abstract String version();
+
+  @Nullable
+  public abstract String pathManagedBy();
+
+  public abstract ToolDescriptor toolDescriptor();
+
   @Nullable
   public abstract Path executable();
 

@@ -1,13 +1,14 @@
-package ca.vanzyl.provisio.tools;
+package ca.vanzyl.provisio.tools.shell;
 
-import static ca.vanzyl.provisio.tools.util.ShellFileModifier.BEGIN_PROVISIO_STANZA;
-import static ca.vanzyl.provisio.tools.util.ShellFileModifier.END_PROVISIO_STANZA;
-import static ca.vanzyl.provisio.tools.util.ShellFileModifier.PROVISIO_STANZA_BODY;
+import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.BEGIN_PROVISIO_STANZA;
+import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.END_PROVISIO_STANZA;
+import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.PROVISIO_STANZA_BODY;
 import static java.nio.file.Files.writeString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
 
-import ca.vanzyl.provisio.tools.util.ShellFileModifier;
+import ca.vanzyl.provisio.tools.ProvisioTestSupport;
+import ca.vanzyl.provisio.tools.shell.ShellFileModifier;
 import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.Before;

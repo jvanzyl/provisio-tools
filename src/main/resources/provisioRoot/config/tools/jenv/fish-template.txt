@@ -1,0 +1,4 @@
+# JENV_ROOT needs to be exported for jenv init to pick it up
+set -gx JENV_ROOT ${PROVISIO_INSTALLS}/jenv/{version}
+set PATH ${JENV_ROOT}/bin $PATH
+status --is-interactive; and source (jenv init -|psub)

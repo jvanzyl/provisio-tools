@@ -41,9 +41,25 @@ public abstract class ProvisioningRequest {
     return get(System.getProperty("user.dir")).resolve(".provisio").resolve("profiles");
   }
 
+
+  @Value.Default
+  public Path configDirectory() {
+    return provisioRoot().resolve("config");
+  }
+
+  @Value.Default
+  public Path configLastRevisionDirectory() {
+    return provisioRoot().resolve("config.lastRevision");
+  }
+
   @Value.Default
   public Path toolDescriptorsDirectory() {
-    return provisioRoot().resolve("tools");
+    return configDirectory().resolve("tools");
+  }
+
+  @Value.Default
+  public Path libexecDirectory() {
+    return configDirectory().resolve("libexec");
   }
 
   // Binary: where all the installations, cache and binary instances of profiles

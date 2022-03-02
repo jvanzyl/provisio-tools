@@ -1,5 +1,10 @@
 # TODO
 
+- [x] need one directory of resources to extract from the classpath so I can move/rename atomically
+- [ ] if tool resources are removed they have to be removed on disk, i removed bash-template.txt for krew and it's still in .provisio
+- [ ] collect all constants in one place, too hard to follow them everywhere
+- [ ] fish shell support, shell generation, templates
+- [ ] M1/arm support (emulation works)
 - [ ] if there are no symlink or current file for the profile use the default profile directory
 - [ ] need tests on a per tool basis
 - [ ] allow specification of the shell init files to generate (docker builds have no SHELL envar)

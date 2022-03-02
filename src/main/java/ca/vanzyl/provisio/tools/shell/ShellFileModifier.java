@@ -1,4 +1,4 @@
-package ca.vanzyl.provisio.tools.util;
+package ca.vanzyl.provisio.tools.shell;
 
 /*
 We want to be able to inject and remove the provisio stanza from shell initialization files.
@@ -8,7 +8,7 @@ source ${HOME}/.provisio/.bin/profile/.init.bash
 #---- provisio-end ----
 */
 
-import static ca.vanzyl.provisio.tools.util.ShellFileModifier.Shell.*;
+import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.Shell.*;
 import static java.nio.file.Files.copy;
 
 import java.io.IOException;
@@ -102,13 +102,10 @@ public class ShellFileModifier {
     if (userShell == null) {
       return BASH;
     } else if (userShell.endsWith(BASH.id())) {
-      System.out.println("Detected the use of BASH");
       return BASH;
     } else if (userShell.endsWith(ZSH.id())) {
-      System.out.println("Detected the use of ZSH");
       return ZSH;
     } else if(userShell.endsWith(FISH.id())) {
-      System.out.println("Detected the use of FISH");
       return FISH;
     }
     throw new RuntimeException("Cannot find supported shell initialization script. Only bash, zsh and fish are supported.");

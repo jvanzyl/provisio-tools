@@ -1,8 +1,12 @@
 package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
+import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.Shell.FISH;
+import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.userShell;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
+import static ca.vanzyl.provisio.tools.util.FileUtils.moveDirectoryIfExists;
+import static ca.vanzyl.provisio.tools.util.FileUtils.touch;
 import static ca.vanzyl.provisio.tools.util.FileUtils.updateRelativeSymlink;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
 import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
@@ -11,7 +15,6 @@ import static com.pivovarit.function.ThrowingFunction.unchecked;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.createFile;
 import static java.nio.file.Files.createSymbolicLink;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.exists;
@@ -20,7 +23,6 @@ import static java.nio.file.Files.move;
 import static java.nio.file.Files.newOutputStream;
 import static java.nio.file.Files.readString;
 import static java.nio.file.Files.walk;
-import static java.nio.file.Files.writeString;
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.requireNonNull;
@@ -38,9 +40,12 @@ import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
+import ca.vanzyl.provisio.tools.shell.BashInitGenerator;
+import ca.vanzyl.provisio.tools.shell.FishInitGenerator;
+import ca.vanzyl.provisio.tools.shell.ShellFileModifier;
+import ca.vanzyl.provisio.tools.shell.ShellInitGenerator;
 import ca.vanzyl.provisio.tools.util.CliCommand;
 import ca.vanzyl.provisio.tools.util.PostInstall;
-import ca.vanzyl.provisio.tools.util.ShellFileModifier;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import ca.vanzyl.provisio.tools.util.http.DownloadManager;
 import com.pivovarit.function.ThrowingFunction;
@@ -52,8 +57,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -130,7 +133,26 @@ public class Provisio {
   public void initialize() throws Exception {
     Path userProfileYaml = findUserProfileYaml();
     System.out.println("Initializing provisio[profile=" + userProfile + " with " + userProfileYaml + "]");
-    try(InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
+    //
+    // Write out the copy of the resources into new directory and when it is successfully written to disk then we move
+    // current directory out of the way and then move the new directory to the current
+    //
+    // 1) ${provisioRoot}/config   -> ${provisioRoot}/config.lastRevision
+    // 2) resources from classpath -> ${provisioRoot}/config.inProgress
+    // 3) remove ${provisioRoot}/config.lastRevision: This signals the configuration has successfully from the classpath
+    //
+    // The resources file currently is of the form:
+    //
+    // config/tools/dive/descriptor.yml
+    // config/tools/kapp/descriptor.yml
+    // config/tools/argocd/descriptor.yml
+    //
+
+    // 1)
+    moveDirectoryIfExists(request.configDirectory(), request.configLastRevisionDirectory());
+
+    // 2)
+    try (InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
       List<String> resources = new BufferedReader(new InputStreamReader(resourceDescriptorInput, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
       for (String resource : resources) {
         Path path = request.provisioRoot().resolve(resource);
@@ -141,6 +163,9 @@ public class Provisio {
         }
       }
     }
+
+    // 3)
+    deleteDirectoryIfExists(request.configLastRevisionDirectory());
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -148,10 +173,9 @@ public class Provisio {
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   private Path findUserProfileYaml() {
-    if(exists(workingDirectoryUserProfileYaml)) {
+    if (exists(workingDirectoryUserProfileYaml)) {
       return workingDirectoryUserProfileYaml;
-    }
-    else if(exists(dotProvisioUserProfileYaml)) {
+    } else if (exists(dotProvisioUserProfileYaml)) {
       return dotProvisioUserProfileYaml;
     }
     return null;
@@ -197,10 +221,6 @@ public class Provisio {
   // Tool provisioning
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  public ToolProvisioningResult provisionTool(String tool) throws Exception {
-    return provisionTool(tool, null);
-  }
-
   public ToolProvisioningResult provisionTool(String tool, String version) throws Exception {
     ToolDescriptor toolDescriptor = toolDescriptorMap.get(tool);
     return provisionTool(toolDescriptor, version != null ? version : toolDescriptor.defaultVersion());
@@ -210,10 +230,12 @@ public class Provisio {
     Path toolInstallation = installsDirectory.resolve(toolDescriptor.id()).resolve(version);
     Path executable = toolInstallation.resolve(toolDescriptor.executable());
 
-    ImmutableToolProvisioningResult.Builder result = ImmutableToolProvisioningResult.builder();
+    ImmutableToolProvisioningResult.Builder toolProvisioningResultBuilder = ImmutableToolProvisioningResult.builder();
+    toolProvisioningResultBuilder.toolDescriptor(toolDescriptor);
+    toolProvisioningResultBuilder.version(version);
     // We want the path relative to the user profile binary directory
-    result.addPaths(installsDirectory.relativize(toolInstallation.resolve(toolDescriptor.paths())));
-    result.installation(toolInstallation);
+    toolProvisioningResultBuilder.addPaths(installsDirectory.relativize(toolInstallation.resolve(toolDescriptor.paths())));
+    toolProvisioningResultBuilder.installation(toolInstallation);
 
     if (!exists(toolInstallation)) {
       Path artifact = downloadManager.resolve(toolDescriptor, version);
@@ -263,7 +285,7 @@ public class Provisio {
       //
       updateRelativeSymlink(link, target);
     }
-    return result.build();
+    return toolProvisioningResultBuilder.build();
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -276,7 +298,7 @@ public class Provisio {
 
   public ToolProfileProvisioningResult installProfile() throws Exception {
     Path userProfileYaml = findUserProfileYaml();
-    if(userProfileYaml != null) {
+    if (userProfileYaml != null) {
       return installProfile(userProfileYaml);
     } else {
       // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles directories don't contain the requested profile
@@ -295,37 +317,34 @@ public class Provisio {
     ToolProfile profile = profileMapper.read(profileYaml, ToolProfile.class);
     Path profileYamlRecord = binaryProfileDirectory.resolve(PROFILE_YAML);
     ToolProfile profileRecord;
-    if(exists(profileYamlRecord)) {
+    if (exists(profileYamlRecord)) {
       // This profile has been provisioned previously
       profileRecord = profileMapper.read(profileYaml, ToolProfile.class);
     } else {
       profileRecord = profile;
     }
-    // Install prereqs for the OS by running the OS specific script to bootstrap things. Trying to move core
-    // utils to a binary build for not requiring brew at all.
-    Path prereqs = request.provisioRoot().resolve("libexec").resolve(OS.toLowerCase() + ".bash");
-    if(exists(prereqs)) {
-      if(!isExecutable((prereqs))) {
+
+    //
+    // Provision
+    //
+    Path prereqs = request.libexecDirectory().resolve(OS.toLowerCase() + ".bash");
+    if (exists(prereqs)) {
+      // Install prereqs for the OS by running the OS specific script to bootstrap things. Trying to move core
+      // utils to a binary build for not requiring brew at all.
+      if (!isExecutable((prereqs))) {
         makeExecutable(prereqs);
       }
       CliCommand command = new CliCommand(List.of(prereqs.toAbsolutePath().toString()), prereqs.getParent(), Map.of(), false);
       CliCommand.Result result = command.execute();
     }
 
-    String provisioRootRelativeToUserHome = userHome.relativize(request.provisioRoot()).toString();
-    Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
-    touch(initBash);
-    line(initBash, "export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
-    line(initBash, "export PROVISIO_BIN=${PROVISIO_ROOT}%n");
-    line(initBash, "export PROVISIO_INSTALLS=${PROVISIO_ROOT}/bin/installs%n");
-    line(initBash, "export PROVISIO_PROFILES=${PROVISIO_ROOT}/bin/profiles%n");
-    line(initBash, "export PROVISIO_ACTIVE_PROFILE=${PROVISIO_ROOT}/bin/profiles/profile%n");
-    line(initBash, "export PATH=${PROVISIO_BIN}:${PROVISIO_ACTIVE_PROFILE}:${PATH}%n%n");
-
-    ImmutableToolProfileProvisioningResult.Builder profileProvisioningResult = ImmutableToolProfileProvisioningResult.builder();
+    //
+    // Provision
+    //
+    ImmutableToolProfileProvisioningResult.Builder profileProvisioningResultBuilder = ImmutableToolProfileProvisioningResult.builder();
     for (ToolProfileEntry entry : profile.tools().values()) {
       ToolProfileEntry entryRecord = profileRecord.tools().get(entry.name());
-      if(entry.version().equals(entryRecord.version())) {
+      if (entry.version().equals(entryRecord.version())) {
         System.out.println(entry + " Up to date");
       } else {
         System.out.println(entry + " Updating ...");
@@ -333,12 +352,8 @@ public class Provisio {
       ToolDescriptor tool = toolDescriptorMap.get(entry.name());
       Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
       for (String version : entry.version().split("[\\s,]+")) {
-        //
-        // Old versus new profile on a per tool basis to check for up-to-date
-        //
-        ToolProvisioningResult result = provisionTool(tool, version);
-        // TODO: should the policy be these scripts be idempotent? yes
-        // This needs to be more testable.
+        ToolProvisioningResult toolProvisioningResult =
+            ImmutableToolProvisioningResult.builder().from(provisionTool(tool, version)).pathManagedBy(entry.pathManagedBy()).build();
         Path postInstallScript = toolDirectory.resolve(POST_INSTALL);
         if (exists(postInstallScript)) {
           List<String> args = List.of(
@@ -359,7 +374,7 @@ public class Provisio {
               // ${7}
               tool.id(),
               // ${8}
-              result.installation() != null ? result.installation().toAbsolutePath().toString() : "location",
+              toolProvisioningResult.installation() != null ? toolProvisioningResult.installation().toAbsolutePath().toString() : "location",
               // ${9} : this is the straight version not mapped from descriptor
               mapOs(OS, tool),
               // ${10} : this is the straight version not mapped from descriptor
@@ -367,36 +382,59 @@ public class Provisio {
               // ${11}
               installsDirectory.toAbsolutePath().toString(),
               // ${12}: relative installation directroy from binary profile directory
-              result.installation() != null ? binaryProfileDirectory.relativize(result.installation()).toString() : "relative"
+              toolProvisioningResult.installation() != null ? binaryProfileDirectory.relativize(toolProvisioningResult.installation()).toString() : "relative"
           );
           PostInstall postInstall = new PostInstall(toolDirectory, args);
           postInstall.execute();
         }
+        profileProvisioningResultBuilder.addTools(toolProvisioningResult);
+      }
+    }
 
-        // These are installations where the path needs to be added to the environment
-        if (tool.layout().equals("directory") && entry.pathManagedBy() == null) {
-          // Shell template additions
-          Path shellTemplate = toolDirectory.resolve(SHELL_TEMPLATE);
-          line(initBash, "# -------------- " + tool.id() + "  --------------%n");
-          if (exists(shellTemplate)) {
-            String shellTemplateContents = interpolateToolPath(readString(shellTemplate), tool, version);
-            line(initBash, shellTemplateContents + "%n");
-          } else {
-            String pathToExport = result.paths().get(0).toString();
-            String toolRoot = tool.id().replace("-", "_").toUpperCase() + "_ROOT";
-            line(initBash, toolRoot + "=${PROVISIO_INSTALLS}/%s%n", pathToExport);
-            line(initBash, "export PATH=${%s}:${PATH}%n%n", toolRoot);
-          }
+    //
+    // Install
+    //
+    Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
+    String provisioRootRelativeToUserHome = userHome.relativize(request.provisioRoot()).toString();
+
+    ShellInitGenerator shellInitGenerator;
+    if (userShell().equals(FISH)) {
+      shellInitGenerator = new FishInitGenerator(initBash, provisioRootRelativeToUserHome);
+    } else {
+      shellInitGenerator = new BashInitGenerator(initBash, provisioRootRelativeToUserHome);
+    }
+
+    shellInitGenerator.preamble();
+
+    ToolProfileProvisioningResult profileProvisioningResult = profileProvisioningResultBuilder.build();
+    for (ToolProvisioningResult toolProvisioningResult : profileProvisioningResultBuilder.build().tools()) {
+      String version = toolProvisioningResult.version();
+      String pathManagedBy = toolProvisioningResult.pathManagedBy();
+      ToolDescriptor tool = toolProvisioningResult.toolDescriptor();
+      Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
+      // These are installations where the path needs to be added to the environment
+      if (tool.layout().equals("directory") && pathManagedBy == null) {
+        Path shellTemplate = toolDirectory.resolve(SHELL_TEMPLATE);
+        shellInitGenerator.comment(tool.id());
+        if (exists(shellTemplate)) {
+          String shellTemplateContents = interpolateToolPath(readString(shellTemplate), tool, version);
+          shellInitGenerator.write(shellTemplateContents);
+        } else {
+          String pathToExport = toolProvisioningResult.paths().get(0).toString();
+          // Here we might have a csv list of paths to export
+          String toolRoot = tool.id().replace("-", "_").toUpperCase() + "_ROOT";
+          shellInitGenerator.pathWithExport(toolRoot, pathToExport);
         }
-        profileProvisioningResult.addTools(result);
       }
     }
 
     // If the profile.shell exists then make the addition to the .init.bash
     Path userProfileShell = profileYaml.getParent().resolve(PROFILE_SHELL);
-    if(exists(userProfileShell)) {
+    if (exists(userProfileShell)) {
       String userProfileShellContents = readString(userProfileShell);
-      line(initBash, userProfileShellContents);
+      // Sheller.writeUserProfileShell
+      shellInitGenerator.write(userProfileShellContents);
+      //line(initBash, userProfileShellContents);
     }
 
     // Update the symlink to the currently active profile
@@ -414,32 +452,13 @@ public class Provisio {
     // We record what was installed for the profile
     copy(profileYaml, profileYamlRecord, REPLACE_EXISTING);
 
-    return profileProvisioningResult.build();
-  }
-
-  private void line(Path path, String line, Object... options) throws IOException {
-    writeString(path, format(line, options), StandardOpenOption.APPEND);
-  }
-
-  private void touch(Path path) throws IOException {
-    createDirectories(path.getParent());
-    // Without this line it fails in Graal, some some default modes must be different
-    deleteIfExists(path);
-    createFile(path);
-  }
-
-  private void touch(Path path, String content) throws IOException {
-    createDirectories(path.getParent());
-    writeString(path, content);
+    return profileProvisioningResult;
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
   public final static ThrowingFunction<Path, ToolDescriptor, IOException> toolDescriptorFrom =
       path -> new YamlMapper<ToolDescriptor>().read(path, ToolDescriptor.class);
-
-  public final static ThrowingFunction<Path, ToolProfile, IOException> profileDescriptorFrom =
-      path -> new YamlMapper<ToolProfile>().read(path, ToolProfile.class);
 
   public static Map<String, ToolDescriptor> collectToolDescriptorsMap(Path tools) throws Exception {
     try (Stream<Path> stream = walk(tools, 3)) {

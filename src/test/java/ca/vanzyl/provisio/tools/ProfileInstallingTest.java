@@ -72,9 +72,9 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
     assertThat(request.binaryProfilesDirectory().resolve("profile")).exists().isSymbolicLink();
     assertThat(request.binaryProfilesDirectory().resolve("profile").toRealPath().getFileName().toString()).isEqualTo(userProfile);
     // 3)
-    assertThat(request.provisioRoot().resolve("libexec")).exists();
-    assertThat(request.provisioRoot().resolve("libexec").resolve("darwin.bash")).exists();
-    assertThat(request.provisioRoot().resolve("libexec").resolve("provisio-functions.bash")).exists();
+    assertThat(request.libexecDirectory()).exists();
+    assertThat(request.libexecDirectory().resolve("darwin.bash")).exists();
+    assertThat(request.libexecDirectory().resolve("provisio-functions.bash")).exists();
     // 4)
     assertThat(request.userProfilesDirectory()).exists();
     assertThat(request.userProfilesDirectory().resolve(userProfile)).exists();
@@ -83,7 +83,7 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
       assertThat(request.provisioRoot().resolve("provisio")).exists();
     }
     // 6)
-    assertThat(request.provisioRoot().resolve("tools")).exists();
+    assertThat(request.toolDescriptorsDirectory()).exists();
 
     // generate profiles
     // mutate profiles
