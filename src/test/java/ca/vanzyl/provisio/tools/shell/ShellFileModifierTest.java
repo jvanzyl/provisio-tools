@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
 
 import ca.vanzyl.provisio.tools.ProvisioTestSupport;
-import ca.vanzyl.provisio.tools.shell.ShellFileModifier;
+import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
 import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.Before;
@@ -16,18 +16,18 @@ import org.junit.Test;
 
 public class ShellFileModifierTest extends ProvisioTestSupport {
 
-  protected ShellFileModifier modifier;
+  protected BashInitGenerator modifier;
   protected Path homeDirectory;
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
     homeDirectory = path("homeDirectory");
-    modifier = new ShellFileModifier(homeDirectory, homeDirectory.resolve(".provisio"));
+    modifier = new BashInitGenerator(homeDirectory, ImmutableProvisioningRequest.builder().build());
   }
 
   @Test
-  public void provisioStanzaRemovalFromShellInitializationContent() throws Exception {
+  public void provisioStanzaRemovalFromShellInitializationContent() {
     String shellFileContent = createFileContentsWith(
         "# first",
         BEGIN_PROVISIO_STANZA,
@@ -75,7 +75,7 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
     touch(homeDirectory, ".bash_login");
     touch(homeDirectory, ".zprofile");
     touch(homeDirectory, ".zshrc");
-    modifier.updateShellInitializationFile();
+    modifier.updateShellInitialization();
     assertThat(linesOf(shellFile.toFile())).containsExactly(
         BEGIN_PROVISIO_STANZA,
         PROVISIO_STANZA_BODY,

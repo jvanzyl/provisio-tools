@@ -1,8 +1,9 @@
 package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
-import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.Shell.FISH;
-import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.userShell;
+import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.Shell.FISH;
+import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.Shell.ZSH;
+import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.userShell;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
 import static ca.vanzyl.provisio.tools.util.FileUtils.moveDirectoryIfExists;
@@ -42,8 +43,8 @@ import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import ca.vanzyl.provisio.tools.shell.BashInitGenerator;
 import ca.vanzyl.provisio.tools.shell.FishInitGenerator;
-import ca.vanzyl.provisio.tools.shell.ShellFileModifier;
 import ca.vanzyl.provisio.tools.shell.ShellInitGenerator;
+import ca.vanzyl.provisio.tools.shell.ZshInitGenerator;
 import ca.vanzyl.provisio.tools.util.CliCommand;
 import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
@@ -70,7 +71,6 @@ public class Provisio {
   // de-dupe these
   public static final String PROVISiO_SHELL_INIT = ".init.bash";
   public static final String POST_INSTALL = "post-install.sh";
-  public static final String SHELL_TEMPLATE = "bash-template.txt";
   public final static String IN_PROGRESS_EXTENSION = ".in-progress";
   public final static String PROFILE_YAML = "profile.yaml";
   public final static String PROFILE_SHELL = "profile.shell";
@@ -233,8 +233,6 @@ public class Provisio {
     ImmutableToolProvisioningResult.Builder toolProvisioningResultBuilder = ImmutableToolProvisioningResult.builder();
     toolProvisioningResultBuilder.toolDescriptor(toolDescriptor);
     toolProvisioningResultBuilder.version(version);
-    // We want the path relative to the user profile binary directory
-    toolProvisioningResultBuilder.addPaths(installsDirectory.relativize(toolInstallation.resolve(toolDescriptor.paths())));
     toolProvisioningResultBuilder.installation(toolInstallation);
 
     if (!exists(toolInstallation)) {
@@ -359,7 +357,7 @@ public class Provisio {
           List<String> args = List.of(
               postInstallScript.toAbsolutePath().toString(),
               // ${1}
-              request.provisioRoot().resolve("libexec").resolve("provisio-functions.bash").toAbsolutePath().toString(),
+              request.libexecDirectory().resolve("provisio-functions.bash").toAbsolutePath().toString(),
               // ${2}
               profileYaml.toAbsolutePath().toString(),
               // ${3}
@@ -394,17 +392,17 @@ public class Provisio {
     //
     // Install
     //
-    Path initBash = binaryProfileDirectory.resolve(PROVISiO_SHELL_INIT);
-    String provisioRootRelativeToUserHome = userHome.relativize(request.provisioRoot()).toString();
-
     ShellInitGenerator shellInitGenerator;
     if (userShell().equals(FISH)) {
-      shellInitGenerator = new FishInitGenerator(initBash, provisioRootRelativeToUserHome);
+      shellInitGenerator = new FishInitGenerator(userHome, request);
+    } else if (userShell().equals(ZSH)) {
+      shellInitGenerator = new ZshInitGenerator(userHome, request);
     } else {
-      shellInitGenerator = new BashInitGenerator(initBash, provisioRootRelativeToUserHome);
+      shellInitGenerator = new BashInitGenerator(userHome, request);
     }
 
     shellInitGenerator.preamble();
+    String shellTemplateName = shellInitGenerator.shellTemplateName();
 
     ToolProfileProvisioningResult profileProvisioningResult = profileProvisioningResultBuilder.build();
     for (ToolProvisioningResult toolProvisioningResult : profileProvisioningResultBuilder.build().tools()) {
@@ -414,16 +412,31 @@ public class Provisio {
       Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
       // These are installations where the path needs to be added to the environment
       if (tool.layout().equals("directory") && pathManagedBy == null) {
-        Path shellTemplate = toolDirectory.resolve(SHELL_TEMPLATE);
+        Path shellTemplatePath = toolDirectory.resolve(shellTemplateName);
         shellInitGenerator.comment(tool.id());
-        if (exists(shellTemplate)) {
-          String shellTemplateContents = interpolateToolPath(readString(shellTemplate), tool, version);
+        if (exists(shellTemplatePath)) {
+          String shellTemplateContents = interpolateToolPath(readString(shellTemplatePath), tool, version);
           shellInitGenerator.write(shellTemplateContents);
         } else {
-          String pathToExport = toolProvisioningResult.paths().get(0).toString();
-          // Here we might have a csv list of paths to export
+          //
+          // Produces something like the following:
+          //
+          // # -------------- pulumi  --------------
+          // PULUMI_ROOT=${PROVISIO_INSTALLS}/pulumi/3.22.1
+          // export PATH=${PULUMI_ROOT}:${PATH}
+          //
+          // And the case where there are multiple paths to export:
+          //
+          // "." and "bin"
+          //
+          // # -------------- krew  --------------
+          // KREW_ROOT=${PROVISIO_INSTALLS}/krew/0.42.0
+          // export PATH=${KREW_ROOT}:${KREW_ROOT}/bin:${PATH}
+          //
+          Path toolInstallation = installsDirectory.resolve(tool.id()).resolve(version);
+          String relativeToolInstallationPath = installsDirectory.relativize(toolInstallation).toString();
           String toolRoot = tool.id().replace("-", "_").toUpperCase() + "_ROOT";
-          shellInitGenerator.pathWithExport(toolRoot, pathToExport);
+          shellInitGenerator.pathWithExport(toolRoot, relativeToolInstallationPath, tool.paths());
         }
       }
     }
@@ -432,9 +445,7 @@ public class Provisio {
     Path userProfileShell = profileYaml.getParent().resolve(PROFILE_SHELL);
     if (exists(userProfileShell)) {
       String userProfileShellContents = readString(userProfileShell);
-      // Sheller.writeUserProfileShell
       shellInitGenerator.write(userProfileShellContents);
-      //line(initBash, userProfileShellContents);
     }
 
     // Update the symlink to the currently active profile
@@ -445,9 +456,8 @@ public class Provisio {
     touch(binaryProfilesDirectory.resolve("current"), userProfile);
 
     // Shell init file update
-    ShellFileModifier modifier = new ShellFileModifier(userHome, request.provisioRoot());
-    modifier.updateShellInitializationFile();
-    System.out.println();
+    //ShellFileModifier modifier = new ShellFileModifier(userHome, request.provisioRoot());
+    shellInitGenerator.updateShellInitialization();
 
     // We record what was installed for the profile
     copy(profileYaml, profileYamlRecord, REPLACE_EXISTING);

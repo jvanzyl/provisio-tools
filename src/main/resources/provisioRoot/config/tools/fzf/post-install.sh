@@ -19,4 +19,10 @@ cd ${installLocation}
     [ ! -f key-bindings.zsh ] && curl -OL https://raw.githubusercontent.com/junegunn/fzf/${version}/shell/key-bindings.zsh
     [ ! -f completion.zsh ] && curl -OL https://raw.githubusercontent.com/junegunn/fzf/${version}/shell/completion.zsh
   )
+[ ! -d fish ] && mkdir fish
+  (
+    cd fish
+    [ ! -f key-bindings.fish ] && curl -OL https://raw.githubusercontent.com/junegunn/fzf/${version}/shell/key-bindings.fish
+    [ ! -f completion.fish ] && curl -OL https://raw.githubusercontent.com/junegunn/fzf/${version}/shell/completion.fish
+  )
 )

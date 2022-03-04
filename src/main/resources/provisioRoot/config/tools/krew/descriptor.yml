@@ -3,7 +3,7 @@ id: krew
 name: Krew
 defaultVersion: 0.4.2
 layout: directory
-paths: .
+paths: ., bin
 executable: krew
 packaging: TARGZ
 osMappings:
