@@ -1,8 +1,8 @@
 package ca.vanzyl.provisio.tools.shell;
 
-import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.BEGIN_PROVISIO_STANZA;
-import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.END_PROVISIO_STANZA;
-import static ca.vanzyl.provisio.tools.shell.ShellFileModifier.PROVISIO_STANZA_BODY;
+import static ca.vanzyl.provisio.tools.shell.ShellHandlerSupport.BEGIN_PROVISIO_STANZA;
+import static ca.vanzyl.provisio.tools.shell.ShellHandlerSupport.END_PROVISIO_STANZA;
+import static ca.vanzyl.provisio.tools.shell.ShellHandlerSupport.PROVISIO_STANZA_BODY;
 import static java.nio.file.Files.writeString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.linesOf;
@@ -16,14 +16,14 @@ import org.junit.Test;
 
 public class ShellFileModifierTest extends ProvisioTestSupport {
 
-  protected BashInitGenerator modifier;
+  protected BashShellHandler modifier;
   protected Path homeDirectory;
 
   @Before
   public void setUp() throws Exception {
     super.setUp();
     homeDirectory = path("homeDirectory");
-    modifier = new BashInitGenerator(homeDirectory, ImmutableProvisioningRequest.builder().build());
+    modifier = new BashShellHandler(homeDirectory, ImmutableProvisioningRequest.builder().build());
   }
 
   @Test

@@ -1,9 +1,9 @@
 package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
-import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.Shell.FISH;
-import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.Shell.ZSH;
-import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.userShell;
+import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.FISH;
+import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.ZSH;
+import static ca.vanzyl.provisio.tools.shell.ShellHandler.userShell;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
 import static ca.vanzyl.provisio.tools.util.FileUtils.moveDirectoryIfExists;
@@ -41,10 +41,10 @@ import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolProfileEntry;
 import ca.vanzyl.provisio.tools.model.ToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
-import ca.vanzyl.provisio.tools.shell.BashInitGenerator;
-import ca.vanzyl.provisio.tools.shell.FishInitGenerator;
-import ca.vanzyl.provisio.tools.shell.ShellInitGenerator;
-import ca.vanzyl.provisio.tools.shell.ZshInitGenerator;
+import ca.vanzyl.provisio.tools.shell.BashShellHandler;
+import ca.vanzyl.provisio.tools.shell.FishShellHandler;
+import ca.vanzyl.provisio.tools.shell.ShellHandler;
+import ca.vanzyl.provisio.tools.shell.ZshShellHandler;
 import ca.vanzyl.provisio.tools.util.CliCommand;
 import ca.vanzyl.provisio.tools.util.PostInstall;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
@@ -392,17 +392,17 @@ public class Provisio {
     //
     // Install
     //
-    ShellInitGenerator shellInitGenerator;
+    ShellHandler shellHandler;
     if (userShell().equals(FISH)) {
-      shellInitGenerator = new FishInitGenerator(userHome, request);
+      shellHandler = new FishShellHandler(userHome, request);
     } else if (userShell().equals(ZSH)) {
-      shellInitGenerator = new ZshInitGenerator(userHome, request);
+      shellHandler = new ZshShellHandler(userHome, request);
     } else {
-      shellInitGenerator = new BashInitGenerator(userHome, request);
+      shellHandler = new BashShellHandler(userHome, request);
     }
 
-    shellInitGenerator.preamble();
-    String shellTemplateName = shellInitGenerator.shellTemplateName();
+    shellHandler.preamble();
+    String shellTemplateName = shellHandler.shellTemplateName();
 
     ToolProfileProvisioningResult profileProvisioningResult = profileProvisioningResultBuilder.build();
     for (ToolProvisioningResult toolProvisioningResult : profileProvisioningResultBuilder.build().tools()) {
@@ -413,10 +413,10 @@ public class Provisio {
       // These are installations where the path needs to be added to the environment
       if (tool.layout().equals("directory") && pathManagedBy == null) {
         Path shellTemplatePath = toolDirectory.resolve(shellTemplateName);
-        shellInitGenerator.comment(tool.id());
+        shellHandler.comment(tool.id());
         if (exists(shellTemplatePath)) {
           String shellTemplateContents = interpolateToolPath(readString(shellTemplatePath), tool, version);
-          shellInitGenerator.write(shellTemplateContents);
+          shellHandler.write(shellTemplateContents);
         } else {
           //
           // Produces something like the following:
@@ -432,11 +432,12 @@ public class Provisio {
           // # -------------- krew  --------------
           // KREW_ROOT=${PROVISIO_INSTALLS}/krew/0.42.0
           // export PATH=${KREW_ROOT}:${KREW_ROOT}/bin:${PATH}
+          // export PATH=${KREW_ROOT}/bin:${PATH}
           //
           Path toolInstallation = installsDirectory.resolve(tool.id()).resolve(version);
           String relativeToolInstallationPath = installsDirectory.relativize(toolInstallation).toString();
           String toolRoot = tool.id().replace("-", "_").toUpperCase() + "_ROOT";
-          shellInitGenerator.pathWithExport(toolRoot, relativeToolInstallationPath, tool.paths());
+          shellHandler.pathWithExport(toolRoot, relativeToolInstallationPath, tool.paths());
         }
       }
     }
@@ -445,7 +446,7 @@ public class Provisio {
     Path userProfileShell = profileYaml.getParent().resolve(PROFILE_SHELL);
     if (exists(userProfileShell)) {
       String userProfileShellContents = readString(userProfileShell);
-      shellInitGenerator.write(userProfileShellContents);
+      shellHandler.write(userProfileShellContents);
     }
 
     // Update the symlink to the currently active profile
@@ -456,8 +457,9 @@ public class Provisio {
     touch(binaryProfilesDirectory.resolve("current"), userProfile);
 
     // Shell init file update
-    //ShellFileModifier modifier = new ShellFileModifier(userHome, request.provisioRoot());
-    shellInitGenerator.updateShellInitialization();
+    System.out.println();
+    shellHandler.updateShellInitialization();
+    System.out.println("Updated: " + shellHandler.shellInitScript());
 
     // We record what was installed for the profile
     copy(profileYaml, profileYamlRecord, REPLACE_EXISTING);

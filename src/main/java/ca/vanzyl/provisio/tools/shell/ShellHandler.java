@@ -1,15 +1,18 @@
 package ca.vanzyl.provisio.tools.shell;
 
-import static ca.vanzyl.provisio.tools.shell.ShellInitGenerator.Shell.*;
+import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.*;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
-public interface ShellInitGenerator {
+public interface ShellHandler {
+  String shellTemplateName();
+  String[] shellInitScripts();
+  Path shellInitScript();
   void preamble() throws IOException;
+  void pathWithExport(String toolRoot, String pathToExport, String exportedPaths) throws IOException;
   void write(String contents) throws IOException;
   void comment(String text) throws IOException;
-  void pathWithExport(String toolRoot, String pathToExport, String exportedPaths) throws IOException;
-  String shellTemplateName();
   void updateShellInitialization() throws IOException;
 
   enum Shell {
@@ -25,6 +28,7 @@ public interface ShellInitGenerator {
     }
   }
 
+  // During a docker build is no SHELL envar so we'll assume BASH
   static Shell userShell() {
     String userShell = System.getenv("SHELL");
     if (userShell == null) {
