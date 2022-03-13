@@ -1,0 +1,13 @@
+id: rekor-cli
+name: Rekor
+defaultVersion: 0.5.0
+layout: file
+executable: rekor-cli
+packaging: FILE
+fileNameFromContentDisposition: false
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: amd64
+urlTemplate: "https://github.com/sigstore/rekor/releases/download/v{version}/rekor-cli-{os}-{arch}"
