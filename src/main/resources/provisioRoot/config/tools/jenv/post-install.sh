@@ -27,13 +27,17 @@ elif [ "${os}" = "Linux" ]; then
 fi
 
 # TODO: check if the JVMs have been added already
-for jdk in $(ls ${profileBinaryDirectory}/java); do
-  ${installLocation}/bin/jenv add "${profileBinaryDirectory}/java/${jdk}/${jdkHome}"
-done
+if [ -d ${profileBinaryDirectory}/java ]; then
+  for jdk in $(ls ${profileBinaryDirectory}/java); do
+    ${installLocation}/bin/jenv add "${profileBinaryDirectory}/java/${jdk}/${jdkHome}"
+  done
+fi
 
-for jdk in $(ls ${profileBinaryDirectory}/graalvm); do
-  ${installLocation}/bin/jenv add "${profileBinaryDirectory}/graalvm/${jdk}/${jdkHome}"
-done
+if [ -d ${profileBinaryDirectory}/graalvm ]; then
+  for jdk in $(ls ${profileBinaryDirectory}/graalvm); do
+    ${installLocation}/bin/jenv add "${profileBinaryDirectory}/graalvm/${jdk}/${jdkHome}"
+  done
+fi
 
 # Set the global version of java if the configuration is present
 [ ! -z "${tools_jenv_global}" ] && ${installLocation}/bin/jenv global ${tools_jenv_global}
