@@ -8,12 +8,12 @@ import java.nio.file.Path;
 public interface ShellHandler {
   String shellTemplateName();
   String[] shellInitScripts();
-  Path shellInitScript();
+  String provisioShellInitializationScript();
   void preamble() throws IOException;
   void pathWithExport(String toolRoot, String pathToExport, String exportedPaths) throws IOException;
   void write(String contents) throws IOException;
   void comment(String text) throws IOException;
-  void updateShellInitialization() throws IOException;
+  Path updateShellInitialization() throws IOException;
 
   enum Shell {
     BASH("bash"),

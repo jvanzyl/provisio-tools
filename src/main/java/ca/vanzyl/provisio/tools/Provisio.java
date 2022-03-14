@@ -458,8 +458,8 @@ public class Provisio {
 
     // Shell init file update
     System.out.println();
-    shellHandler.updateShellInitialization();
-    System.out.println("Updated: " + shellHandler.shellInitScript());
+    Path shellFile = shellHandler.updateShellInitialization();
+    System.out.println("Updated: " + shellFile);
 
     // We record what was installed for the profile
     copy(profileYaml, profileYamlRecord, REPLACE_EXISTING);

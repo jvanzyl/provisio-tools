@@ -58,7 +58,7 @@ public class FishShellHandler extends ShellHandlerSupport {
     line(shellInitScript, "%n");
   }
 
-  public void updateShellInitialization() throws IOException {
+  public Path updateShellInitialization() throws IOException {
     Path shellFile = findShellInitializationFile();
     if (isDirectory(shellFile)) {
       //
@@ -68,6 +68,7 @@ public class FishShellHandler extends ShellHandlerSupport {
       writeShellFileBackup(fishConfig);
       String shellFileContents = Files.readString(fishConfig);
       writeShellFile(fishConfig, insertProvisioStanza(removeProvisioStanza(shellFileContents)));
+      return shellFile;
     } else {
       //
       // ~/.config/fish/config.fish
@@ -75,6 +76,7 @@ public class FishShellHandler extends ShellHandlerSupport {
       writeShellFileBackup(shellFile);
       String shellFileContents = Files.readString(shellFile);
       writeShellFile(shellFile, insertProvisioStanza(removeProvisioStanza(shellFileContents)));
+      return shellFile;
     }
   }
 }

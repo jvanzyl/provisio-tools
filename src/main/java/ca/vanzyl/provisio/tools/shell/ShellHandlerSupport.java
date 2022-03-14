@@ -24,13 +24,14 @@ public abstract class ShellHandlerSupport implements  ShellHandler {
 
   public ShellHandlerSupport(Path userHome, ProvisioningRequest request) {
     this.userHomeDirectory = userHome;
-    this.shellInitScript = request.binaryProfileDirectory().resolve(shellTemplateName());
+    this.shellInitScript = request.binaryProfileDirectory().resolve(provisioShellInitializationScript());
     this.provisioRootRelativeToUserHome = userHome.relativize(request.provisioRoot()).toString();;
   }
 
+  // This is the provisio generated file with all our information
   @Override
-  public Path shellInitScript() {
-    return shellInitScript;
+  public String provisioShellInitializationScript() {
+    return ".init.bash";
   }
 
   @Override
@@ -43,11 +44,12 @@ public abstract class ShellHandlerSupport implements  ShellHandler {
     line(shellInitScript, "# -------------- " + text + "  --------------%n");
   }
 
-  public void updateShellInitialization() throws IOException {
+  public Path updateShellInitialization() throws IOException {
     Path shellFile = findShellInitializationFile();
     writeShellFileBackup(shellFile);
     String shellFileContents = Files.readString(shellFile);
     writeShellFile(shellFile, insertProvisioStanza(removeProvisioStanza(shellFileContents)));
+    return shellFile;
   }
 
   public String insertProvisioStanza(String content) {
