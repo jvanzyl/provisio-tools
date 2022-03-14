@@ -40,10 +40,11 @@ public class FishShellHandler extends ShellHandlerSupport {
     touch(shellInitScript);
     line(shellInitScript, "set -gx PROVISIO_ROOT $HOME/%s%n", provisioRootRelativeToUserHome);
     line(shellInitScript, "set -gx PROVISIO_BIN $PROVISIO_ROOT%n");
+    line(shellInitScript, "set -gx PROVISIO_COMMON ${PROVISIO_ROOT}/bin/common%n");
     line(shellInitScript, "set -gx PROVISIO_INSTALLS $PROVISIO_ROOT/bin/installs%n");
     line(shellInitScript, "set -gx PROVISIO_PROFILES $PROVISIO_ROOT/bin/profiles%n");
     line(shellInitScript, "set -gx PROVISIO_ACTIVE_PROFILE $PROVISIO_ROOT/bin/profiles/profile%n");
-    line(shellInitScript, "set -gx PATH $PROVISIO_BIN $PROVISIO_ACTIVE_PROFILE $PATH%n%n");
+    line(shellInitScript, "set -gx PATH $PROVISIO_BIN $PROVISIO_COMMON $PROVISIO_ACTIVE_PROFILE $PATH%n%n");
   }
 
   public void pathWithExport(String toolRoot, String relativeToolInstallationPath, String exportedPaths) throws IOException {

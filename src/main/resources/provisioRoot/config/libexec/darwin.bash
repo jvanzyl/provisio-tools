@@ -1,28 +1,30 @@
 #!/usr/bin/env bash
 
-# Notes:
-# https://stackoverflow.com/questions/64963370/error-cannot-install-in-homebrew-on-arm-processor-in-intel-default-prefix-usr
-
-ARCH="$(uname -m)"
-echo "Checking prerequistes for OSX on ${ARCH}..."
-if [ "${ARCH}" = "arm64" ]; then
-  echo "Installing Rosetta 2 ..."
-  /usr/sbin/softwareupdate --install-rosetta --agree-to-license
-  brewPrefix="arch -x86_64"
-fi
-
-command -v brew > /dev/null 2>&1
-if [[ $? != 0 ]]; then
-  echo "Brew is not installed."
-  ${brewPrefix} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-fi
-
-# These scripts themselves require realpath and at the very least jenv
-# uses realpath as well. You can see what utilities are provided
-# by coreutils here:
-# 
-# http://www.maizure.org/projects/decoded-gnu-coreutils/
-brew ls --versions coreutils > /dev/null 2>&1
-if [[ $? != 0 ]]; then
-  ${brewPrefix} brew install coreutils
+PROVISIO_ROOT="${1:-$HOME/.provisio}"
+echo "Checking prerequistes for OSX ..."
+if [ ! -f ${PROVISIO_ROOT}/bin/common/coreutils ]; then
+  echo "GNU coreutils is not installed. Installing GNU coreutils ..."
+  arch="$(uname -m)"
+  if [ "${arch}" = "arm64" ]; then
+    if [ ! -f /Library/Apple/usr/lib/libRosettaAot.dylib ]; then
+      # Install Rosetta if it's present, still lots of x86_64 binaries
+      echo "Machine is an M1 Mac. Installing Rosetta 2 ..."
+      /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+    fi
+  fi
+  # ----------------------------------------------------------------------------
+  # Rust-based GNU coreutils that provides things like readlink:
+  # https://github.com/uutils/coreutils
+  # ----------------------------------------------------------------------------
+  version="0.0.12"
+  base="coreutils-${version}-x86_64-apple-darwin"
+  tgz="${base}.tar.gz"
+  cachePath="${PROVISIO_ROOT}/bin/cache/coreutils/${version}"
+  tgzPath="${cachePath}/${tgz}"
+  mkdir -p ${cachePath} > /dev/null 2>&1
+  curl -sL -o ${tgzPath} https://github.com/uutils/coreutils/releases/download/${version}/${tgz}
+  commonBin="${PROVISIO_ROOT}/bin/common"
+  mkdir -p ${commonBin} > /dev/null 2>&1
+  tar -xvf ${tgzPath} --strip-components=1 -C ${commonBin} ${base}/coreutils
+  spctl --add "${commonBin}/coreutils"
 fi

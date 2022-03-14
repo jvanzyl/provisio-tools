@@ -36,10 +36,11 @@ public class BashShellHandler extends ShellHandlerSupport {
     touch(shellInitScript);
     line(shellInitScript, "export PROVISIO_ROOT=${HOME}/%s%n", provisioRootRelativeToUserHome);
     line(shellInitScript, "export PROVISIO_BIN=${PROVISIO_ROOT}%n");
+    line(shellInitScript, "export PROVISIO_COMMON=${PROVISIO_ROOT}/bin/common%n");
     line(shellInitScript, "export PROVISIO_INSTALLS=${PROVISIO_ROOT}/bin/installs%n");
     line(shellInitScript, "export PROVISIO_PROFILES=${PROVISIO_ROOT}/bin/profiles%n");
     line(shellInitScript, "export PROVISIO_ACTIVE_PROFILE=${PROVISIO_ROOT}/bin/profiles/profile%n");
-    line(shellInitScript, "export PATH=${PROVISIO_BIN}:${PROVISIO_ACTIVE_PROFILE}:${PATH}%n%n");
+    line(shellInitScript, "export PATH=${PROVISIO_BIN}:${PROVISIO_COMMON}:${PROVISIO_ACTIVE_PROFILE}:${PATH}%n%n");
   }
 
   @Override
