@@ -12,9 +12,21 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v2
-      - name: Repackage Midnight Commander
-        run: ./repackage-mc
+      - uses: DeLaGuardo/setup-graalvm@5.0
+        with:
+          graalvm: '21.3.0'
+          personal-token: ${{ secrets.GITHUB_TOKEN }}
+          java: 'java11'
+          arch: 'amd64'
+      - run: java -version
+      - name: Install native-image component
+        run: |
+          gu install native-image
+      - run: cp src/tools/upx /usr/local/bin
+      - name: Build
+        run: ./mvnw clean package -DskipTests -Pnative
+      - run: mv target/provisio-tools-*-runner target/provisio-Darwin-x86_64
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "repackage/*.tar.gz"
+          artifacts: "target/provisio-Darwin-x86_64"
           token: ${{ secrets.GITHUB_TOKEN }}
