@@ -35,6 +35,7 @@ config/tools/goreleaser/README.md
 config/tools/upx/descriptor.yml
 config/tools/jbang/descriptor.yml
 config/tools/eksctl/descriptor.yml
+config/tools/mc/descriptor.yml
 config/tools/aws-cli/descriptor.yml
 config/tools/aws-iam-authenticator/descriptor.yml
 config/tools/dyff/descriptor.yml

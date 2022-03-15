@@ -1,0 +1,9 @@
+---
+id: mc
+name: Midnight Commander
+defaultVersion: 4.8.26
+layout: directory
+paths: bin
+executable: mc
+packaging: TARGZ
+urlTemplate: https://github.com/jvanzyl/repackage-mc/releases/download/{version}/mc-{os}-{arch}-{version}.tar.gz
