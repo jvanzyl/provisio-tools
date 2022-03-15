@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] http://packages.macports.org/upx/
 - [x] krew has two path that need to be added, parse a csv or make a list of paths
 - [x] need one directory of resources to extract from the classpath so I can move/rename atomically
 - [x] if tool resources are removed they have to be removed on disk, i removed bash-template.txt for krew and it's still in .provisio
@@ -24,4 +25,3 @@
 - [ ] from the CLI search for tools and add them to a profile
 - [ ] jenv and krew bash-template.txt, just inline that in the descriptor to keep it in one place
 - [x] fix error trying to copy profile after install
-

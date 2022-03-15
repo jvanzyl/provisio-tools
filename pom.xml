@@ -38,7 +38,7 @@
     <dependency>
       <groupId>io.takari</groupId>
       <artifactId>takari-archiver</artifactId>
-      <version>0.1.27-SNAPSHOT</version>
+      <version>0.1.27</version>
     </dependency>
     <dependency>
       <groupId>com.sprylab.xar</groupId>
