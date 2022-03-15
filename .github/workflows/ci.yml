@@ -20,6 +20,7 @@ jobs:
       - run: java -version
       - name: Install native-image component
         run: |
-          gu install native-image      
+          gu install native-image
+      - run: cp src/tools/upx /usr/local/bin              
       - name: Build
         run: ./mvnw clean package -DskipTests -Pnative
