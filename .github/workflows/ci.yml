@@ -1,0 +1,22 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+      - uses: DeLaGuardo/setup-graalvm@5.0
+        with:
+          graalvm: '21.3.0'
+          personal-token: ${{ secrets.GITHUB_TOKEN }}
+          java: 'java11'
+          arch: 'amd64'
+      - run: java -version
+      - name: Build
+        run: ./mvnw clean package -DskipTests -Pnative
