@@ -74,7 +74,8 @@ public class Provisio {
   public final static String IN_PROGRESS_EXTENSION = ".in-progress";
   public final static String PROFILE_YAML = "profile.yaml";
   public final static String PROFILE_SHELL = "profile.shell";
-  public final static String PROVISIO_RELEASES_URL = "https://github.com/jvanzyl/provisio-binaries/releases";
+  //public final static String PROVISIO_RELEASES_URL = "https://github.com/jvanzyl/provisio-binaries/releases";
+  public final static String PROVISIO_RELEASES_URL = "https://github.com/jvanzyl/provisio-tools/releases";
 
   public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
   public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
