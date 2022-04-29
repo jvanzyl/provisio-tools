@@ -1,10 +1,10 @@
 package ca.vanzyl.provisio.tools.generator;
 
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
-import static java.nio.file.Files.*;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
+import static java.nio.file.Files.list;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.tools.generator.github.GitHubReleaseSource;
@@ -65,40 +65,45 @@ public class ToolDescriptorGenerator {
     String foundOsIdentifier = null;
     String foundArchIdentifier = null;
 
-    for (String downloadUrl : info.urls()) {
-      System.out.println(downloadUrl);
+    for (String url : info.urls()) {
+      if (url.endsWith(".rpm") || url.endsWith(".pem") || url.endsWith(".sig")) {
+        continue;
+      }
+
+      System.out.println(url);
 
       // How to analyze these better, really I can pull them out of existing descriptors, as they serve
       // as the real examples
 
       // OS mappings
-      if (downloadUrl.contains("darwin")) {
+      if (url.contains("darwin")) {
         osMappings.put("Darwin", "darwin");
         foundOsIdentifier = "darwin";
-        urlToAnalyze = downloadUrl;
-      } else if (downloadUrl.contains("macOS")) {
+        urlToAnalyze = url;
+      } else if (url.contains("macOS")) {
         osMappings.put("Darwin", "macOS");
         foundOsIdentifier = "macOS";
-        urlToAnalyze = downloadUrl;
-      } else if (downloadUrl.contains("linux")) {
+        urlToAnalyze = url;
+      } else if (url.contains("linux")) {
         osMappings.put("Linux", "linux");
       }
 
       // Arch mappings
-      if (downloadUrl.contains("x64")) {
+      // TODO: put these in a table
+      if (url.contains("x64")) {
         archMappings.put("x86_64", "x64");
         foundArchIdentifier = "x64";
-      } else if (downloadUrl.contains("x86_64")) {
+      } else if (url.contains("x86_64")) {
         foundArchIdentifier = "x86_64";
-      } else if (downloadUrl.contains("amd64")) {
+      } else if (url.contains("amd64")) {
         archMappings.put("x86_64", "amd64");
         foundArchIdentifier = "amd64";
-      } else if (downloadUrl.contains("arm64")) {
+      } else if (url.contains("arm64")) {
         archMappings.put("arm64", "arm");
         foundArchIdentifier = "arm64";
       }
 
-      if(urlToAnalyze != null) {
+      if (urlToAnalyze != null) {
         break;
       }
     }
@@ -133,7 +138,7 @@ public class ToolDescriptorGenerator {
 
     String toolId;
     String toolIdFromFile;
-    if(fileName.indexOf("-") > 0) {
+    if (fileName.indexOf("-") > 0) {
       toolIdFromFile = fileName.indexOf("-") > 0 ? fileName.substring(0, fileName.indexOf("-")) : fileName;
     } else if (fileName.indexOf("_") > 0) {
       toolIdFromFile = fileName.indexOf("_") > 0 ? fileName.substring(0, fileName.indexOf("_")) : fileName;
@@ -179,6 +184,7 @@ public class ToolDescriptorGenerator {
     } else {
       builder.packaging(Packaging.FILE);
       builder.layout("file");
+      builder.paths(null);
     }
 
     builder.osMappings(osMappings);
@@ -218,7 +224,7 @@ public class ToolDescriptorGenerator {
     //generator.analyzeAndGenerate("https://github.com/doitintl/kube-no-trouble/releases");
     //generator.analyzeAndGenerate("https://github.com/homeport/dyff/releases");
     //generator.analyzeAndGenerate("https://github.com/cert-manager/cert-manager/releases");
-    generator.analyzeAndGenerate("https://github.com/sigstore/rekor/releases");
-
+    //generator.analyzeAndGenerate("https://github.com/sigstore/rekor/releases");
+    generator.analyzeAndGenerate("https://github.com/sigstore/cosign/releases");
   }
 }

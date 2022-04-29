@@ -5,4 +5,4 @@ defaultVersion: 0.0.10
 layout: file
 executable: provisio
 packaging: FILE
-urlTemplate: https://github.com/jvanzyl/provisio-binaries/releases/download/{version}/provisio-{os}-{arch}
+urlTemplate: https://github.com/jvanzyl/provisio-tools/releases/download/{version}/provisio-{os}-{arch}

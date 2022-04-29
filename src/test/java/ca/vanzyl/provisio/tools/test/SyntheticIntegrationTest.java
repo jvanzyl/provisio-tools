@@ -68,6 +68,7 @@ public class SyntheticIntegrationTest {
 
   @Test
   public void runningFromEndToEnd() throws Exception {
+    testModeOn();
     // This needs nice builder to comprehensive archive content
     testEntry("tool001", "1.0.1", TARGZ, "file",
         List.of(artifactEntry("test001", "#!/bin/sh")));
@@ -82,6 +83,15 @@ public class SyntheticIntegrationTest {
     provisio(request.provisioRoot(), request.userProfile()).installProfile();
     stopServingToolArtifacts();
     validateProfileInstallation(request);
+    testModeOff();
+  }
+
+  private void testModeOn() {
+    System.setProperty("provisio-test-mode", "true");
+  }
+
+  private void testModeOff() {
+    System.setProperty("provisio-test-mode", "false");
   }
 
   private ArtifactEntry artifactEntry(String name, String content) {

@@ -74,9 +74,7 @@ public class Provisio {
   public final static String IN_PROGRESS_EXTENSION = ".in-progress";
   public final static String PROFILE_YAML = "profile.yaml";
   public final static String PROFILE_SHELL = "profile.shell";
-  //public final static String PROVISIO_RELEASES_URL = "https://github.com/jvanzyl/provisio-binaries/releases";
   public final static String PROVISIO_RELEASES_URL = "https://github.com/jvanzyl/provisio-tools/releases";
-
   public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
   public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
 
@@ -134,6 +132,7 @@ public class Provisio {
   public void initialize() throws Exception {
     Path userProfileYaml = findUserProfileYaml();
     System.out.println("Initializing provisio[profile=" + userProfile + " with " + userProfileYaml + "]");
+    String testMode = System.getProperty("provisio-test-mode");
     //
     // Write out the copy of the resources into new directory and when it is successfully written to disk then we move
     // current directory out of the way and then move the new directory to the current
@@ -150,7 +149,9 @@ public class Provisio {
     //
 
     // 1)
-    moveDirectoryIfExists(request.configDirectory(), request.configLastRevisionDirectory());
+    if(testMode != null && !testMode.equals("true")) {
+      moveDirectoryIfExists(request.configDirectory(), request.configLastRevisionDirectory());
+    }
 
     // 2)
     try (InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
@@ -166,7 +167,9 @@ public class Provisio {
     }
 
     // 3)
-    deleteDirectoryIfExists(request.configLastRevisionDirectory());
+    if(testMode != null && !testMode.equals("true")) {
+      deleteDirectoryIfExists(request.configLastRevisionDirectory());
+    }
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -349,6 +352,9 @@ public class Provisio {
         System.out.println(entry + " Updating ...");
       }
       ToolDescriptor tool = toolDescriptorMap.get(entry.name());
+      if(tool == null ) {
+        throw new RuntimeException(format("There is no tool descriptor with [%s, %s]", entry.name(), entry.version()));
+      }
       Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
       for (String version : entry.version().split("[\\s,]+")) {
         ToolProvisioningResult toolProvisioningResult =
@@ -438,7 +444,11 @@ public class Provisio {
           Path toolInstallation = installsDirectory.resolve(tool.id()).resolve(version);
           String relativeToolInstallationPath = installsDirectory.relativize(toolInstallation).toString();
           String toolRoot = tool.id().replace("-", "_").toUpperCase() + "_ROOT";
-          shellHandler.pathWithExport(toolRoot, relativeToolInstallationPath, tool.paths());
+          String path = tool.paths();
+          if(path == null) {
+            path = "bin";
+          }
+          shellHandler.pathWithExport(toolRoot, relativeToolInstallationPath, path);
         }
       }
     }
