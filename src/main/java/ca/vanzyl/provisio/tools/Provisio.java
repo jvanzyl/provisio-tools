@@ -167,9 +167,7 @@ public class Provisio {
     }
 
     // 3)
-    if(testMode != null && !testMode.equals("true")) {
-      deleteDirectoryIfExists(request.configLastRevisionDirectory());
-    }
+    deleteDirectoryIfExists(request.configLastRevisionDirectory());
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
