@@ -5,6 +5,8 @@ import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.Files.list;
+import static java.nio.file.Files.writeString;
+import static java.nio.file.Paths.get;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.tools.generator.github.GitHubReleaseSource;
@@ -41,22 +43,17 @@ public class ToolDescriptorGenerator {
   }
 
   public void analyzeAndGenerate(String url) throws Exception {
-    ReleaseInfo info = null;
     System.out.println("Attempting to analyze " + url + " ...");
-    for (ReleaseSource s : releaseSources) {
-      if (s.canProcess(url)) {
-        info = s.info(url);
+    for (ReleaseSource releaseSource : releaseSources) {
+      if (releaseSource.canProcess(url)) {
+        analyzeAndGenerate(releaseSource.info(url));
+        return;
       }
     }
-
-    if (info == null) {
-      throw new Exception("Cannot find release analyzer for " + url);
-    }
-
-    analyzeAndGenerate(info);
+    throw new Exception("Cannot find release analyzer for " + url);
   }
 
-  public void analyzeAndGenerate(ReleaseInfo info) throws Exception {
+  public void analyzeAndGenerate(ReleaseInfo releaseInfo) throws Exception {
 
     Map<String, String> osMappings = new HashMap<>();
     Map<String, String> archMappings = new HashMap<>();
@@ -65,8 +62,21 @@ public class ToolDescriptorGenerator {
     String foundOsIdentifier = null;
     String foundArchIdentifier = null;
 
-    for (String url : info.urls()) {
-      if (url.endsWith(".rpm") || url.endsWith(".pem") || url.endsWith(".sig")) {
+    // cosign has multiple binaries in a release, bad
+    // a bunch of different binaries
+    // a bunch of other files
+    // metadata of the release would be useful to consume
+
+    for (String url : releaseInfo.urls()) {
+      if (url.endsWith(".rpm") ||
+          url.endsWith(".deb") ||
+          url.endsWith(".apk") ||
+          url.endsWith(".txt") ||
+          url.endsWith(".yaml") ||
+          url.endsWith(".pub") ||
+          url.endsWith(".pem") ||
+          url.endsWith(".sbom") ||
+          url.endsWith(".sig")) {
         continue;
       }
 
@@ -86,7 +96,14 @@ public class ToolDescriptorGenerator {
         urlToAnalyze = url;
       } else if (url.contains("linux")) {
         osMappings.put("Linux", "linux");
+        urlToAnalyze = url;
+      } else if (url.contains("windows")) {
+        osMappings.put("Windows", "windows");
+        urlToAnalyze = url;
       }
+
+      // linux arm
+      // darwin arm64
 
       // Arch mappings
       // TODO: put these in a table
@@ -101,17 +118,20 @@ public class ToolDescriptorGenerator {
       } else if (url.contains("arm64")) {
         archMappings.put("arm64", "arm");
         foundArchIdentifier = "arm64";
+      } else if (url.contains("aarch64")) {
+        archMappings.put("aarch64", "arm");
+        foundArchIdentifier = "aarch64";
       }
 
-      if (urlToAnalyze != null) {
+      if(urlToAnalyze != null) {
         break;
       }
     }
 
-    Path provisioRoot = Paths.get(System.getProperty("user.home"), ".provisio");
+    Path provisioRoot = get(System.getProperty("user.home"), ".provisio");
     Path cache = provisioRoot.resolve("bin").resolve("analyze");
 
-    Path tmpdir = Paths.get("target").toAbsolutePath().resolve("analyze");
+    Path tmpdir = get("target").toAbsolutePath().resolve("analyze");
     deleteDirectoryIfExists(tmpdir);
     createDirectories(tmpdir);
 
@@ -130,12 +150,15 @@ public class ToolDescriptorGenerator {
       HttpResponse<Path> artifactResponse = client.send(artifactRequest, BodyHandlers.ofFile(artifact));
     }
 
-    String version = info.version().replace("v", "");
+    String version = releaseInfo.version().replace("v", "");
     String urlTemplate = urlToAnalyze
         .replace(foundOsIdentifier, "{os}")
         .replace(foundArchIdentifier, "{arch}")
         .replace(version, "{version}");
 
+
+    // TODO: iterate through all the tools and record the source url so I can reconstruct the tool descriptors
+    // when they need more information
     String toolId;
     String toolIdFromFile;
     if (fileName.indexOf("-") > 0) {
@@ -145,15 +168,16 @@ public class ToolDescriptorGenerator {
     } else {
       toolIdFromFile = fileName;
     }
-    String toolIdFromInfo = info.name();
+    String toolIdFromInfo = releaseInfo.name();
     if (!toolIdFromInfo.equals(toolIdFromFile)) {
       toolId = toolIdFromInfo;
     } else {
       toolId = toolIdFromFile;
     }
-    System.out.println("toolNameFromFile = " + toolIdFromFile);
+    System.out.println("toolId = " + toolId);
 
     Builder builder = ImmutableToolDescriptor.builder();
+    builder.sources(releaseInfo.sources());
     builder.id(toolId);
     builder.name(toolId);
 
@@ -196,7 +220,21 @@ public class ToolDescriptorGenerator {
     System.out.println("Generating tool descriptor ...");
     System.out.println();
     YamlMapper<ToolDescriptor> yamlMapper = new YamlMapper<>();
-    System.out.println(yamlMapper.write(builder.build()));
+    ToolDescriptor toolDescriptor = builder.build();
+    String toolDescriptorYaml = yamlMapper.write(toolDescriptor);
+    System.out.println(toolDescriptorYaml);
+
+    Path workingDirectory = get(System.getProperty("user.dir"));
+    if(workingDirectory.toString().endsWith("provisio-tools")) {
+      Path tools = workingDirectory.resolve("src/main/resources/provisioRoot/config/tools");
+      Path toolDescriptorDirectory = tools.resolve(toolDescriptor.id());
+      Path toolDescriptorFile = toolDescriptorDirectory.resolve(ToolDescriptor.DESCRIPTOR);
+      if(exists(toolDescriptorDirectory)) {
+        deleteDirectoryIfExists(toolDescriptorDirectory);
+      }
+      createDirectories(toolDescriptorDirectory);
+      writeString(toolDescriptorFile, toolDescriptorYaml);
+    }
   }
 
   public static void main(String[] args) throws Exception {
@@ -212,7 +250,7 @@ public class ToolDescriptorGenerator {
         ))
         .version("1.23.0")
         .build();
-    //generator.analyze(info);
+    //generator.analyzeAndGenerate(info);
 
     // Pulumi
     //generator.generate("https://github.com/pulumi/pulumi/releases");
@@ -226,5 +264,7 @@ public class ToolDescriptorGenerator {
     //generator.analyzeAndGenerate("https://github.com/cert-manager/cert-manager/releases");
     //generator.analyzeAndGenerate("https://github.com/sigstore/rekor/releases");
     generator.analyzeAndGenerate("https://github.com/sigstore/cosign/releases");
+
+
   }
 }

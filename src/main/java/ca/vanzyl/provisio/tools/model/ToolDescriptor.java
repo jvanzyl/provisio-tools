@@ -5,6 +5,7 @@ import static ca.vanzyl.provisio.tools.Provisio.OS;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.immutables.value.Value;
@@ -37,6 +38,10 @@ public abstract class ToolDescriptor {
   public abstract String id();
 
   public abstract String name();
+
+  //TODO: this should not be nullable ultimately, but we started not collecting the source
+  @Nullable
+  public abstract List<String> sources();
 
   public abstract String defaultVersion();
 

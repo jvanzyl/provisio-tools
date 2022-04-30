@@ -10,6 +10,8 @@ public abstract class ReleaseInfo {
 
   public abstract String name();
 
+  public abstract List<String> sources();
+
   public abstract String version();
 
   public abstract List<String> urls();

@@ -3,6 +3,7 @@ package ca.vanzyl.provisio.tools.generator.github;
 import ca.vanzyl.provisio.tools.generator.ImmutableReleaseInfo;
 import ca.vanzyl.provisio.tools.generator.ReleaseInfo;
 import ca.vanzyl.provisio.tools.generator.ReleaseSource;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class GitHubReleaseSource implements ReleaseSource {
@@ -20,6 +21,7 @@ public class GitHubReleaseSource implements ReleaseSource {
     GitHubRelease latestRelease = new GitHubLatestReleaseFinder().find(url);
     return ImmutableReleaseInfo.builder()
         .name(latestRelease.repository()) // we'll make an assumption here the tool is named after the repo
+        .addSources(url)
         .urls(latestRelease.assets().stream().map(Asset::downloadUrl).collect(Collectors.toList()))
         .version(latestRelease.version())
         .build();

@@ -34,5 +34,4 @@ public class YamlMapper<T> {
   public String write(T object) throws IOException {
     return mapper.writeValueAsString(object);
   }
-
 }

@@ -23,3 +23,10 @@
 - command to update versions of tools
 - schemas/versions for tool descriptors
 - schemas/versions for profile descriptors
+
+# Adding Tools
+
+It needs to be very simple to add new tools.
+
+The following tools have built-in support:
+- GitHub releases
