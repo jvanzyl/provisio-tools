@@ -225,7 +225,10 @@ public class ToolDescriptorGenerator {
     System.out.println(toolDescriptorYaml);
 
     Path workingDirectory = get(System.getProperty("user.dir"));
-    if(workingDirectory.toString().endsWith("provisio-tools")) {
+    //
+    // We are working in the source tree and adding them directly
+    //
+    if(workingDirectory.toString().endsWith("provisio-tools") && exists(workingDirectory.resolve(".git"))) {
       Path tools = workingDirectory.resolve("src/main/resources/provisioRoot/config/tools");
       Path toolDescriptorDirectory = tools.resolve(toolDescriptor.id());
       Path toolDescriptorFile = toolDescriptorDirectory.resolve(ToolDescriptor.DESCRIPTOR);
