@@ -1,11 +1,10 @@
 package ca.vanzyl.provisio.tools.util;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-//import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -18,8 +17,10 @@ public class YamlMapper<T> {
   public YamlMapper() {
     mapper = new ObjectMapper(new YAMLFactory().enable(YAMLGenerator.Feature.MINIMIZE_QUOTES));
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    mapper.setSerializationInclusion(Include.NON_NULL);
+    mapper.setSerializationInclusion(Include.NON_EMPTY);
+    mapper.setSerializationInclusion(Include.NON_ABSENT);
+    mapper.setSerializationInclusion(Include.NON_DEFAULT);
   }
 
   public T read(Path input, Class<T> clazz) throws IOException {

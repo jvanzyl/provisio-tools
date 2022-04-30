@@ -39,7 +39,6 @@ public class GitHubLatestReleaseFinder {
     String user = System.getProperty("user.name");
     Path gitHubTokenFile = get(format("/Users/%s/.github/%s", user, user));
     if (exists(gitHubTokenFile)) {
-      System.out.println("Adding authorization header");
       String gitHubToken = readString(gitHubTokenFile).trim();
       requestBuilder.header("Authorization", basicAuth(user, gitHubToken));
     }

@@ -47,10 +47,8 @@ public abstract class ToolDescriptor {
   public abstract Packaging packaging();
 
   // For an installation which directories to add to the path
-  @Value.Default
-  public String paths() {
-    return "bin";
-  }
+  @Nullable
+  public abstract String paths();
 
   @Value.Default
   public boolean fileNameFromContentDisposition() {
