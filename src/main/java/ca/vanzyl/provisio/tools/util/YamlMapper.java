@@ -27,6 +27,12 @@ public class YamlMapper<T> {
     return mapper.readValue(input.toFile(), clazz);
   }
 
+  /*
+  public T read(Path input) throws IOException {
+    return mapper.readValue(input.toFile(), new TypeReference<>() {});
+  }
+  */
+
   public List<T> read(Path input, TypeReference<List<T>> clazz) throws IOException {
     return mapper.readValue(input.toFile(), clazz);
   }

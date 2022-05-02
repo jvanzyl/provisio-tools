@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-# Native executable
-./build-linux
-
-# Build provisio docker image
-dimg 

@@ -1,5 +1,6 @@
 package ca.vanzyl.provisio.tools.test;
 
+import static ca.vanzyl.provisio.tools.Generators.artifactEntry;
 import static ca.vanzyl.provisio.tools.ProfileInstallingTest.validateProfileInstallation;
 import static ca.vanzyl.provisio.tools.Provisio.ARCH;
 import static ca.vanzyl.provisio.tools.Provisio.OS;
@@ -18,7 +19,6 @@ import static spark.Spark.port;
 import static spark.Spark.staticFiles;
 import static spark.Spark.stop;
 
-import ca.vanzyl.provisio.archive.generator.ArtifactEntry;
 import ca.vanzyl.provisio.archive.generator.ArtifactGenerator;
 import ca.vanzyl.provisio.archive.generator.TarGzArtifactGenerator;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
@@ -70,12 +70,9 @@ public class SyntheticIntegrationTest {
   public void runningFromEndToEnd() throws Exception {
     testModeOn();
     // This needs nice builder to comprehensive archive content
-    testEntry("tool001", "1.0.1", TARGZ, "file",
-        List.of(artifactEntry("test001", "#!/bin/sh")));
-    testEntry("tool002", "1.0.2", TARGZ, "file",
-        List.of(artifactEntry("test002", "#!/bin/sh")));
-    testEntry("tool003", "1.0.3", ZIP, "file",
-        List.of(artifactEntry("test003", "#!/bin/sh")));
+    testEntry("tool001", "1.0.1", TARGZ, "file");
+    testEntry("tool002", "1.0.2", TARGZ, "file");
+    testEntry("tool003", "1.0.3", ZIP, "file");
 
     toolProfile();
     generateToolArtifacts();
@@ -94,17 +91,13 @@ public class SyntheticIntegrationTest {
     System.setProperty("provisio-test-mode", "false");
   }
 
-  private ArtifactEntry artifactEntry(String name, String content) {
-    return new ArtifactEntry(name, content);
-  }
-
-  private void testEntry(String id, String version, Packaging packaging, String layout, List<ArtifactEntry> entries) {
+  private void testEntry(String toolId, String version, Packaging packaging, String layout) {
     syntheticEntries.add(ImmutableSyntheticToolProfileEntry.builder()
-        .name(id)
+        .name(toolId)
         .version(version)
         .packaging(packaging)
         .layout(layout)
-        .addAllArtifactEntries(entries)
+        .addAllArtifactEntries(List.of(artifactEntry(toolId, "#!/bin/sh")))
         .build());
   }
 

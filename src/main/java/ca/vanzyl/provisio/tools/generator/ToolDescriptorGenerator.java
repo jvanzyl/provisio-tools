@@ -224,10 +224,11 @@ public class ToolDescriptorGenerator {
     String toolDescriptorYaml = yamlMapper.write(toolDescriptor);
     System.out.println(toolDescriptorYaml);
 
-    Path workingDirectory = get(System.getProperty("user.dir"));
     //
     // We are working in the source tree and adding them directly
     //
+    /*
+    Path workingDirectory = get(System.getProperty("user.dir"));
     if(workingDirectory.toString().endsWith("provisio-tools") && exists(workingDirectory.resolve(".git"))) {
       Path tools = workingDirectory.resolve("src/main/resources/provisioRoot/config/tools");
       Path toolDescriptorDirectory = tools.resolve(toolDescriptor.id());
@@ -238,6 +239,7 @@ public class ToolDescriptorGenerator {
       createDirectories(toolDescriptorDirectory);
       writeString(toolDescriptorFile, toolDescriptorYaml);
     }
+     */
   }
 
   public static void main(String[] args) throws Exception {

@@ -4,15 +4,11 @@ import ca.vanzyl.provisio.tools.Provisio;
 import picocli.CommandLine.Command;
 
 @Command(name = "provision", mixinStandardHelpOptions = true)
-public class ProvisionCommand extends CommandWithProfileSupport implements Runnable {
+public class ProvisionCommand extends ProvisioCommandSupport {
 
   @Override
-  public void run() {
-    try {
-      Provisio provisio = new Provisio(profileValue());
-      provisio.installProfile();
-    } catch(Exception e) {
-      throw new RuntimeException(e);
-    }
+  public void execute() throws Exception {
+    Provisio provisio = provisio();
+    provisio.installProfile();
   }
 }

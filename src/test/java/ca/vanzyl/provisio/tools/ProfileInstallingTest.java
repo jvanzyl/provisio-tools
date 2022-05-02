@@ -13,11 +13,6 @@ import org.junit.Test;
 public class ProfileInstallingTest extends ProvisioTestSupport {
 
   @Test
-  public void initializingProvisioRoot() throws Exception {
-    provisio.initialize();
-  }
-
-  @Test
   @Ignore
   public void validateProfileInstallationXXX() throws Exception {
     deleteDirectoryIfExists(userBinaryProfileDirectory());

@@ -92,7 +92,7 @@ public abstract class ProvisioningRequest {
 
   @Value.Default
   public String activeUserProfile() {
-    return userProfile() != null ? userProfile() : findCurrentProfile();
+    return userProfile() != null && !userProfile().equals("unset") ? userProfile() : findCurrentProfile();
   }
 
   @Value.Default

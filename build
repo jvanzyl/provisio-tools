@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+os="$(uname)"
+mode="${1}"
+
+if [ "${os}" = "Darwin" ]; then
+  if [ "${mode}" = "docker" ]; then
+    jenv exec ./mvnw clean package -DskipTests -Pnative -Dquarkus.native.container-build=true
+    dimg
+  else
+    jenv exec ./mvnw clean package -DskipTests -Pnative
+  fi
+fi
+ 

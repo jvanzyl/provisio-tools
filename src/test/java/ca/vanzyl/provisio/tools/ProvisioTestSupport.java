@@ -50,6 +50,10 @@ public class ProvisioTestSupport {
     return new Provisio(builder.build());
   }
 
+  protected Path testProfile(String name) {
+    return get("src/test/profiles").resolve(name).resolve("profile.yaml");
+  }
+
   public static Path directory(String name) throws IOException {
     Path path = get("target").resolve(name).toAbsolutePath();
     createDirectories(path);

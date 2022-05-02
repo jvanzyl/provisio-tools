@@ -16,7 +16,9 @@ import picocli.CommandLine.IVersionProvider;
     subcommands = {
         ProvisionCommand.class,
         InstallCommand.class,
-        SelfUpdateCommand.class
+        SelfUpdateCommand.class,
+        ToolCommand.class,
+        ProfileCommand.class
     })
 public class Main {
 
@@ -38,10 +40,11 @@ class VersionProviderWithConfigProvider implements IVersionProvider {
 }
 
 class PropertiesVersionProvider implements IVersionProvider {
+
   public String[] getVersion() throws Exception {
     URL url = getClass().getResource("/project.properties");
     if (url == null) {
-      return new String[] {"No project.properties file found in the classpath."};
+      return new String[]{"No project.properties file found in the classpath."};
     }
     Properties properties = new Properties();
     properties.load(url.openStream());

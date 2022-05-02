@@ -6,11 +6,10 @@
 - [x] if tool resources are removed they have to be removed on disk, i removed bash-template.txt for krew and it's still in .provisio
 - [x] split out the shell modifier
 - [ ] if you switch shells it should pick up the correct init file, maybe just generate them all
-- [ ] fish shell support, shell generation, templates
+- [x] fish shell support, shell generation, templates
 - [ ] collect all constants in one place, too hard to follow them everywhere
 - [ ] M1/arm support (emulation works)
 - [ ] fzf fish completion
-- [ ] completely separate resources for various shell support
 - [ ] if there are no symlink or current file for the profile use the default profile directory
 - [ ] need tests on a per tool basis
 - [ ] allow specification of the shell init files to generate (docker builds have no SHELL envar)
