@@ -1,5 +1,6 @@
 package ca.vanzyl.provisio.tools.command;
 
+import ca.vanzyl.provisio.tools.Provisio;
 import ca.vanzyl.provisio.tools.generator.ToolDescriptorGenerator;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -8,13 +9,11 @@ import picocli.CommandLine.Option;
 public class ProfileCommand extends ProvisioCommandSupport {
 
   @Option(names = {"-a", "--add"}, description = "URL to analyze and from which to generate a tool descriptor.")
-  String url;
+  String toolAtVersion;
 
   @Override
   public void execute() throws Exception {
-
-
-    ToolDescriptorGenerator generator = new ToolDescriptorGenerator();
-    generator.analyzeAndGenerate(url);
+    Provisio provisio = provisio();
+    provisio.addToolToProfile(toolAtVersion);
   }
 }

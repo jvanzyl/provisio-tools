@@ -12,6 +12,7 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: x64
+  arm64: aarch64
 fileNameFromContentDisposition: true
 
 # arch (x64 | aarch64)

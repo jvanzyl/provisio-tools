@@ -67,6 +67,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import kr.motd.maven.os.Detector;
 
+// TODO: allow provisioning of tools in parallel, but visually demux the output
+// TODO: how to read a directory of resources out of the classpath in Graal
 public class Provisio {
 
   // de-dupe these
@@ -140,6 +142,7 @@ public class Provisio {
     }
 
     // 2)
+    // TODO: include this with tools and separate for isolated testing
     try (InputStream resourceDescriptorInput = Provisio.class.getClassLoader().getResource("provisioRoot/resources").openStream()) {
       List<String> resources = new BufferedReader(new InputStreamReader(resourceDescriptorInput, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
       for (String resource : resources) {
@@ -162,21 +165,6 @@ public class Provisio {
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   //
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  private Path findUserProfileYaml() {
-    Path dotProvisioUserProfileYaml = request.userProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
-    Path workingDirectoryUserProfileYaml = request.workingDirectoryProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
-    if (exists(workingDirectoryUserProfileYaml)) {
-      return workingDirectoryUserProfileYaml;
-    } else if (exists(dotProvisioUserProfileYaml)) {
-      return dotProvisioUserProfileYaml;
-    }
-    // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles directories don't contain the requested profile
-    String errorMessage = format("The profile %s doesn't exists in: %n%n %s %n%n or %n%n %s %n%n Do you have the right profile name?",
-        userProfile, workingDirectoryUserProfileYaml, dotProvisioUserProfileYaml);
-
-    throw new RuntimeException(errorMessage);
-  }
 
   private void message(String message, String... formats) {
     System.out.format(message, formats);
@@ -464,6 +452,31 @@ public class Provisio {
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Profiles
+
+  // TODO: the profile mapper might be better to include this setup here
+
+  public void addToolToProfile(String toolAtVersion) throws IOException {
+    profileMapper.add(toolAtVersion);
+  }
+
+  private Path findUserProfileYaml() {
+    Path dotProvisioUserProfileYaml = request.userProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
+    Path workingDirectoryUserProfileYaml = request.workingDirectoryProfilesDirectory().resolve(this.userProfile).resolve(PROFILE_YAML);
+    if (exists(workingDirectoryUserProfileYaml)) {
+      return workingDirectoryUserProfileYaml;
+    } else if (exists(dotProvisioUserProfileYaml)) {
+      return dotProvisioUserProfileYaml;
+    }
+    // The ${HOME}.provisio/profiles and ${PWD}/.provisio/profiles directories don't contain the requested profile
+    String errorMessage = format("The profile %s doesn't exists in: %n%n %s %n%n or %n%n %s %n%n Do you have the right profile name?",
+        userProfile, workingDirectoryUserProfileYaml, dotProvisioUserProfileYaml);
+
+    throw new RuntimeException(errorMessage);
+  }
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Tools
 
   public final static ThrowingFunction<Path, ToolDescriptor, IOException> toolDescriptorFrom =
       path -> new YamlMapper<ToolDescriptor>().read(path, ToolDescriptor.class);

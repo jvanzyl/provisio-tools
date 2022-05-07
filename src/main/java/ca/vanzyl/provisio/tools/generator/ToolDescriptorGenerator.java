@@ -15,6 +15,7 @@ import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor.Builder;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -224,22 +225,23 @@ public class ToolDescriptorGenerator {
     String toolDescriptorYaml = yamlMapper.write(toolDescriptor);
     System.out.println(toolDescriptorYaml);
 
-    //
     // We are working in the source tree and adding them directly
-    //
-    /*
     Path workingDirectory = get(System.getProperty("user.dir"));
     if(workingDirectory.toString().endsWith("provisio-tools") && exists(workingDirectory.resolve(".git"))) {
       Path tools = workingDirectory.resolve("src/main/resources/provisioRoot/config/tools");
       Path toolDescriptorDirectory = tools.resolve(toolDescriptor.id());
-      Path toolDescriptorFile = toolDescriptorDirectory.resolve(ToolDescriptor.DESCRIPTOR);
-      if(exists(toolDescriptorDirectory)) {
-        deleteDirectoryIfExists(toolDescriptorDirectory);
-      }
-      createDirectories(toolDescriptorDirectory);
-      writeString(toolDescriptorFile, toolDescriptorYaml);
+      saveGeneratedToolDescriptor(toolDescriptorYaml, toolDescriptorDirectory);
     }
-     */
+  }
+
+  // TODO: this needs to be added to a place where it's usable while someone is adding new tools
+  private void saveGeneratedToolDescriptor(String toolDescriptorYaml, Path toolDescriptorDirectory) throws IOException {
+    Path toolDescriptorFile = toolDescriptorDirectory.resolve(ToolDescriptor.DESCRIPTOR);
+    if(exists(toolDescriptorDirectory)) {
+      deleteDirectoryIfExists(toolDescriptorDirectory);
+    }
+    createDirectories(toolDescriptorDirectory);
+    writeString(toolDescriptorFile, toolDescriptorYaml);
   }
 
   public static void main(String[] args) throws Exception {
@@ -269,7 +271,5 @@ public class ToolDescriptorGenerator {
     //generator.analyzeAndGenerate("https://github.com/cert-manager/cert-manager/releases");
     //generator.analyzeAndGenerate("https://github.com/sigstore/rekor/releases");
     generator.analyzeAndGenerate("https://github.com/sigstore/cosign/releases");
-
-
   }
 }
