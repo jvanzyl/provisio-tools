@@ -223,8 +223,9 @@ public class Provisio {
       if (packaging.equals(Packaging.TARGZ) ||
           packaging.equals(Packaging.TARGZ_STRIP) ||
           packaging.equals(Packaging.ZIP) ||
+          packaging.equals(Packaging.ZIP_STRIP) ||
           packaging.equals(Packaging.ZIP_JUNK)) {
-        boolean useRoot = !packaging.equals(Packaging.TARGZ_STRIP);
+        boolean useRoot = !packaging.equals(Packaging.TARGZ_STRIP) && !packaging.equals(Packaging.ZIP_STRIP);
         boolean flatten = packaging.equals(Packaging.ZIP_JUNK);
         //
         // When we unarchive artifacts we do so in an in progress directory so that if the unarchiving is interrupted
@@ -327,6 +328,8 @@ public class Provisio {
             ImmutableToolProvisioningResult.builder().from(provisionTool(tool, version)).pathManagedBy(entry.pathManagedBy()).build();
         Path postInstallScript = toolDirectory.resolve(POST_INSTALL);
         if (exists(postInstallScript)) {
+          // To be generally compatible it might make more sense to write out a properties/envar file that is
+          // source so that we remain compatible to variable name use and not order of parameters
           List<String> args = List.of(
               postInstallScript.toAbsolutePath().toString(),
               // ${1}

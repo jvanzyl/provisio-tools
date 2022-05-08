@@ -106,6 +106,7 @@ public abstract class ToolDescriptor {
     TARGZ,
     TARGZ_STRIP,
     ZIP,
+    ZIP_STRIP,
     ZIP_JUNK
   }
 }

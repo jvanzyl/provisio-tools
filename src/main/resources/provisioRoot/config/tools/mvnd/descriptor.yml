@@ -1,0 +1,15 @@
+---
+id: mvnd
+name: Maven Daemon
+defaultVersion: 0.8.0
+layout: directory
+packaging: ZIP_STRIP
+executable: mvnd
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: amd64
+# https://dist.apache.org/repos/dist/dev/maven/mvnd/0.8.0/maven-mvnd-0.8.0-linux-amd64.zip
+# https://dist.apache.org/repos/dist/dev/maven/mvnd/0.8.0/maven-mvnd-0.8.0-darwin-amd64.zip
+urlTemplate: https://dist.apache.org/repos/dist/dev/maven/mvnd/{version}/maven-mvnd-{version}-{os}-{arch}.zip
