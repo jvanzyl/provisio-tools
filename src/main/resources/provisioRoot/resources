@@ -25,6 +25,7 @@ config/tools/graalvm/post-install.sh
 config/tools/graalvm/descriptor.yml
 config/tools/graalvm/GRAALVM_SETUP.md
 config/tools/java/descriptor.yml
+config/tools/java/temurin.md
 config/tools/java/README.md
 config/tools/mustache/descriptor.yml
 config/tools/kind/descriptor.yml
@@ -35,9 +36,12 @@ config/tools/goreleaser/README.md
 config/tools/upx/descriptor.yml
 config/tools/jbang/descriptor.yml
 config/tools/eksctl/descriptor.yml
+config/tools/cosign/descriptor.yml
 config/tools/mc/descriptor.yml
 config/tools/aws-cli/descriptor.yml
 config/tools/aws-iam-authenticator/descriptor.yml
+config/tools/ko/descriptor.yml
+config/tools/mvnd/descriptor.yml
 config/tools/dyff/descriptor.yml
 config/tools/pulumi/descriptor.yml
 config/tools/node/post-install.sh

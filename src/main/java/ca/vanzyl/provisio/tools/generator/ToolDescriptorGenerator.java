@@ -100,9 +100,14 @@ public class ToolDescriptorGenerator {
         osMappings.put("Darwin", "darwin");
         foundOsIdentifier = "darwin";
         urlToAnalyze = url;
+      } else if (url.contains("Darwin")) {
+        foundOsIdentifier = "Darwin";
+        urlToAnalyze = url;
       } else if (url.contains("macOS")) {
         osMappings.put("Darwin", "macOS");
         foundOsIdentifier = "macOS";
+        urlToAnalyze = url;
+      } else if (url.contains("Linux")) {
         urlToAnalyze = url;
       } else if (url.contains("linux")) {
         osMappings.put("Linux", "linux");
@@ -287,6 +292,7 @@ public class ToolDescriptorGenerator {
     //generator.analyzeAndGenerate("https://github.com/homeport/dyff/releases");
     //generator.analyzeAndGenerate("https://github.com/cert-manager/cert-manager/releases");
     //generator.analyzeAndGenerate("https://github.com/sigstore/rekor/releases");
-    generator.analyzeAndGenerate("https://github.com/sigstore/cosign/releases");
+    //generator.analyzeAndGenerate("https://github.com/sigstore/cosign/releases");
+    generator.analyzeAndGenerate("https://github.com/google/ko/releases");
   }
 }

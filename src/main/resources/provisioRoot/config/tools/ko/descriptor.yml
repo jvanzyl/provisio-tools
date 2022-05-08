@@ -1,0 +1,12 @@
+---
+id: ko
+name: ko
+sources:
+- https://github.com/google/ko/releases
+defaultVersion: 0.11.2
+layout: file
+executable: ko
+packaging: TARGZ
+archMappings:
+  arm64: arm
+urlTemplate: "https://github.com/google/ko/releases/download/v{version}/ko_{version}_{os}_{arch}.tar.gz"
