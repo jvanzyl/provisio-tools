@@ -1,8 +1,8 @@
 package ca.vanzyl.provisio.tools.util.http;
 
 import static ca.vanzyl.provisio.tools.Provisio.IN_PROGRESS_EXTENSION;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.cachePathFor;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.toolDownloadUrlFor;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.cachePathFor;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.toolDownloadUrlFor;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.Files.exists;

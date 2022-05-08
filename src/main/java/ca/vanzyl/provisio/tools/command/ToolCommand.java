@@ -12,9 +12,12 @@ public class ToolCommand extends ProvisioCommandSupport {
   @Option(names = {"-u", "--url"}, description = "URL to analyze and from which to generate a tool descriptor.")
   String url;
 
+  @Option(names = {"-s", "--save"}, description = "Save tool descriptor to local source.")
+  boolean save;
+
   @Override
   public void execute() throws Exception {
-    ToolDescriptorGenerator generator = new ToolDescriptorGenerator();
+    ToolDescriptorGenerator generator = new ToolDescriptorGenerator(save);
     generator.analyzeAndGenerate(url);
   }
 }

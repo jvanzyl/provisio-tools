@@ -1,7 +1,7 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.Provisio.collectToolDescriptorsMap;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.toolDownloadUrlFor;
+import static ca.vanzyl.provisio.tools.tool.ToolMapper.collectToolDescriptorsMap;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.toolDownloadUrlFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
@@ -29,7 +29,7 @@ public class ToolDescriptorMapperTest extends ProvisioTestSupport {
   @Test
   @Ignore
   public void validateToolUrlBuilding() throws Exception {
-    Map<String, ToolDescriptor> toolDescriptorsById = collectToolDescriptorsMap(request.toolDescriptorsDirectory());
+    Map<String, ToolDescriptor> toolDescriptorsById = collectToolDescriptorsMap(request);
     YamlMapper<ToolUrlTestDescriptor> mapper = new YamlMapper<>();
     List<ToolUrlTestDescriptor> tools = mapper.read(testResources.resolve(testToolUrls), new TypeReference<>() {});
     tools.forEach(tool -> {

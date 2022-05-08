@@ -48,6 +48,11 @@ public abstract class ProvisioningRequest {
   }
 
   @Value.Default
+  public Path localConfigDirectory() {
+    return provisioRoot().resolve("config-local");
+  }
+
+  @Value.Default
   public Path configLastRevisionDirectory() {
     return provisioRoot().resolve("config.lastRevision");
   }
@@ -55,6 +60,11 @@ public abstract class ProvisioningRequest {
   @Value.Default
   public Path toolDescriptorsDirectory() {
     return configDirectory().resolve("tools");
+  }
+
+  @Value.Default
+  public Path localToolDescriptorsDirectory() {
+    return localConfigDirectory().resolve("tools");
   }
 
   @Value.Default

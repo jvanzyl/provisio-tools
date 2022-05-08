@@ -1,18 +1,17 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.model.ToolDescriptor.DESCRIPTOR;
 import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.FISH;
 import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.ZSH;
 import static ca.vanzyl.provisio.tools.shell.ShellHandler.userShell;
+import static ca.vanzyl.provisio.tools.tool.ToolMapper.collectToolDescriptorsMap;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
 import static ca.vanzyl.provisio.tools.util.FileUtils.moveDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.touch;
 import static ca.vanzyl.provisio.tools.util.FileUtils.updateRelativeSymlink;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapArch;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.mapOs;
-import static com.pivovarit.function.ThrowingFunction.unchecked;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.mapArch;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.mapOs;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
@@ -23,7 +22,6 @@ import static java.nio.file.Files.isExecutable;
 import static java.nio.file.Files.move;
 import static java.nio.file.Files.newOutputStream;
 import static java.nio.file.Files.readString;
-import static java.nio.file.Files.walk;
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.requireNonNull;
@@ -48,9 +46,7 @@ import ca.vanzyl.provisio.tools.shell.ShellHandler;
 import ca.vanzyl.provisio.tools.shell.ZshShellHandler;
 import ca.vanzyl.provisio.tools.util.CliCommand;
 import ca.vanzyl.provisio.tools.util.PostInstall;
-import ca.vanzyl.provisio.tools.util.YamlMapper;
 import ca.vanzyl.provisio.tools.util.http.DownloadManager;
-import com.pivovarit.function.ThrowingFunction;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,10 +57,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import kr.motd.maven.os.Detector;
 
 // TODO: allow provisioning of tools in parallel, but visually demux the output
@@ -158,7 +151,7 @@ public class Provisio {
     // 3)
     deleteDirectoryIfExists(request.configLastRevisionDirectory());
     // TODO We probably don't want to read them all in. What happens when there are 10k of these?
-    this.toolDescriptorMap = collectToolDescriptorsMap(request.toolDescriptorsDirectory());
+    this.toolDescriptorMap = collectToolDescriptorsMap(request);
     this.profileMapper = new ProfileMapper(userProfileYaml, toolDescriptorMap);
   }
 
@@ -473,20 +466,5 @@ public class Provisio {
         userProfile, workingDirectoryUserProfileYaml, dotProvisioUserProfileYaml);
 
     throw new RuntimeException(errorMessage);
-  }
-
-  // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  // Tools
-
-  public final static ThrowingFunction<Path, ToolDescriptor, IOException> toolDescriptorFrom =
-      path -> new YamlMapper<ToolDescriptor>().read(path, ToolDescriptor.class);
-
-  public static Map<String, ToolDescriptor> collectToolDescriptorsMap(Path tools) throws Exception {
-    try (Stream<Path> stream = walk(tools, 3)) {
-      return stream
-          .filter(p -> p.toString().endsWith(DESCRIPTOR))
-          .map(unchecked(toolDescriptorFrom))
-          .collect(Collectors.toMap(ToolDescriptor::id, Function.identity(), (i, j) -> j, TreeMap::new));
-    }
   }
 }

@@ -1,6 +1,6 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.Provisio.*;
+import static ca.vanzyl.provisio.tools.tool.ToolMapper.collectToolDescriptorsMap;
 
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import java.util.Map;
@@ -10,6 +10,6 @@ public class ProvisioTest extends ProvisioTestSupport {
 
   @Test
   public void toolDescriptors() throws Exception {
-    Map<String, ToolDescriptor> toolDescriptors = collectToolDescriptorsMap(request.toolDescriptorsDirectory());
+    Map<String, ToolDescriptor> toolDescriptors = collectToolDescriptorsMap(request);
   }
 }

@@ -10,8 +10,10 @@ import static java.nio.file.Paths.get;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.tools.generator.github.GitHubReleaseSource;
+import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor.Builder;
+import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor.Packaging;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
@@ -23,7 +25,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +38,18 @@ import java.util.stream.Collectors;
 
 public class ToolDescriptorGenerator {
 
+  private final boolean save;
+  private final ProvisioningRequest request;
   private final List<ReleaseSource> releaseSources;
 
+  public ToolDescriptorGenerator(boolean save) {
+    this.save = save;
+    this.request = ImmutableProvisioningRequest.builder().build();
+    this.releaseSources = List.of(new GitHubReleaseSource());
+  }
+
   public ToolDescriptorGenerator() {
-    releaseSources = List.of(new GitHubReleaseSource());
+    this(false);
   }
 
   public void analyzeAndGenerate(String url) throws Exception {
@@ -124,7 +133,7 @@ public class ToolDescriptorGenerator {
         foundArchIdentifier = "aarch64";
       }
 
-      if(urlToAnalyze != null) {
+      if (urlToAnalyze != null) {
         break;
       }
     }
@@ -156,7 +165,6 @@ public class ToolDescriptorGenerator {
         .replace(foundOsIdentifier, "{os}")
         .replace(foundArchIdentifier, "{arch}")
         .replace(version, "{version}");
-
 
     // TODO: iterate through all the tools and record the source url so I can reconstruct the tool descriptors
     // when they need more information
@@ -190,8 +198,8 @@ public class ToolDescriptorGenerator {
       if (files.size() == 1 && isDirectory(files.get(0))) {
         // We have a top-level directory in the tarball
         builder.packaging(Packaging.TARGZ_STRIP);
-        builder.layout("directory");
         // Now step into the directory and see if there is a bin/ directory
+        builder.layout("directory");
         Path bin = files.get(0).resolve("bin");
         if (exists(bin)) {
           builder.paths("bin");
@@ -226,18 +234,27 @@ public class ToolDescriptorGenerator {
     System.out.println(toolDescriptorYaml);
 
     // We are working in the source tree and adding them directly
-    Path workingDirectory = get(System.getProperty("user.dir"));
-    if(workingDirectory.toString().endsWith("provisio-tools") && exists(workingDirectory.resolve(".git"))) {
-      Path tools = workingDirectory.resolve("src/main/resources/provisioRoot/config/tools");
-      Path toolDescriptorDirectory = tools.resolve(toolDescriptor.id());
+    if (save) {
+      Path toolDescriptorDirectory = request.localToolDescriptorsDirectory().resolve(toolDescriptor.id());
       saveGeneratedToolDescriptor(toolDescriptorYaml, toolDescriptorDirectory);
+      /*
+
+      Originally to write into the git tree, but I'm not sure this is useful
+
+      Path workingDirectory = get(System.getProperty("user.dir"));
+      if (workingDirectory.toString().endsWith("provisio-tools") && exists(workingDirectory.resolve(".git"))) {
+        Path tools = workingDirectory.resolve("src/main/resources/provisioRoot/config/tools");
+        Path toolDescriptorDirectory = tools.resolve(toolDescriptor.id());
+        saveGeneratedToolDescriptor(toolDescriptorYaml, toolDescriptorDirectory);
+      }
+      */
     }
   }
 
   // TODO: this needs to be added to a place where it's usable while someone is adding new tools
   private void saveGeneratedToolDescriptor(String toolDescriptorYaml, Path toolDescriptorDirectory) throws IOException {
     Path toolDescriptorFile = toolDescriptorDirectory.resolve(ToolDescriptor.DESCRIPTOR);
-    if(exists(toolDescriptorDirectory)) {
+    if (exists(toolDescriptorDirectory)) {
       deleteDirectoryIfExists(toolDescriptorDirectory);
     }
     createDirectories(toolDescriptorDirectory);
@@ -245,7 +262,7 @@ public class ToolDescriptorGenerator {
   }
 
   public static void main(String[] args) throws Exception {
-    ToolDescriptorGenerator generator = new ToolDescriptorGenerator();
+    ToolDescriptorGenerator generator = new ToolDescriptorGenerator(true);
 
     // Kubectl
     ReleaseInfo info = ImmutableReleaseInfo.builder()

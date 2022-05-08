@@ -6,8 +6,11 @@ import static java.nio.file.Paths.get;
 
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest.Builder;
+import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
+import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolProfile;
+import ca.vanzyl.provisio.tools.tool.ToolMapper;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +26,7 @@ public class ProvisioTestSupport {
   protected Path realProvisioRoot = get(System.getProperty("user.home"), ".provisio");
   protected Path testProvisioRoot = get("target", ".provisio").toAbsolutePath();
   protected String userProfile;
+  protected ToolMapper toolMapper;
 
   @Before
   public void setUp() throws Exception {
@@ -37,6 +41,7 @@ public class ProvisioTestSupport {
     }
     request = builder.build();
     provisio = new Provisio(builder.build());
+    toolMapper = new ToolMapper();
   }
 
   protected Path userBinaryProfileDirectory() {
@@ -78,4 +83,10 @@ public class ProvisioTestSupport {
     writeString(path, name);
     return path;
   }
+
+  public ToolDescriptor toolDescriptor(String toolId) throws IOException {
+    Path path = get("src/main/resources/provisioRoot/config/tools").resolve(toolId).resolve(ToolDescriptor.DESCRIPTOR);
+    return toolMapper.toolDescriptor(path);
+  }
+
 }

@@ -1,7 +1,7 @@
 package ca.vanzyl.provisio.tools;
 
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.cachePathFor;
-import static ca.vanzyl.provisio.tools.util.ToolUrlBuilder.interpolateToolPath;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.cachePathFor;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
