@@ -8,3 +8,7 @@ target/
 *.iws
 bin/
 .DS_Store
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml

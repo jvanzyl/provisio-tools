@@ -19,6 +19,7 @@ config/tools/kapp/descriptor.yml
 config/tools/argocd/descriptor.yml
 config/tools/velero/descriptor.yml
 config/tools/cr/descriptor.yml
+config/tools/docker-credential-ecr-login/descriptor.yml
 config/tools/nova/descriptor.yml
 config/tools/rekor/descriptor.yml
 config/tools/graalvm/post-install.sh

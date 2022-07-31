@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] use symlink in the shell init scripts so that it's just symlink updates and not shell init script rewrites
 - [ ] http://packages.macports.org/upx/
 - [x] krew has two path that need to be added, parse a csv or make a list of paths
 - [x] need one directory of resources to extract from the classpath so I can move/rename atomically

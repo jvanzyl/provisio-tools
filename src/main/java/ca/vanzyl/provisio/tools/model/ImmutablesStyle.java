@@ -11,7 +11,5 @@ import org.immutables.value.Value;
 
 @Target({ElementType.PACKAGE, ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS)
-@Value.Style(
-    jdkOnly = true
-)
+@Value.Style(jdkOnly = true)
 public @interface ImmutablesStyle {}
