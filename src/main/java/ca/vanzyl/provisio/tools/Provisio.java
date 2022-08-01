@@ -110,7 +110,7 @@ public class Provisio {
     this.binaryProfileDirectory = binaryProfilesDirectory.resolve(this.userProfile);
 
     this.userProfileYaml = findUserProfileYaml();
-    System.out.println("Initializing provisio[profile=" + userProfile + " with " + userProfileYaml + "]");
+    System.out.println(format("Initializing provisio[profile=provisio with %s, os=%s, arch=%s]", userProfile, OS, ARCH));
     String testMode = System.getProperty("provisio-test-mode");
     //
     // Write out the copy of the resources into new directory and when it is successfully written to disk then we move

@@ -120,6 +120,14 @@ public abstract class Detector {
   }
 
   public static String normalizeArch(String value) {
+    if (OS.equals("Darwin") || OS.equals("Linux")) {
+      try {
+        CliCommand uname = new CliCommand(List.of("uname", "-m"), Paths.get(System.getProperty("user.dir")), Map.of(), true, true);
+        CliCommand.Result unameResult = uname.execute();
+        return unameResult.getStdout().trim();
+      } catch(Exception e) {
+      }
+    }
     value = normalize(value);
     if (value.matches("^(x8664|amd64|ia32e|em64t|x64)$")) {
       if (OS.equals("Darwin")) {
@@ -130,18 +138,11 @@ public abstract class Detector {
           //
           CliCommand rosetta = new CliCommand(List.of("sysctl", "-in", "sysctl.proc_translated"), Paths.get(System.getProperty("user.dir")), Map.of(), true, true);
           CliCommand.Result result = rosetta.execute();
-          if(result.getStdout().trim().equals("1")) {
+          if (result.getStdout().trim().equals("1")) {
             // We are running emulation but we're actually on arm64
             return "arm64";
           }
-
-          CliCommand uname = new CliCommand(List.of("uname", "-m"), Paths.get(System.getProperty("user.dir")), Map.of(), true, true);
-          CliCommand.Result unameResult = uname.execute();
-          if(unameResult.getStdout().trim().equals("arm64")) {
-            // We are running with an x86_64 binary but we want to set the arch correctly to get optimized binaries
-            return "arm64";
-          }
-        } catch(Exception e) {
+        } catch (Exception e) {
         }
       }
       return "x86_64";
