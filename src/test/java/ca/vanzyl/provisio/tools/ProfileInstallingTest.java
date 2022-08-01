@@ -14,7 +14,7 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
 
   @Test
   @Ignore
-  public void validateProfileInstallationXXX() throws Exception {
+  public void validateProfileInstallationWithProvisioTestProfile() throws Exception {
     deleteDirectoryIfExists(userBinaryProfileDirectory());
     ToolProfileProvisioningResult result = provisio.installProfile();
     if(!result.provisioningSuccessful()) {
