@@ -217,7 +217,7 @@ public class Provisio {
     toolProvisioningResultBuilder.installation(toolInstallation);
 
     if (!exists(toolInstallation)) {
-      Path artifact = downloadManager.resolve(toolDescriptor, version);
+      Path artifact = downloadManager.resolve(profile, toolDescriptor, version);
       Packaging packaging = toolDescriptor.packaging();
       if (packaging.equals(Packaging.TARGZ) ||
           packaging.equals(Packaging.TARGZ_STRIP) ||

@@ -2,6 +2,7 @@ package ca.vanzyl.provisio.tools;
 
 import static ca.vanzyl.provisio.tools.tool.ToolMapper.collectToolDescriptorsMap;
 import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.toolDownloadUrlFor;
+import static kr.motd.maven.os.Detector.ARCH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
@@ -36,7 +37,7 @@ public class ToolDescriptorMapperTest extends ProvisioTestSupport {
       String id = tool.id();
       String expectedUrl = tool.url();
       ToolDescriptor td = toolDescriptorsById.get(id);
-      String actualUrl = toolDownloadUrlFor(td, tool.version());
+      String actualUrl = toolDownloadUrlFor(td, tool.version(), ARCH);
       System.out.println("Validating " + id);
       assertThat(actualUrl).isEqualTo(expectedUrl);
     });

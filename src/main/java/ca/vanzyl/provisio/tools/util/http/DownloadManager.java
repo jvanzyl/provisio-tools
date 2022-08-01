@@ -9,6 +9,7 @@ import static java.nio.file.Files.exists;
 import static java.nio.file.Files.move;
 
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
+import ca.vanzyl.provisio.tools.model.ToolProfile;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -36,13 +37,13 @@ public class DownloadManager {
     this.cacheDirectory = cacheDirectory;
   }
 
-  public Path resolve(ToolDescriptor tool, String version) throws Exception {
+  public Path resolve(ToolProfile profile, ToolDescriptor tool, String version) throws Exception {
     // The url is constructed from the url template in the tool descriptor along with os, arch and version data.
     // For example, the url template for kubectl may look like this:
     //
     // https://dl.k8s.io/release/v{version}/bin/{os}/{arch}/kubectl
     //
-    String url = toolDownloadUrlFor(tool, version);
+    String url = toolDownloadUrlFor(tool, version, profile.derivedArch());
     Path target;
     //
     // When downloading from endpoints that are APIs are other non-file endpoints, we may need to look at the
@@ -53,7 +54,7 @@ public class DownloadManager {
       String fileName = fileNameFromContentDisposition(url, tool);
       target = cachePathFor(cacheDirectory, tool, version, fileName);
     } else {
-      target = cachePathFor(cacheDirectory, tool, version);
+      target = cachePathFor(cacheDirectory, tool, version, profile.derivedArch());
     }
     if (exists(target)) {
       return target;

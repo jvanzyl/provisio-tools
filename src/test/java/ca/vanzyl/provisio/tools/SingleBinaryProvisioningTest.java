@@ -3,6 +3,7 @@ package ca.vanzyl.provisio.tools;
 import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.cachePathFor;
 import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
 import static java.util.Objects.requireNonNull;
+import static kr.motd.maven.os.Detector.ARCH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfile;
@@ -154,7 +155,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
     // need to be normalized
     String executable;
     if(toolDescriptor.tarSingleFileToExtract() != null) {
-      executable = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version);
+      executable = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version, ARCH);
     } else {
       executable = toolDescriptor.executable();
     }
