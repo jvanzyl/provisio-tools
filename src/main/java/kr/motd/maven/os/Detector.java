@@ -135,7 +135,6 @@ public abstract class Detector {
             return "arm64";
           }
         } catch(Exception e) {
-          System.out.println(e);
         }
       }
       return "x86_64";
