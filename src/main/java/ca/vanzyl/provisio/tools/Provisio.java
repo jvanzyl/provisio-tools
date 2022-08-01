@@ -32,6 +32,7 @@ import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.archive.UnArchiver.UnArchiverBuilder;
 import ca.vanzyl.provisio.tools.generator.github.GitHubLatestReleaseFinder;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
+import ca.vanzyl.provisio.tools.model.ImmutableToolProfile;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfileProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ImmutableToolProvisioningResult;
 import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
@@ -56,6 +57,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +112,6 @@ public class Provisio {
     this.binaryProfileDirectory = binaryProfilesDirectory.resolve(this.userProfile);
 
     this.userProfileYaml = findUserProfileYaml();
-    System.out.println(format("Initializing provisio[profile=provisio with %s, os=%s, arch=%s]", userProfile, OS, ARCH));
     String testMode = System.getProperty("provisio-test-mode");
     //
     // Write out the copy of the resources into new directory and when it is successfully written to disk then we move
@@ -173,7 +174,7 @@ public class Provisio {
       // Fetch the latest release of provisio and replace the main executable with a symlink
       GitHubLatestReleaseFinder finder = new GitHubLatestReleaseFinder();
       String latestProvisioVersion = finder.find(PROVISIO_RELEASES_URL).version();
-      ToolProvisioningResult result = provisionTool("provisio", latestProvisioVersion);
+      ToolProvisioningResult result = provisionTool(ImmutableToolProfile.builder().build(), "provisio", latestProvisioVersion);
       // this is null?
       // Path target = result.executable();
       Path target = result.installation().resolve("provisio");
@@ -201,12 +202,12 @@ public class Provisio {
   // Tool provisioning
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  public ToolProvisioningResult provisionTool(String tool, String version) throws Exception {
+  public ToolProvisioningResult provisionTool(ToolProfile profile, String tool, String version) throws Exception {
     ToolDescriptor toolDescriptor = toolDescriptorMap.get(tool);
-    return provisionTool(toolDescriptor, version != null ? version : toolDescriptor.defaultVersion());
+    return provisionTool(profile, toolDescriptor, version != null ? version : toolDescriptor.defaultVersion());
   }
 
-  public ToolProvisioningResult provisionTool(ToolDescriptor toolDescriptor, String version) throws Exception {
+  public ToolProvisioningResult provisionTool(ToolProfile profile, ToolDescriptor toolDescriptor, String version) throws Exception {
     Path toolInstallation = installsDirectory.resolve(toolDescriptor.id()).resolve(version);
     Path executable = toolInstallation.resolve(toolDescriptor.executable());
 
@@ -251,7 +252,7 @@ public class Provisio {
       Path link = binaryProfileDirectory.resolve(toolDescriptor.executable());
       Path target;
       if (toolDescriptor.tarSingleFileToExtract() != null) {
-        String path = interpolateToolPath(requireNonNull(toolDescriptor.tarSingleFileToExtract()), toolDescriptor, version);
+        String path = interpolateToolPath(requireNonNull(toolDescriptor.tarSingleFileToExtract()), toolDescriptor, version, profile.derivedArch());
         target = toolInstallation.resolve(path).toAbsolutePath();
       } else {
         target = executable.toAbsolutePath();
@@ -282,6 +283,7 @@ public class Provisio {
   // This should be installation result
   public ToolProfileProvisioningResult installProfile(Path profileYaml) throws Exception {
     ToolProfile profile = profileMapper.read();
+    System.out.println(format("Initializing provisio[profile=%s with %s, os=%s, arch=%s]", userProfile, userProfileYaml, OS, profile.derivedArch()));
     Path profileYamlRecord = binaryProfileDirectory.resolve(PROFILE_YAML);
     ToolProfile profileRecord;
     if (exists(profileYamlRecord)) {
@@ -323,7 +325,7 @@ public class Provisio {
       Path toolDirectory = toolDescriptorDirectory.resolve(tool.id());
       for (String version : entry.version().split("[\\s,]+")) {
         ToolProvisioningResult toolProvisioningResult =
-            ImmutableToolProvisioningResult.builder().from(provisionTool(tool, version)).pathManagedBy(entry.pathManagedBy()).build();
+            ImmutableToolProvisioningResult.builder().from(provisionTool(profile, tool, version)).pathManagedBy(entry.pathManagedBy()).build();
         Path postInstallScript = toolDirectory.resolve(POST_INSTALL);
         if (exists(postInstallScript)) {
           // To be generally compatible it might make more sense to write out a properties/envar file that is
@@ -389,7 +391,7 @@ public class Provisio {
         Path shellTemplatePath = toolDirectory.resolve(shellTemplateName);
         shellHandler.comment(tool.id());
         if (exists(shellTemplatePath)) {
-          String shellTemplateContents = interpolateToolPath(readString(shellTemplatePath), tool, version);
+          String shellTemplateContents = interpolateToolPath(readString(shellTemplatePath), tool, version, profile.derivedArch());
           shellHandler.write(shellTemplateContents);
         } else {
           //

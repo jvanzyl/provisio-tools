@@ -3,31 +3,11 @@ package ca.vanzyl.provisio.tools.model;
 import static kr.motd.maven.os.Detector.OS;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.immutables.value.Value;
-
-/*
-
-id: helm
-name: Helm
-defaultVersion: 3.6.3
-layout: file
-executable: helm
-packaging: TARGZ_STRIP
-osMappings:
-  Darwin: darwin
-  Linux: linux
-archMappings:
-  x86_64: amd64
-# https://get.helm.sh/helm-v3.6.3-linux-amd64.tar.gz
-# https://get.helm.sh/helm-v3.6.3-darwin-amd64.tar.gz
-urlTemplate: https://get.helm.sh/helm-v{version}-{os}-{arch}.tar.gz
-
- */
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutableToolDescriptor.class)

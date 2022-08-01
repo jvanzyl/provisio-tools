@@ -13,6 +13,10 @@ public class ToolUrlBuilder {
     return interpolateToolPath(toolPath, toolDescriptor, version, OS, ARCH);
   }
 
+  public static String interpolateToolPath(String toolPath, ToolDescriptor toolDescriptor, String version, String arch) {
+    return interpolateToolPath(toolPath, toolDescriptor, version, OS, arch);
+  }
+
   public static String interpolateToolPath(String toolPath, ToolDescriptor toolDescriptor, String version, String os, String arch) {
     String toolVersion = version != null ? version : toolDescriptor.defaultVersion();
     String mappedOs = mapOs(os, toolDescriptor);

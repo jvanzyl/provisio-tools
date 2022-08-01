@@ -15,21 +15,17 @@
  */
 package kr.motd.maven.os;
 
-import ca.vanzyl.provisio.tools.util.CliCommand;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -120,31 +116,8 @@ public abstract class Detector {
   }
 
   public static String normalizeArch(String value) {
-    if (OS.equals("Darwin") || OS.equals("Linux")) {
-      try {
-        CliCommand uname = new CliCommand(List.of("uname", "-m"), Paths.get(System.getProperty("user.dir")), Map.of(), true, true);
-        CliCommand.Result unameResult = uname.execute();
-        return unameResult.getStdout().trim();
-      } catch(Exception e) {
-      }
-    }
     value = normalize(value);
     if (value.matches("^(x8664|amd64|ia32e|em64t|x64)$")) {
-      if (OS.equals("Darwin")) {
-        try {
-          // https://indiespark.top/software/detecting-apple-silicon-shell-script/
-          //
-          // Looks to see if we're running under emulation to determine the actual arch
-          //
-          CliCommand rosetta = new CliCommand(List.of("sysctl", "-in", "sysctl.proc_translated"), Paths.get(System.getProperty("user.dir")), Map.of(), true, true);
-          CliCommand.Result result = rosetta.execute();
-          if (result.getStdout().trim().equals("1")) {
-            // We are running emulation but we're actually on arm64
-            return "arm64";
-          }
-        } catch (Exception e) {
-        }
-      }
       return "x86_64";
     }
     if ("aarch64".equals(value)) {

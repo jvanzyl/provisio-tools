@@ -5,6 +5,7 @@ import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ca.vanzyl.provisio.tools.model.ImmutableToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import java.nio.file.Path;
@@ -133,7 +134,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
   }
 
   protected void validateInstallationProvisioning(String tool, String version, String fileNameInCache, List<String> paths) throws Exception {
-    ToolProvisioningResult result = provisio.provisionTool(tool, version);
+    ToolProvisioningResult result = provisio.provisionTool(ImmutableToolProfile.builder().build(), tool, version);
     Path fileInCache = cachePathFor(provisio.cacheDirectory(), provisio.tool(tool), version, fileNameInCache);
     assertThat(fileInCache).exists().isRegularFile().hasFileName(fileNameInCache);
     assertThat(result.installation()).exists().isDirectory().hasFileName(version);
@@ -146,7 +147,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
 
   public void validateToolProvisioning(String toolId, String version, String fileNameInCache) throws Exception {
     ToolDescriptor toolDescriptor = provisio.tool(toolId);
-    ToolProvisioningResult result = provisio.provisionTool(toolId, version);
+    ToolProvisioningResult result = provisio.provisionTool(ImmutableToolProfile.builder().build(), toolId, version);
     assertThat(cachePathFor(provisio.cacheDirectory(), provisio.tool(toolId), version, fileNameInCache))
         .exists().isRegularFile().hasFileName(fileNameInCache);
     // Now that we are leaving things as-is we have take into account the raw name. These funky archives
