@@ -10,6 +10,7 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 # https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v0.17.0/imgpkg-darwin-amd64
 # https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v0.17.0/imgpkg-linux-amd64
 urlTemplate: https://github.com/vmware-tanzu/carvel-imgpkg/releases/download/v{version}/imgpkg-{os}-{arch}

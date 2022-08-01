@@ -5,4 +5,10 @@ defaultVersion: 0.0.10
 layout: file
 executable: provisio
 packaging: FILE
+osMappings:
+  Darwin: Darwin
+  Linux: Linux
+archMappings:
+  x86_64: amd64
+  arm64: arm64
 urlTemplate: https://github.com/jvanzyl/provisio-tools/releases/download/{version}/provisio-{os}-{arch}

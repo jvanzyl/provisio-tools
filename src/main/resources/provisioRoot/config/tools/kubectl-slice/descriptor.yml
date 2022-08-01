@@ -8,4 +8,7 @@ packaging: TARGZ
 osMappings:
   Darwin: darwin
   Linux: linux
+archMappings:
+  x86_64: x86_64
+  arm64: arm64
 urlTemplate: "https://github.com/patrickdappollonio/kubectl-slice/releases/download/v{version}/kubectl-slice_{version}_{os}_{arch}.tar.gz"

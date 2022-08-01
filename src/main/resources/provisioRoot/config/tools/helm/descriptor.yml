@@ -1,7 +1,7 @@
 ---
 id: helm
 name: Helm
-defaultVersion: 3.6.3
+defaultVersion: 3.9.2
 layout: file
 executable: helm
 packaging: TARGZ_STRIP
@@ -10,6 +10,7 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
-# https://get.helm.sh/helm-v3.6.3-linux-amd64.tar.gz
-# https://get.helm.sh/helm-v3.6.3-darwin-amd64.tar.gz
+  arm64: arm64
+# https://get.helm.sh/helm-v3.9.2-darwin-arm64.tar.gz
+# https://get.helm.sh/helm-v3.9.2-linux-arm64.tar.gz
 urlTemplate: https://get.helm.sh/helm-v{version}-{os}-{arch}.tar.gz

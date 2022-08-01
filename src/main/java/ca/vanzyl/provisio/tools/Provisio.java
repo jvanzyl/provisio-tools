@@ -4,14 +4,14 @@ import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.FISH;
 import static ca.vanzyl.provisio.tools.shell.ShellHandler.Shell.ZSH;
 import static ca.vanzyl.provisio.tools.shell.ShellHandler.userShell;
 import static ca.vanzyl.provisio.tools.tool.ToolMapper.collectToolDescriptorsMap;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.mapArch;
+import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.mapOs;
 import static ca.vanzyl.provisio.tools.util.FileUtils.deleteDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.makeExecutable;
 import static ca.vanzyl.provisio.tools.util.FileUtils.moveDirectoryIfExists;
 import static ca.vanzyl.provisio.tools.util.FileUtils.touch;
 import static ca.vanzyl.provisio.tools.util.FileUtils.updateRelativeSymlink;
-import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
-import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.mapArch;
-import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.mapOs;
 import static java.lang.String.format;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.createDirectories;
@@ -25,6 +25,8 @@ import static java.nio.file.Files.readString;
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.requireNonNull;
+import static kr.motd.maven.os.Detector.ARCH;
+import static kr.motd.maven.os.Detector.OS;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
 import ca.vanzyl.provisio.archive.UnArchiver.UnArchiverBuilder;
@@ -58,7 +60,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import kr.motd.maven.os.Detector;
 
 // TODO: allow provisioning of tools in parallel, but visually demux the output
 // TODO: how to read a directory of resources out of the classpath in Graal
@@ -71,9 +72,6 @@ public class Provisio {
   public final static String PROFILE_YAML = "profile.yaml";
   public final static String PROFILE_SHELL = "profile.shell";
   public final static String PROVISIO_RELEASES_URL = "https://github.com/jvanzyl/provisio-tools/releases";
-  public static final String OS = Detector.normalizeOs(System.getProperty("os.name"));
-  public static final String ARCH = Detector.normalizeArch(System.getProperty("os.arch"));
-
   private final DownloadManager downloadManager;
   private final Map<String, ToolDescriptor> toolDescriptorMap;
   private final ProfileMapper profileMapper;

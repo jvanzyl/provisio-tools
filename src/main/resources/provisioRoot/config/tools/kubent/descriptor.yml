@@ -7,6 +7,8 @@ executable: kubent
 packaging: TARGZ
 osMappings:
   Darwin: darwin
+  Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 urlTemplate: "https://github.com/doitintl/kube-no-trouble/releases/download/{version}/kubent-{version}-{os}-{arch}.tar.gz"

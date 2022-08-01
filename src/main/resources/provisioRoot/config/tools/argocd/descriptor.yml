@@ -1,7 +1,7 @@
 ---
 id: argocd
 name: argocd
-defaultVersion: 2.1.7
+defaultVersion: 2.4.8
 layout: file
 executable: argocd
 packaging: FILE
@@ -10,6 +10,9 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
-# https://github.com/argoproj/argo-cd/releases/download/v2.1.7/argocd-darwin-amd64
-# https://github.com/argoproj/argo-cd/releases/download/v2.1.7/argocd-linux-amd64
+  arm64: arm64
+# https://github.com/argoproj/argo-cd/releases/download/v2.4.8/argocd-darwin-amd64
+# https://github.com/argoproj/argo-cd/releases/download/v2.4.8/argocd-linux-amd64
+# https://github.com/argoproj/argo-cd/releases/download/v2.4.8/argocd-darwin-arm64
+# https://github.com/argoproj/argo-cd/releases/download/v2.4.8/argocd-linux-arm64
 urlTemplate: https://github.com/argoproj/argo-cd/releases/download/v{version}/argocd-{os}-{arch}

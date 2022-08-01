@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,19 +17,22 @@ import java.util.concurrent.Future;
 public class CliCommand {
 
   private final boolean saveOutput;
+  private final boolean silent;
   private final Path workDir;
   private final List<String> args;
   private final Map<String, String> envars;
 
-  public CliCommand(String args, Path workDir, Map<String, String> envars, boolean saveOutput) {
-    this(Arrays.asList(args.split(" ")), workDir, envars, saveOutput);
+  public CliCommand(List<String> args, Path workDir, Map<String, String> envars, boolean saveOutput) {
+    this(args, workDir, envars, saveOutput, false);
   }
 
-  public CliCommand(List<String> args, Path workDir, Map<String, String> envars, boolean saveOutput) {
+
+  public CliCommand(List<String> args, Path workDir, Map<String, String> envars, boolean saveOutput, boolean silent) {
     this.workDir = workDir;
     this.args = args;
     this.envars = envars;
     this.saveOutput = saveOutput;
+    this.silent = silent;
   }
 
   protected static void log(String line) {
@@ -48,8 +50,8 @@ public class CliCommand {
     Map<String, String> combinedEnv = new HashMap<>(envars);
     pb.environment().putAll(combinedEnv);
     Process p = pb.start();
-    Future<String> stderr = executor.submit(new StreamReader(saveOutput, p.getErrorStream()));
-    Future<String> stdout = executor.submit(new StreamReader(saveOutput, p.getInputStream()));
+    Future<String> stderr = executor.submit(new StreamReader(saveOutput, silent, p.getErrorStream()));
+    Future<String> stdout = executor.submit(new StreamReader(saveOutput, silent, p.getInputStream()));
     int code = p.waitFor();
     executor.shutdown();
     return new Result(code, stdout.get(), stderr.get());
@@ -59,10 +61,13 @@ public class CliCommand {
       implements Callable<String> {
 
     private final boolean saveOutput;
+
+    private final boolean silent;
     private final InputStream in;
 
-    private StreamReader(boolean saveOutput, InputStream in) {
+    private StreamReader(boolean saveOutput, boolean silent, InputStream in) {
       this.saveOutput = saveOutput;
+      this.silent = silent;
       this.in = in;
     }
 
@@ -76,7 +81,9 @@ public class CliCommand {
           if (saveOutput) {
             sb.append(line).append(System.lineSeparator());
           }
-          log(line);
+          if(!silent) {
+            log(line);
+          }
         }
       }
       return sb.toString();

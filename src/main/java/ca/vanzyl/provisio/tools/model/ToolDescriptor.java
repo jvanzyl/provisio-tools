@@ -1,6 +1,6 @@
 package ca.vanzyl.provisio.tools.model;
 
-import static ca.vanzyl.provisio.tools.Provisio.OS;
+import static kr.motd.maven.os.Detector.OS;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

@@ -8,5 +8,6 @@ layout: file
 executable: ko
 packaging: TARGZ
 archMappings:
-  arm64: arm
+  x86_64: x86_64
+  arm64: arm64
 urlTemplate: "https://github.com/google/ko/releases/download/v{version}/ko_{version}_{os}_{arch}.tar.gz"

@@ -11,7 +11,9 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: x64
+  arm64: arm64
 # https://nodejs.org/dist/v14.17.5/node-v14.17.5-linux-x64.tar.xz
 # https://nodejs.org/dist/v14.17.5/node-v14.17.5-darwin-x64.tar.gz
+# https://nodejs.org/dist/v16.16.0/node-v16.16.0-darwin-arm64.tar.gz
 darwinUrlTemplate: https://nodejs.org/dist/v{version}/node-v{version}-{os}-{arch}.tar.gz
 linuxUrlTemplate: https://nodejs.org/dist/v{version}/node-v{version}-{os}-{arch}.tar.xz

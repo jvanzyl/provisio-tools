@@ -10,6 +10,9 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 # https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/linux-amd64/docker-credential-ecr-login
 # https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/darwin-amd64/docker-credential-ecr-login
-urlTemplate: "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/darwin-amd64/docker-credential-ecr-login"
+# https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/linux-arm64/docker-credential-ecr-login
+# https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/0.6.0/darwin-arm64/docker-credential-ecr-login
+urlTemplate: "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/{version}/{os}-{arch}/docker-credential-ecr-login"

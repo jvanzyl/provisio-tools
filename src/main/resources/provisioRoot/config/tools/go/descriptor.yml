@@ -1,7 +1,7 @@
 ---
 id: go
 name: Go
-defaultVersion: 1.16.6
+defaultVersion: 1.18.4
 layout: directory
 paths: bin
 executable: go
@@ -11,6 +11,9 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
-# https://golang.org/dl/go1.15.14.linux-arm64.tar.gz
-# https://golang.org/dl/go1.16.6.darwin-amd64.tar.gz
-urlTemplate: https://golang.org/dl/go{version}.{os}-{arch}.tar.gz
+  arm64: arm64
+# https://go.dev/dl/go1.18.4.darwin-amd64.tar.gz
+# https://go.dev/dl/go1.18.4.darwin-arm64.tar.gz
+# https://go.dev/dl/go1.18.4.linux-amd64.tar.gz
+# https://go.dev/dl/go1.18.4.linux-arm64.tar.gz
+urlTemplate: https://golang.dev/dl/go{version}.{os}-{arch}.tar.gz

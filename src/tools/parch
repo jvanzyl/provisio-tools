@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+archName="$(uname -m)"
+
+if [ "${archName}" = "x86_64" ]; then
+  if [ "$(sysctl -in sysctl.proc_translated)" = "1" ]; then
+    echo "arm64"
+  else
+    echo "x86_64"
+  fi
+elif [ "${archName}" = "arm64" ]; then
+  echo "arm64"
+else
+  echo "Unknown architecture: ${archName}"
+fi

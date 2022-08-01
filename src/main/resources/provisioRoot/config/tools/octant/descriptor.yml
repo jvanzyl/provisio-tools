@@ -9,6 +9,7 @@ osMappings:
   Darwin: macOS
 archMappings:
   x86_64: 64bit
+  arm64: arm64
 # This URL is inconsistent as it uses v{version} and {version} together
 # https://github.com/vmware-tanzu/octant/releases/download/v0.22.0/octant_0.22.0_Linux-arm64.tar.gz
 # https://github.com/vmware-tanzu/octant/releases/download/v0.22.0/octant_0.22.0_macOS-64bit.tar.gz

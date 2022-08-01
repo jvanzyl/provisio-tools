@@ -71,6 +71,8 @@ public class ToolDescriptorGenerator {
     String urlToAnalyze = null;
     String foundOsIdentifier = null;
     String foundArchIdentifier = null;
+    String artifactExtension = null;
+    String foundOs = null;
 
     // cosign has multiple binaries in a release, bad
     // a bunch of different binaries
@@ -91,55 +93,70 @@ public class ToolDescriptorGenerator {
       }
 
       System.out.println(url);
-
-      // How to analyze these better, really I can pull them out of existing descriptors, as they serve
-      // as the real examples
+      boolean validUrl = false;
 
       // OS mappings
       if (url.contains("darwin")) {
-        osMappings.put("Darwin", "darwin");
+        foundOs = "Darwin";
         foundOsIdentifier = "darwin";
-        urlToAnalyze = url;
+        osMappings.put("Darwin", "darwin");
+        validUrl = true;
       } else if (url.contains("Darwin")) {
+        foundOs = "Darwin";
         foundOsIdentifier = "Darwin";
-        urlToAnalyze = url;
+        osMappings.put("Darwin", "Darwin");
+        validUrl = true;
       } else if (url.contains("macOS")) {
-        osMappings.put("Darwin", "macOS");
+        foundOs = "Darwin";
         foundOsIdentifier = "macOS";
-        urlToAnalyze = url;
+        osMappings.put("Darwin", "macOS");
+        validUrl = true;
       } else if (url.contains("Linux")) {
-        urlToAnalyze = url;
+        foundOs = "Linux";
+        foundOsIdentifier = "Linux";
+        osMappings.put("Linux", "Linux");
+        validUrl = true;
       } else if (url.contains("linux")) {
+        foundOs = "Linux";
+        foundOsIdentifier = "linux";
         osMappings.put("Linux", "linux");
-        urlToAnalyze = url;
-      } else if (url.contains("windows")) {
+        validUrl = true;
+      } /* else if (url.contains("windows")) {
         osMappings.put("Windows", "windows");
-        urlToAnalyze = url;
-      }
+        foundOsIdentifier = "windows";
+        validUrl = true;
+      } else if (url.contains("Windows")) {
+        osMappings.put("Windows", "Windows");
+        foundOsIdentifier = "Windows";
+        validUrl = true;
+      } */
 
-      // linux arm
-      // darwin arm64
+      // TODO: need to detect if an OS requires a different URL template
+      // https://github.com/weaveworks/eksctl/releases/download/v0.108.0-rc.0/eksctl_Darwin_amd64.tar.gz
+      // https://github.com/weaveworks/eksctl/releases/download/v0.108.0-rc.0/eksctl_Windows_amd64.zip
 
       // Arch mappings
-      // TODO: put these in a table
       if (url.contains("x64")) {
         archMappings.put("x86_64", "x64");
         foundArchIdentifier = "x64";
       } else if (url.contains("x86_64")) {
+        archMappings.put("x86_64", "x86_64");
         foundArchIdentifier = "x86_64";
       } else if (url.contains("amd64")) {
         archMappings.put("x86_64", "amd64");
         foundArchIdentifier = "amd64";
       } else if (url.contains("arm64")) {
-        archMappings.put("arm64", "arm");
+        archMappings.put("arm64", "arm64");
         foundArchIdentifier = "arm64";
       } else if (url.contains("aarch64")) {
-        archMappings.put("aarch64", "arm");
+        archMappings.put("arm64", "aarch64");
         foundArchIdentifier = "aarch64";
+      } else {
+        validUrl = false;
       }
 
-      if (urlToAnalyze != null) {
-        break;
+      if(validUrl) {
+        urlToAnalyze = url;
       }
     }
 
@@ -279,20 +296,7 @@ public class ToolDescriptorGenerator {
         ))
         .version("1.23.0")
         .build();
-    //generator.analyzeAndGenerate(info);
 
-    // Pulumi
-    //generator.generate("https://github.com/pulumi/pulumi/releases");
-    // GitHub CLI
-    //generator.generate("https://github.com/cli/cli/releases");
-    // Kubectl slice
-    //generator.generate("https://github.com/patrickdappollonio/kubectl-slice/releases");
-    // kubent
-    //generator.analyzeAndGenerate("https://github.com/doitintl/kube-no-trouble/releases");
-    //generator.analyzeAndGenerate("https://github.com/homeport/dyff/releases");
-    //generator.analyzeAndGenerate("https://github.com/cert-manager/cert-manager/releases");
-    //generator.analyzeAndGenerate("https://github.com/sigstore/rekor/releases");
-    //generator.analyzeAndGenerate("https://github.com/sigstore/cosign/releases");
-    generator.analyzeAndGenerate("https://github.com/google/ko/releases");
+    generator.analyzeAndGenerate("https://github.com/helm/helm/releases");
   }
 }

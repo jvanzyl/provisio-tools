@@ -1,15 +1,17 @@
 ---
 id: gitleaks
 name: gitleaks
-defaultVersion: 7.5.0
+sources:
+  - https://github.com/zricethezav/gitleaks/releases
+defaultVersion: 8.9.0
 layout: file
 executable: gitleaks
-packaging: FILE
+packaging: TARGZ
 osMappings:
   Darwin: darwin
   Linux: linux
 archMappings:
-  x86_64: amd64
-# https://github.com/zricethezav/gitleaks/releases/download/v7.5.0/gitleaks-linux-amd64
-# https://github.com/zricethezav/gitleaks/releases/download/v7.5.0/gitleaks-darwin-amd64
-urlTemplate: https://github.com/zricethezav/gitleaks/releases/download/v{version}/gitleaks-{os}-{arch}
+  x86_64: x64
+  arm64: arm64
+urlTemplate: "https://github.com/zricethezav/gitleaks/releases/download/v{version}/gitleaks_{version}_{os}_{arch}.tar.gz"
+

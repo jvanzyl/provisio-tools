@@ -2,8 +2,6 @@ package ca.vanzyl.provisio.tools.test;
 
 import static ca.vanzyl.provisio.tools.Generators.artifactEntry;
 import static ca.vanzyl.provisio.tools.ProfileInstallingTest.validateProfileInstallation;
-import static ca.vanzyl.provisio.tools.Provisio.ARCH;
-import static ca.vanzyl.provisio.tools.Provisio.OS;
 import static ca.vanzyl.provisio.tools.ProvisioTestSupport.directory;
 import static ca.vanzyl.provisio.tools.ProvisioTestSupport.provisio;
 import static ca.vanzyl.provisio.tools.model.ProvisioningRequest.TOOL_DESCRIPTOR;
@@ -13,6 +11,8 @@ import static ca.vanzyl.provisio.tools.util.FileUtils.resetDirectory;
 import static ca.vanzyl.provisio.tools.util.FileUtils.writeFile;
 import static java.lang.String.format;
 import static java.nio.file.Files.createDirectories;
+import static kr.motd.maven.os.Detector.ARCH;
+import static kr.motd.maven.os.Detector.OS;
 import static spark.Spark.externalStaticFileLocation;
 import static spark.Spark.get;
 import static spark.Spark.port;

@@ -1,7 +1,9 @@
 ---
 id: dyff
 name: dyff
-defaultVersion: 1.5.1
+sources:
+  - https://github.com/homeport/dyff/releases
+defaultVersion: 1.5.4
 layout: file
 executable: dyff
 packaging: TARGZ
@@ -10,4 +12,5 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 urlTemplate: "https://github.com/homeport/dyff/releases/download/v{version}/dyff_{version}_{os}_{arch}.tar.gz"

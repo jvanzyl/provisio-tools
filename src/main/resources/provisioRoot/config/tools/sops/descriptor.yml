@@ -10,6 +10,7 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 # https://github.com/mozilla/sops/releases/download/v3.7.1/sops-v3.7.1.linux
 # https://github.com/mozilla/sops/releases/download/v3.7.1/sops-v3.7.1.darwin
 urlTemplate: https://github.com/mozilla/sops/releases/download/v{version}/sops-v{version}.{os}

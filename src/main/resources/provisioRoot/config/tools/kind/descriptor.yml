@@ -10,6 +10,7 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 # https://github.com/kubernetes-sigs/kind/releases/download/v0.11.1/kind-darwin-amd64
 # https://github.com/kubernetes-sigs/kind/releases/download/v0.11.1/kind-linux-amd64
 urlTemplate: https://github.com/kubernetes-sigs/kind/releases/download/v{version}/kind-{os}-{arch}

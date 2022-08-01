@@ -1,7 +1,7 @@
 ---
 id: aws-iam-authenticator
 name: AWS IAM Authenticator
-defaultVersion: 0.5.3
+defaultVersion: 0.5.9
 layout: file
 executable: aws-iam-authenticator
 packaging: FILE
@@ -10,7 +10,10 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
+  arm64: arm64
 # Inconsistent use of version
-# https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.3/aws-iam-authenticator_0.5.3_darwin_amd64
-# https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.3/aws-iam-authenticator_0.5.3_linux_amd64
-urlTemplate: https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v{version}/aws-iam-authenticator_{version}_{os}_{arch}
+# https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.3_darwin_amd64
+# https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.3_linux_amd64
+# https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_darwin_arm64
+# https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_linux_arm64
+urlTemplate: "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v{version}/aws-iam-authenticator_{version}_{os}_{arch}"

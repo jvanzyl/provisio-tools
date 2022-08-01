@@ -7,8 +7,10 @@ executable: hugo
 packaging: TARGZ
 osMappings:
   Darwin: macOS
+  Linux: Linux
 archMappings:
   x86_64: 64bit
+  arm64: ARM64
 # https://github.com/gohugoio/hugo/releases/download/v0.87.0/hugo_0.87.0_Linux-64bit.tar.gz
 # https://github.com/gohugoio/hugo/releases/download/v0.87.0/hugo_0.87.0_macOS-64bit.tar.gz
 urlTemplate: https://github.com/gohugoio/hugo/releases/download/v{version}/hugo_extended_{version}_{os}-{arch}.tar.gz

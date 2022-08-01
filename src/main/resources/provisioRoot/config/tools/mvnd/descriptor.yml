@@ -10,6 +10,7 @@ osMappings:
   Linux: linux
 archMappings:
   x86_64: amd64
-# https://dist.apache.org/repos/dist/dev/maven/mvnd/0.8.0/maven-mvnd-0.8.0-linux-amd64.zip
-# https://dist.apache.org/repos/dist/dev/maven/mvnd/0.8.0/maven-mvnd-0.8.0-darwin-amd64.zip
-urlTemplate: https://dist.apache.org/repos/dist/dev/maven/mvnd/{version}/maven-mvnd-{version}-{os}-{arch}.zip
+  arm64: amd64
+# https://github.com/apache/maven-mvnd/releases/download/0.8.0/maven-mvnd-0.8.0-darwin-amd64.zip
+# https://github.com/apache/maven-mvnd/releases/download/0.8.0/maven-mvnd-0.8.0-linux-amd64.zip
+urlTemplate: https://github.com/apache/maven-mvnd/releases/download/{version}/maven-mvnd-{version}-{os}-{arch}.zip

@@ -1,13 +1,18 @@
 ---
 id: gcloud
 name: Google Cloud SDK
-defaultVersion: 352.0.0
+defaultVersion: 395.0.0
 layout: directory
 executable: gcloud
 packaging: TARGZ_STRIP
 osMappings:
   Darwin: darwin
   Linux: linux
-# https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-348.0.0-linux-x86_64.tar.gz
-# https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-348.0.0-darwin-x86_64.tar.gz
+archMappings:
+  x86_64: x86_64
+  arm64: arm
+# https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-395.0.0-darwin-x86_64.tar.gz
+# https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-395.0.0-linux-x86_64.tar.gz
+# https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-395.0.0-darwin-arm.tar.gz
+# https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-395.0.0-linux-arm.tar.gz
 urlTemplate: https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{version}-{os}-{arch}.tar.gz
