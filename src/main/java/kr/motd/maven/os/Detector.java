@@ -134,6 +134,13 @@ public abstract class Detector {
             // We are running emulation but we're actually on arm64
             return "arm64";
           }
+
+          CliCommand uname = new CliCommand(List.of("uname", "-m"), Paths.get(System.getProperty("user.dir")), Map.of(), true, true);
+          CliCommand.Result unameResult = uname.execute();
+          if(unameResult.getStdout().trim().equals("arm64")) {
+            // We are running with an x86_64 binary but we want to set the arch correctly to get optimized binaries
+            return "arm64";
+          }
         } catch(Exception e) {
         }
       }
