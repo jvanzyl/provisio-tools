@@ -4,7 +4,7 @@ A system for provisioning tools in isolated sets that can be easily de/activated
 
 ## Examples
 
-* [Local computers](main/examples/local)
+* [Local computers](https://github.com/jvanzyl/provisio-tools/tree/main/examples/local)
 
 ## Similar Tools
 
