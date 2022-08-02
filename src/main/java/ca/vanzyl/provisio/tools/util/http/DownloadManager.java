@@ -52,7 +52,7 @@ public class DownloadManager {
     //
     if(tool.fileNameFromContentDisposition()) {
       String fileName = fileNameFromContentDisposition(url, tool);
-      target = cachePathFor(cacheDirectory, tool, version, fileName);
+      target = cachePathFor(cacheDirectory, tool, version, profile.derivedArch(), fileName);
     } else {
       target = cachePathFor(cacheDirectory, tool, version, profile.derivedArch());
     }
