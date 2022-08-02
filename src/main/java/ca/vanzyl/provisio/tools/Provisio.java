@@ -173,8 +173,6 @@ public class Provisio {
       GitHubLatestReleaseFinder finder = new GitHubLatestReleaseFinder();
       String latestProvisioVersion = finder.find(PROVISIO_RELEASES_URL).version();
       ToolProvisioningResult result = provisionTool(ImmutableToolProfile.builder().arch("x86_64").build(), "provisio", latestProvisioVersion);
-      // this is null?
-      // Path target = result.executable();
       Path target = result.installation().resolve("provisio");
       Path link = request.provisioRoot().resolve("provisio");
       updateRelativeSymlink(link, target);
