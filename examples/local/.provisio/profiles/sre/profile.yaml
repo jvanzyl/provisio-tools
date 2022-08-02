@@ -1,0 +1,57 @@
+tools:
+  rekor-cli:
+    version: 0.5.0
+  pulumi:
+    version: 3.37.2
+  java:
+    pathManagedBy: jenv
+    version: jdk-17.0.3+7
+  jenv:
+    version: master
+    global: 17.0
+    plugins:
+      - export
+      - maven
+  vscodium:
+    version: 1.69.2
+  node:
+    version: 16.6.2
+    tools:
+      - yarn
+  gitleaks:
+    version: 8.9.0
+  dive:
+    version: 0.10.0
+  goreleaser:
+    version: 0.174.1
+  go:
+    version: 1.18.5
+  terraform:
+    version: 1.2.6
+  yq:
+    version: 4.20.1
+  mustache:
+    version: 1.4.0
+  kind:
+    version: 0.12.0
+  eksctl:
+    version: 0.77.0
+  aws-cli:
+    version: 2.7.20
+  sops:
+    version: 3.7.3
+  jq:
+    version: 1.6
+  kubectl:
+    version: 1.21.6
+  helm:
+    version: 3.9.2
+  krew:
+    version: 0.4.3
+    plugins:
+      - cert-manager
+      - konfig
+      - ctx
+      - ns
+  bats:
+    version: master
