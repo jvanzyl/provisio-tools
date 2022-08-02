@@ -4,4 +4,8 @@ A system for provisioning tools in isolated sets that can be easily de/activated
 
 ## Examples
 
-* [Local computers]()
+* [Local computers](main/examples/local)
+
+## Similar Tools
+
+* [Hermit](https://github.com/cashapp/hermit)
