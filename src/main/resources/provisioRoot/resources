@@ -6,6 +6,8 @@ config/tools/bats/descriptor.yml
 config/tools/yq/descriptor.yml
 config/tools/imgpkg/descriptor.yml
 config/tools/provisio/descriptor.yml
+config/tools/openlens/post-install.sh
+config/tools/openlens/descriptor.yml
 config/tools/go/descriptor.yml
 config/tools/go/README.md
 config/tools/gh/descriptor.yml
