@@ -6,14 +6,10 @@ function updateTools() {
   profile="${1}"
   OS=$(uname)
   ARCH=$(uname -m)
-  if [ "${OS}" = "Darwin" ] && [ "${ARCH}" = "arm64" ]; then
-    # We will use the x86_64 binary for now until we have an ARM binary
-    ARCH="x86_64"
-  fi
   PROVISIO_ROOT=~/.provisio
   PROVISIO_VERSION="$(curl -s -L https://api.github.com/repos/jvanzyl/provisio-tools/releases | grep tag_name | head -1 | sed -e 's/.*: "//' -e 's/".*$//')"
   PROVISIO_BINARY="provisio"
-  PROVISIO_BINARY_FILE="provisio-${OS}-${ARCH}"
+  PROVISIO_BINARY_FILE="provisio-${OS}-x86_64"
   PROVISIO_BINARY_URL="https://github.com/jvanzyl/provisio-tools/releases/download/${PROVISIO_VERSION}/${PROVISIO_BINARY_FILE}"
 
   if [ ! -f ${PROVISIO_ROOT}/${PROVISIO_BINARY} ]; then
@@ -25,7 +21,10 @@ function updateTools() {
     chmod +x ${PROVISIO_ROOT}/${PROVISIO_BINARY}
   fi
 
-  # Install the tool profile and update shell initialization
+  profileYaml=".provisio/profiles/sre/profile.yaml"
+  profileYamlTemplate="${profileYaml}.mustache"
+  sed -e "s/{{arch}}/${ARCH}/" ${profileYamlTemplate} > ${profileYaml}
+
   ${PROVISIO_ROOT}/${PROVISIO_BINARY} install ${profile}
   source ${PROVISIO_ROOT}/bin/profiles/profile/.init.bash
 }
