@@ -9,7 +9,7 @@
 - [ ] if you switch shells it should pick up the correct init file, maybe just generate them all
 - [x] fish shell support, shell generation, templates
 - [ ] collect all constants in one place, too hard to follow them everywhere
-- [ ] M1/arm support (emulation works)
+- [x] M1/arm support (emulation works)
 - [ ] fzf fish completion
 - [ ] if there are no symlink or current file for the profile use the default profile directory
 - [ ] need tests on a per tool basis

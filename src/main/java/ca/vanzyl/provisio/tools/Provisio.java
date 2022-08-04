@@ -348,7 +348,7 @@ public class Provisio {
               // ${9} : this is the straight version not mapped from descriptor
               mapOs(OS, tool),
               // ${10} : this is the straight version not mapped from descriptor
-              mapArch(ARCH, tool),
+              mapArch(profile.derivedArch(), tool),
               // ${11}
               installsDirectory.toAbsolutePath().toString(),
               // ${12}: relative installation directroy from binary profile directory

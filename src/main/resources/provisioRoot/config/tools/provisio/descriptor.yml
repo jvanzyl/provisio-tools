@@ -10,5 +10,5 @@ osMappings:
   Linux: Linux
 archMappings:
   x86_64: x86_64
-  arm64: arm64
+  arm64: x86_64
 urlTemplate: https://github.com/jvanzyl/provisio-tools/releases/download/{version}/provisio-{os}-{arch}

@@ -1,0 +1,16 @@
+---
+id: openlens
+name: OpenLens
+defaultVersion: 6.0.0
+layout: directory
+packaging: ZIP
+executable: OpenLens.app
+pathManagedBy: provisio
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: ""
+  arm64: "-arm64"
+urlTemplate: "https://github.com/MuhammedKalkan/OpenLens/releases/download/v{version}/OpenLens-6.0.0{arch}.zip"
+
