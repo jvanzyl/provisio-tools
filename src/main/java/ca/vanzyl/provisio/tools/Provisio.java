@@ -169,7 +169,6 @@ public class Provisio {
   public void selfUpdate() {
     try {
       message("Self updating provisio ...");
-      // Fetch the latest release of provisio and replace the main executable with a symlink
       GitHubLatestReleaseFinder finder = new GitHubLatestReleaseFinder();
       String latestProvisioVersion = finder.find(PROVISIO_RELEASES_URL).version();
       ToolProvisioningResult result = provisionTool(ImmutableToolProfile.builder().arch("x86_64").build(), "provisio", latestProvisioVersion);

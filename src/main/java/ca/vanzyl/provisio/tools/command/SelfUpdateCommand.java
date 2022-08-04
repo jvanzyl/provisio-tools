@@ -5,7 +5,6 @@ import picocli.CommandLine.Command;
 
 @Command(name = "selfupdate", mixinStandardHelpOptions = true)
 public class SelfUpdateCommand extends ProvisioCommandSupport {
-
   @Override
   public void execute() throws Exception {
     Provisio provisio = provisio();
