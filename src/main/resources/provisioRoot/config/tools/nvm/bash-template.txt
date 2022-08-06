@@ -1,0 +1,4 @@
+# NVM_DIR needs to be exported for nvm to pick it up
+export NVM_DIR="${PROVISIO_INSTALLS}/nvm/{version}"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

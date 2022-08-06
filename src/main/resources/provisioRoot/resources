@@ -21,6 +21,7 @@ config/tools/kapp/descriptor.yml
 config/tools/argocd/descriptor.yml
 config/tools/velero/descriptor.yml
 config/tools/cr/descriptor.yml
+config/tools/colima/descriptor.yml
 config/tools/docker-credential-ecr-login/descriptor.yml
 config/tools/nova/descriptor.yml
 config/tools/rekor/descriptor.yml
@@ -32,6 +33,9 @@ config/tools/java/temurin.md
 config/tools/java/README.md
 config/tools/mustache/descriptor.yml
 config/tools/kind/descriptor.yml
+config/tools/nvm/post-install.sh
+config/tools/nvm/descriptor.yml
+config/tools/nvm/bash-template.txt
 config/tools/pinniped/descriptor.yml
 config/tools/dimg/descriptor.yml
 config/tools/goreleaser/descriptor.yml

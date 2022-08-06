@@ -1,0 +1,16 @@
+---
+id: colima
+name: colima
+sources:
+  - https://github.com/abiosoft/colima/releases
+defaultVersion: 0.4.4
+layout: file
+executable: colima
+packaging: FILE
+osMappings:
+  Darwin: Darwin
+  Linux: Linux
+archMappings:
+  x86_64: x86_64
+  arm64: aarch64
+urlTemplate: "https://github.com/abiosoft/colima/releases/download/v{version}/colima-{os}-{arch}"

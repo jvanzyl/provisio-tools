@@ -88,6 +88,7 @@ public class ToolDescriptorGenerator {
           url.endsWith(".pub") ||
           url.endsWith(".pem") ||
           url.endsWith(".sbom") ||
+          url.endsWith(".sha256sum") ||
           url.endsWith(".sig")) {
         continue;
       }
@@ -297,6 +298,6 @@ public class ToolDescriptorGenerator {
         .version("1.23.0")
         .build();
 
-    generator.analyzeAndGenerate("https://github.com/helm/helm/releases");
+    generator.analyzeAndGenerate("https://github.com/abiosoft/colima/releases");
   }
 }

@@ -1,0 +1,9 @@
+---
+id: nvm
+name: nvm
+layout: directory
+executable: jenv
+packaging: TARGZ_STRIP
+defaultVersion: 0.39.1
+urlTemplate: https://api.github.com/repos/nvm-sh/nvm/tarball/v{version}
+fileNameFromContentDisposition: true
