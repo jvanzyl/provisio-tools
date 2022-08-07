@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'docs'
+      - README.md
   pull_request:
 
 jobs:
@@ -21,6 +24,6 @@ jobs:
       - name: Install native-image component
         run: |
           gu install native-image
-      - run: cp src/tools/upx /usr/local/bin              
+      - run: cp src/tools/upx /usr/local/bin
       - name: Build
         run: ./mvnw clean package -DskipTests -Pnative
