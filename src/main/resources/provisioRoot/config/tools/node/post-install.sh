@@ -7,7 +7,6 @@ installLocation=${8}
 source ${provisioFunctions}
 create_variables ${profileYaml}
 
-for tool in ${tools_nodejs_tools[*]}
-do
+for tool in ${tools_nodejs_tools[*]}; do
   ${installLocation}/bin/npm install --global ${tool}
 done

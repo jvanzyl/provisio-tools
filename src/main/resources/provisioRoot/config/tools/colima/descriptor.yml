@@ -12,5 +12,5 @@ osMappings:
   Linux: Linux
 archMappings:
   x86_64: x86_64
-  arm64: aarch64
+  arm64: arm64
 urlTemplate: "https://github.com/abiosoft/colima/releases/download/v{version}/colima-{os}-{arch}"
