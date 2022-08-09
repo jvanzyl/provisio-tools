@@ -16,6 +16,7 @@ if echo "${version}" | grep SNAPSHOT ; then
   version="0.0.$((version+1))-SNAPSHOT"
   ./mvnw versions:set -DnewVersion="${version}"
   rm -f pom.xml.versionsBackup
+  git add pom.xml; git commit -m "Development ${version}"; git push
 else
   echo "${version} is not a SNAPSHOT. Exiting."
   exit
