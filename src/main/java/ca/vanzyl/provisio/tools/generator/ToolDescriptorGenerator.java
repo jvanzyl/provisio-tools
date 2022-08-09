@@ -98,30 +98,20 @@ public class ToolDescriptorGenerator {
 
       // OS mappings
       if (url.contains("darwin")) {
-        foundOs = "Darwin";
         foundOsIdentifier = "darwin";
         osMappings.put("Darwin", "darwin");
-        validUrl = true;
       } else if (url.contains("Darwin")) {
-        foundOs = "Darwin";
         foundOsIdentifier = "Darwin";
         osMappings.put("Darwin", "Darwin");
-        validUrl = true;
       } else if (url.contains("macOS")) {
-        foundOs = "Darwin";
         foundOsIdentifier = "macOS";
         osMappings.put("Darwin", "macOS");
-        validUrl = true;
       } else if (url.contains("Linux")) {
-        foundOs = "Linux";
         foundOsIdentifier = "Linux";
         osMappings.put("Linux", "Linux");
-        validUrl = true;
       } else if (url.contains("linux")) {
-        foundOs = "Linux";
         foundOsIdentifier = "linux";
         osMappings.put("Linux", "linux");
-        validUrl = true;
       } /* else if (url.contains("windows")) {
         osMappings.put("Windows", "windows");
         foundOsIdentifier = "windows";
@@ -140,18 +130,23 @@ public class ToolDescriptorGenerator {
       if (url.contains("x64")) {
         archMappings.put("x86_64", "x64");
         foundArchIdentifier = "x64";
+        validUrl = true;
       } else if (url.contains("x86_64")) {
         archMappings.put("x86_64", "x86_64");
         foundArchIdentifier = "x86_64";
+        validUrl = true;
       } else if (url.contains("amd64")) {
         archMappings.put("x86_64", "amd64");
         foundArchIdentifier = "amd64";
+        validUrl = true;
       } else if (url.contains("arm64")) {
         archMappings.put("arm64", "arm64");
         foundArchIdentifier = "arm64";
+        validUrl = true;
       } else if (url.contains("aarch64")) {
         archMappings.put("arm64", "aarch64");
         foundArchIdentifier = "aarch64";
+        validUrl = true;
       } else {
         validUrl = false;
       }
@@ -184,10 +179,18 @@ public class ToolDescriptorGenerator {
     }
 
     String version = releaseInfo.version().replace("v", "");
-    String urlTemplate = urlToAnalyze
-        .replace(foundOsIdentifier, "{os}")
-        .replace(foundArchIdentifier, "{arch}")
-        .replace(version, "{version}");
+    String urlTemplate;
+    if(foundOsIdentifier != null) {
+      urlTemplate = urlToAnalyze
+          .replace(foundOsIdentifier, "{os}")
+          .replace(foundArchIdentifier, "{arch}")
+          .replace(version, "{version}");
+    } else {
+      // In the case of tools only for one OS there may not be an os in the release artifact url
+      urlTemplate = urlToAnalyze
+          .replace(foundArchIdentifier, "{arch}")
+          .replace(version, "{version}");
+    }
 
     // TODO: iterate through all the tools and record the source url so I can reconstruct the tool descriptors
     // when they need more information
@@ -234,7 +237,8 @@ public class ToolDescriptorGenerator {
         builder.layout("file");
       }
     } else if (artifact.getFileName().endsWith(".zip")) {
-
+      builder.packaging(Packaging.ZIP);
+      builder.layout("directory");
     } else if (artifact.getFileName().endsWith(".xz")) {
 
     } else {
@@ -298,6 +302,6 @@ public class ToolDescriptorGenerator {
         .version("1.23.0")
         .build();
 
-    generator.analyzeAndGenerate("https://github.com/abiosoft/colima/releases");
+    generator.analyzeAndGenerate("https://github.com/gitx/gitx/releases");
   }
 }

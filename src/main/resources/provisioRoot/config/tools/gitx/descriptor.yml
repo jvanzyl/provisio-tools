@@ -1,0 +1,14 @@
+---
+id: gitx
+name: gitx
+sources:
+  - https://github.com/gitx/gitx/releases
+defaultVersion: 0.21
+layout: directory
+executable: GitX.app
+pathManagedBy: provisio
+packaging: ZIP
+archMappings:
+  x86_64: x86_64
+  arm64: arm64
+urlTemplate: "https://github.com/gitx/gitx/releases/download/{version}/GitX-{arch}.zip"
