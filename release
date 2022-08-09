@@ -7,7 +7,9 @@ if echo "${version}" | grep SNAPSHOT ; then
   version=$(echo ${version} | sed -e 's/-SNAPSHOT//')
   ./mvnw versions:set -DnewVersion="${version}"
   rm -f pom.xml.versionsBackup
-  git add pom.xml; git commit -m "Release ${version}"; git tag ${version}; git push && git push --tags
+  # Update all the descriptors
+  (cd src/main/resources/provisioRoot; ./gather)
+  git add pom.xml src/main/resources; git commit -m "Release ${version}"; git tag ${version}; git push && git push --tags
   # 0.0.X --> X
   version="$(echo ${version} | sed -e 's/0.0.//')"
   # X --> 0.0.X+1-SNAPSHOT
