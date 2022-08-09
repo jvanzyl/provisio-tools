@@ -25,7 +25,6 @@ import static java.nio.file.Files.readString;
 import static java.nio.file.Paths.get;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.requireNonNull;
-import static kr.motd.maven.os.Detector.ARCH;
 import static kr.motd.maven.os.Detector.OS;
 
 import ca.vanzyl.provisio.archive.UnArchiver;
@@ -55,12 +54,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 // TODO: allow provisioning of tools in parallel, but visually demux the output
@@ -166,15 +166,43 @@ public class Provisio {
   // Self update
   // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+  public static String versionInfo() throws Exception {
+    URL url = Provisio.class.getResource("/project.properties");
+    if (url == null) {
+      return "No project.properties file found in the classpath.";
+    }
+    Properties properties = new Properties();
+    properties.load(url.openStream());
+    String version = properties.getProperty("version");
+    String revision = properties.getProperty("shortRevision");
+    return String.format("%s (%s)", version, revision);
+  }
+
+  public static String version() throws Exception {
+    URL url = Provisio.class.getResource("/project.properties");
+    if (url == null) {
+      return "No project.properties file found in the classpath.";
+    }
+    Properties properties = new Properties();
+    properties.load(url.openStream());
+    return properties.getProperty("version");
+  }
+
   public void selfUpdate() {
     try {
-      message("Self updating provisio ...");
+      String currentVersion = version();
+      message("Self updating provisio %s ... ", currentVersion);
       GitHubLatestReleaseFinder finder = new GitHubLatestReleaseFinder();
       String latestProvisioVersion = finder.find(PROVISIO_RELEASES_URL).version();
-      ToolProvisioningResult result = provisionTool(ImmutableToolProfile.builder().arch("x86_64").build(), "provisio", latestProvisioVersion);
-      Path target = result.installation().resolve("provisio");
-      Path link = request.provisioRoot().resolve("provisio");
-      updateRelativeSymlink(link, target);
+      if(currentVersion.equals(latestProvisioVersion)) {
+        message("Already up-to-date%n");
+      } else {
+        message("updating to %s%n", latestProvisioVersion);
+        ToolProvisioningResult result = provisionTool(ImmutableToolProfile.builder().arch("x86_64").build(), "provisio", latestProvisioVersion);
+        Path target = result.installation().resolve("provisio");
+        Path link = request.provisioRoot().resolve("provisio");
+        updateRelativeSymlink(link, target);
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
