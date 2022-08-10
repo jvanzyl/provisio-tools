@@ -1,0 +1,8 @@
+---
+id: sbt
+name: sbt
+defaultVersion: 1.7.1
+layout: directory
+executable: sbt
+packaging: TARGZ_STRIP
+urlTemplate: "https://github.com/sbt/sbt/releases/download/v{version}/sbt-{version}.tgz"
