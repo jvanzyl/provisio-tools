@@ -11,10 +11,12 @@ import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import java.nio.file.Path;
 import java.util.List;
+import org.junit.Ignore;
 import org.junit.Test;
 
 // TODO: Generate all the various packaging types and startup a local webserver. These are really integration tests for tools that exist in the world.
 
+@Ignore
 public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
   
   @Test

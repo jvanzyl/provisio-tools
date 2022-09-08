@@ -198,6 +198,7 @@ public class Provisio {
         message("Already up-to-date%n");
       } else {
         message("updating to %s%n", latestProvisioVersion);
+        // TODO: this is a problem on Graviton
         ToolProvisioningResult result = provisionTool(ImmutableToolProfile.builder().arch("x86_64").build(), "provisio", latestProvisioVersion);
         Path target = result.installation().resolve("provisio");
         Path link = request.provisioRoot().resolve("provisio");

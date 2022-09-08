@@ -16,8 +16,16 @@ public abstract class ToolProfile {
 
   @Value.Derived
   public String derivedArch() {
-    String arch = arch();
+    // Specifically look for the docker buildx envar ${TARGETARCH} as it's the only way to
+    // detect what platform you want to build for in an emulated environment.
+    String arch = arch() != null ? arch() : System.getenv("TARGETARCH");
     if(arch != null) {
+      // In the case of building multiplatform images with docker buildx under QEMU emulation we cannot
+      // actually detect the architecture, but the ${TARGETARCH} envar is available but for x86_64
+      // the value is amd64 so swap it for x86_64 as we use the output of uname -m as our template.
+      if(arch.equals("amd64")) {
+        arch = "x86_64";
+      }
       return arch;
     }
     return ARCH;

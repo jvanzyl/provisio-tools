@@ -16,6 +16,10 @@
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
     <errorproneannotations.version>2.10.0</errorproneannotations.version>
     <jsr305.version>3.0.2</jsr305.version>
+    <quarkus.package.type>uber-jar</quarkus.package.type>
+    <!--
+    <quarkus.package.type>fast-jar</quarkus.package.type>
+    -->
   </properties>
   <dependencyManagement>
     <dependencies>

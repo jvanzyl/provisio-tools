@@ -1,7 +1,7 @@
 ---
 id: aws-cli
 name: AWS CLI v2
-defaultVersion: 2.2.14
+defaultVersion: 2.70.30
 layout: directory
 paths: .
 executable: aws
@@ -12,7 +12,7 @@ osMappings:
 archMappings:
   x86_64: x86_64
   # Need to build arm binaries
-  arm64: x86_64
+  arm64: aarch64
 # NOTE: We replaced this nonsense with binaries created specifically for Provisio here:
 # https://github.com/jvanzyl/repackage-awscli
 # 

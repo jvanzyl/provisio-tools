@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+cd "$(dirname ${BASH_SOURCE[0]})"
+source maven.bash
+
+mavenVersion=$(mavenProjectVersion "pom.xml")
+repository="ghcr.io/jvanzyl/provisio/provisio"
+
+#./mvnw clean install -DskipTests
+
+docker buildx create --use
+docker buildx build \
+  -f Dockerfile.java \
+  -t ${repository}:${mavenVersion} \
+  -t ${repository}:latest \
+  --build-arg=MAVEN_VERSION=${mavenVersion} \
+  --platform=linux/arm64,linux/amd64 \
+  --push \
+  .
