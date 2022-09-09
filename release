@@ -1,20 +1,34 @@
 #!/usr/bin/env bash
 
+cd "$(dirname ${BASH_SOURCE[0]})"
 source maven.bash
 version=$(mavenProjectVersion "pom.xml")
+repository="ghcr.io/jvanzyl/provisio/provisio"
+
 if echo "${version}" | grep SNAPSHOT ; then
   # 0.0.X-SNAPSHOT --> 0.0.X
   version=$(echo ${version} | sed -e 's/-SNAPSHOT//')
-  ./mvnw versions:set -DnewVersion="${version}"
+  jenv exec ./mvnw versions:set -DnewVersion="${version}"
   rm -f pom.xml.versionsBackup
   # Update all the descriptors
   (cd src/main/resources/provisioRoot; ./gather)
   git add pom.xml src/main/resources; git commit -m "Release ${version}"; git tag ${version}; git push && git push --tags
+  # Build the release
+  jenv exec ./mvnw clean install
+  docker buildx create --use
+  docker buildx build \
+    -f Dockerfile.java \
+    -t ${repository}:${version} \
+    -t ${repository}:latest \
+    --build-arg=MAVEN_VERSION=${version} \
+    --platform=linux/arm64,linux/amd64 \
+    --push \
+    .
   # 0.0.X --> X
   version="$(echo ${version} | sed -e 's/0.0.//')"
   # X --> 0.0.X+1-SNAPSHOT
   version="0.0.$((version+1))-SNAPSHOT"
-  ./mvnw versions:set -DnewVersion="${version}"
+  jenv exec ./mvnw versions:set -DnewVersion="${version}"
   rm -f pom.xml.versionsBackup
   git add pom.xml; git commit -m "Development ${version}"; git push
 else

@@ -44,6 +44,7 @@ import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import ca.vanzyl.provisio.tools.profile.ProfileMapper;
 import ca.vanzyl.provisio.tools.shell.BashShellHandler;
 import ca.vanzyl.provisio.tools.shell.FishShellHandler;
+import ca.vanzyl.provisio.tools.shell.PathHandler;
 import ca.vanzyl.provisio.tools.shell.ShellHandler;
 import ca.vanzyl.provisio.tools.shell.ZshShellHandler;
 import ca.vanzyl.provisio.tools.util.CliCommand;
@@ -400,10 +401,12 @@ public class Provisio {
     } else {
       shellHandler = new BashShellHandler(userHome, request);
     }
-
     shellHandler.preamble();
-    String shellTemplateName = shellHandler.shellTemplateName();
 
+    PathHandler pathHandler = new PathHandler(userHome, request);
+    pathHandler.preamble();
+
+    String shellTemplateName = shellHandler.shellTemplateName();
     ToolProfileProvisioningResult profileProvisioningResult = profileProvisioningResultBuilder.build();
     for (ToolProvisioningResult toolProvisioningResult : profileProvisioningResultBuilder.build().tools()) {
       String version = toolProvisioningResult.version();
@@ -442,6 +445,7 @@ public class Provisio {
             path = "bin";
           }
           shellHandler.pathWithExport(toolRoot, relativeToolInstallationPath, path);
+          pathHandler.pathWithExport(toolRoot, relativeToolInstallationPath, path);
         }
       }
     }
