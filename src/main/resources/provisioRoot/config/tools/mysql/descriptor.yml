@@ -1,0 +1,16 @@
+---
+id: mysql
+name: Mysql client
+defaultVersion: 8.0.30
+layout: directory
+executable: mysql
+packaging: TARGZ_STRIP
+osMappings:
+  Darwin: macos12
+#  Linux: linux
+archMappings:
+  x86_64: x86_64
+  arm64: arm
+# https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-8.0.30-macos12-arm64.tar.gz
+# https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-8.0.30-macos12-x86_64.tar.gz
+urlTemplate: https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{version}-{os}-{arch}.tar.gz

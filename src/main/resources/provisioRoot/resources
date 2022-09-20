@@ -80,3 +80,4 @@ config/tools/kubent/descriptor.yml
 config/tools/ytt/descriptor.yml
 config/libexec/darwin.bash
 config/libexec/provisio-functions.bash
+config/tools/mysql/descriptor.yml
