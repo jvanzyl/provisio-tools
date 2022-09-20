@@ -10,7 +10,7 @@ osMappings:
 #  Linux: linux
 archMappings:
   x86_64: x86_64
-  arm64: arm
+  arm64: arm64
 # https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-8.0.30-macos12-arm64.tar.gz
 # https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-8.0.30-macos12-x86_64.tar.gz
-urlTemplate: https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{version}-{os}-{arch}.tar.gz
+urlTemplate: https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-{version}-{os}-{arch}.tar.gz
