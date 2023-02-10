@@ -7,7 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: macos-11
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
     steps:
@@ -23,5 +26,5 @@ jobs:
       - run: mv target/provisio-tools-*-runner target/provisio-Darwin-x86_64
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "target/provisio-Darwin-x86_64"
+          artifacts: "target/provisio-*-x86_64"
           token: ${{ secrets.GITHUB_TOKEN }}
