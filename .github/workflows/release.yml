@@ -29,5 +29,6 @@ jobs:
           mv target/provisio-tools-*-runner target/provisio-${os}-${arch}
       - uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: "target/provisio-*-x86_64"
           token: ${{ secrets.GITHUB_TOKEN }}
