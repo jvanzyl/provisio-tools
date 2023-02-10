@@ -18,8 +18,6 @@ jobs:
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - run: java -version
-      - run: cp src/tools/upx /usr/local/bin
       - name: Build
         run: ./mvnw clean package -DskipTests -Pnative
       - run: mv target/provisio-tools-*-runner target/provisio-Darwin-x86_64

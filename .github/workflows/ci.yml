@@ -11,7 +11,10 @@ on:
 
 jobs:
   build:
-    runs-on: macos-11
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.10.0
@@ -24,7 +27,5 @@ jobs:
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - run: java -version
-      - run: cp src/tools/upx /usr/local/bin
       - name: Build
         run: ./mvnw clean package -DskipTests -Pnative
