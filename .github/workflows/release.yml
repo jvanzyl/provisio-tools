@@ -23,7 +23,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: ./mvnw clean package -DskipTests -Pnative
-      - run: mv target/provisio-tools-*-runner target/provisio-Darwin-x86_64
+      - run: |
+          os=$(uname)
+          arch=$(uname -m)
+          mv target/provisio-tools-*-runner target/provisio-${os}-${arch}
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "target/provisio-*-x86_64"
