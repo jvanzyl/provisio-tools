@@ -35,6 +35,7 @@ import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.util.YamlMapper;
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class SyntheticIntegrationTest {
 
   @Before
   public void setUp() throws Exception {
-    port = 4567;
+    port = findFreePort();
     syntheticRoot = directory("synthetic");
     resetDirectory(syntheticRoot);
     remoteRoot = syntheticRoot.resolve("remote");
@@ -155,5 +156,14 @@ public class SyntheticIntegrationTest {
         .defaultVersion(e.version())
         .urlTemplate(url(e.name(), e.extension()))
         .build();
+  }
+
+  private int findFreePort() throws IOException {
+    try (ServerSocket serverSocket = new ServerSocket(0)) {
+      if(serverSocket != null  && serverSocket.getLocalPort() > 0) {
+        return serverSocket.getLocalPort();
+      }
+    }
+    throw new IOException("Cannot find free port for synthetic tests.");
   }
 }
