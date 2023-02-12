@@ -49,16 +49,11 @@ public class ProvisioTestSupport {
     return request.binaryProfilesDirectory().resolve(userProfile);
   }
 
-  public static Provisio provisio(Path provisioRoot, String userProfile) {
+  public static Provisio provisio(Path provisioRoot, String userProfile) throws Exception {
     Builder builder = ImmutableProvisioningRequest.builder();
     builder.provisioRoot(provisioRoot);
     builder.userProfile(userProfile);
-    try {
-      return new Provisio(builder.build());
-    } catch(Exception e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
+    return new Provisio(builder.build());
   }
 
   protected Path testProfile(String name) {
