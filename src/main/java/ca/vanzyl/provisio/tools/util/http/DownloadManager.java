@@ -10,6 +10,7 @@ import static java.nio.file.Files.move;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.tool.ToolUrlBuilder;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -77,9 +78,12 @@ public class DownloadManager {
     HttpClient client = HttpClient.newBuilder()
         .followRedirects(Redirect.ALWAYS)
         .build();
-    HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(inProgress));
-    if (response.statusCode() == 404) {
-      throw new RuntimeException(String.format("The URL %s doesn't exist.", url));
+    try {
+      HttpResponse<Path> response = client.send(request, BodyHandlers.ofFile(inProgress));
+      if (response.statusCode() == 404) {
+        throw new RuntimeException(String.format("The URL %s doesn't exist.", url));
+      }
+    } catch(IOException e) {
     }
 
     // Now we attempt to atomically move our file into place
