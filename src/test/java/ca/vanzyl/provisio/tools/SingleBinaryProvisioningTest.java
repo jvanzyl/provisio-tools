@@ -38,6 +38,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void provisioningBinaryFromTarGzWithSingleEntryWithNoLeadingDotSlash() throws Exception {
+    //
     // -rw-rw-r--  0 1000   1000    10255 Nov 15  2019 velero-v1.6.2-darwin-amd64/LICENSE
     // -rw-rw-r--  0 1000   1000      476 Jul  8  2021 velero-v1.6.2-darwin-amd64/examples/README.md
     // drwxrwxr-x  0 1000   1000        0 Feb 20  2021 velero-v1.6.2-darwin-amd64/examples/minio
@@ -53,6 +54,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void provisioningBinaryFromTarGz() throws Exception {
+    //
     // -rw-r--r--  0 runner docker     1069 Mar  7  2021 LICENSE
     // -rw-r--r--  0 runner docker     9249 Mar  7  2021 README.md
     // -rwxr-xr-x  0 runner docker 12224056 Mar  7  2021 dive
@@ -142,6 +144,24 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
     validateInstallationProvisioning("dimg", "1.0.1", "jvanzyl-dimg-1.0.1-0-g5726729.tar.gz");
   }
 
+  // -----------------------------------------------------------------------------------------------------------------------
+  // Problems
+  // -----------------------------------------------------------------------------------------------------------------------
+
+  // There is a problem on Linux with the architecture mapping
+  @Test
+  public void provisioningKrew() throws Exception {
+    //
+    // -rw-r--r--  0 runner docker  11358 Dec 31  1999 ./LICENSE
+    // -rwxr-xr-x  0 runner docker 12177858 Dec 31  1999 ./krew-darwin_arm64
+    //
+    validateInstallationProvisioning("krew", "0.4.3", "krew-{os}_{arch}.tar.gz");
+  }
+
+  // -----------------------------------------------------------------------------------------------------------------------
+  // Helpers
+  // -----------------------------------------------------------------------------------------------------------------------
+
   public void validateInstallationProvisioning(String toolId, String version, String fileNameInCache) throws Exception {
     validateInstallationProvisioning(toolId, version, fileNameInCache, null);
   }
@@ -163,7 +183,11 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
       paths.forEach(path -> assertThat(requireNonNull(result.installation()).resolve(path)).exists());
     } else {
       String executable;
-      if(toolDescriptor.tarSingleFileToExtract() != null) {
+      //
+      // yq is layout=file, a single file that is extracted and symlinked to the main provisio path
+      // krew is layout=directory and we add the krew installation directory to the path
+      //
+      if(toolDescriptor.tarSingleFileToExtract() != null && toolDescriptor.layout().equals("file")) {
         executable = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version, ARCH);
       } else {
         executable = toolDescriptor.executable();

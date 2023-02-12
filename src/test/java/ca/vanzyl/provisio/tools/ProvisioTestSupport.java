@@ -32,7 +32,7 @@ public class ProvisioTestSupport {
   public void setUp() throws Exception {
     userProfile = "provisio";
     boolean useLocalCache = false;
-    boolean useRealProvisioRoot = true;
+    boolean useRealProvisioRoot = false;
     Builder builder = ImmutableProvisioningRequest.builder();
     builder.userProfile(userProfile);
     builder.provisioRoot(useRealProvisioRoot ? realProvisioRoot : testProvisioRoot);
