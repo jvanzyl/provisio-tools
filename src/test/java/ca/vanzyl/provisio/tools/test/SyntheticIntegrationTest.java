@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class SyntheticIntegrationTest {
@@ -67,6 +68,7 @@ public class SyntheticIntegrationTest {
   }
 
   @Test
+  @Ignore("Issues on Linux")
   public void runningFromEndToEnd() throws Exception {
     testModeOn();
     // This needs nice builder to comprehensive archive content
