@@ -67,9 +67,7 @@ import java.util.stream.Collectors;
 // TODO: allow provisioning of tools in parallel, but visually demux the output
 // TODO: how to read a directory of resources out of the classpath in Graal
 public class Provisio {
-
   // de-dupe these
-  public static final String PROVISiO_SHELL_INIT = ".init.bash";
   public static final String POST_INSTALL = "post-install.sh";
   public final static String IN_PROGRESS_EXTENSION = ".in-progress";
   public final static String PROFILE_YAML = "profile.yaml";

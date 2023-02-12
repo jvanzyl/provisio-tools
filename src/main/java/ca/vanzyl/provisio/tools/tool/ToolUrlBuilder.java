@@ -52,10 +52,10 @@ public class ToolUrlBuilder {
   public static Path cachePathFor(Path cacheDirectory, ToolDescriptor tool, String version, String arch) {
     String url = toolDownloadUrlFor(tool, version, arch);
     String file = url.substring(url.lastIndexOf('/') + 1);
-    return cachePathFor(cacheDirectory, tool, version, arch, file);
+    return cachePathWithFileNameFor(cacheDirectory, tool, version, file);
   }
 
-  public static Path cachePathFor(Path cacheDirectory, ToolDescriptor tool, String version, String arch, String fileName) {
+  public static Path cachePathWithFileNameFor(Path cacheDirectory, ToolDescriptor tool, String version, String fileName) {
     return cacheDirectory.resolve(Paths.get(tool.id(), version)).resolve(fileName);
   }
 }

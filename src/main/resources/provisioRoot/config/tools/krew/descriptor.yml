@@ -1,7 +1,7 @@
 ---
 id: krew
 name: Krew
-defaultVersion: 0.4.2
+defaultVersion: 0.4.3
 layout: directory
 paths: ., bin
 executable: krew

@@ -12,6 +12,9 @@ import org.junit.Test;
 
 public class ProfileInstallingTest extends ProvisioTestSupport {
 
+  // This is a test that I (jvz) use to test my local setup. I have tools in my personal profile that I haven't
+  // yet setup with the @SyntheticIntegrationTest. Once I have every type of tool modeled there, this can
+  // be removed.
   @Test
   @Ignore
   public void validateProfileInstallationWithProvisioTestProfile() throws Exception {
@@ -95,11 +98,6 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
     // No space left on disk and warning/correcting
     // Switching profiles that files are changed correctly
     // test the profile.shell additions are added correctly
-  }
-
-  @Test
-  public void newVersionOfToolIsMadeAvailableCorrectly() throws Exception {
-
   }
 
   @Test

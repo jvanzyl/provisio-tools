@@ -42,7 +42,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SyntheticIntegrationTest {
-
   private int port;
   private Path syntheticRoot;
   private Path remoteRoot;

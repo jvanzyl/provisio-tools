@@ -1,7 +1,6 @@
 package ca.vanzyl.provisio.tools.util.http;
 
 import static ca.vanzyl.provisio.tools.Provisio.IN_PROGRESS_EXTENSION;
-import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.cachePathFor;
 import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.toolDownloadUrlFor;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.deleteIfExists;
@@ -10,6 +9,7 @@ import static java.nio.file.Files.move;
 
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ToolProfile;
+import ca.vanzyl.provisio.tools.tool.ToolUrlBuilder;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -52,9 +52,9 @@ public class DownloadManager {
     //
     if(tool.fileNameFromContentDisposition()) {
       String fileName = fileNameFromContentDisposition(url, tool);
-      target = cachePathFor(cacheDirectory, tool, version, profile.derivedArch(), fileName);
+      target = ToolUrlBuilder.cachePathWithFileNameFor(cacheDirectory, tool, version, fileName);
     } else {
-      target = cachePathFor(cacheDirectory, tool, version, profile.derivedArch());
+      target = ToolUrlBuilder.cachePathFor(cacheDirectory, tool, version, profile.derivedArch());
     }
     if (exists(target)) {
       return target;
