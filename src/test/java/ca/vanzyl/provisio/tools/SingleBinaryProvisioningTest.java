@@ -3,6 +3,7 @@ package ca.vanzyl.provisio.tools;
 import static ca.vanzyl.provisio.tools.tool.ToolUrlBuilder.interpolateToolPath;
 import static java.util.Objects.requireNonNull;
 import static kr.motd.maven.os.Detector.ARCH;
+import static kr.motd.maven.os.Detector.OS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfile;
@@ -11,6 +12,7 @@ import ca.vanzyl.provisio.tools.model.ToolProvisioningResult;
 import ca.vanzyl.provisio.tools.tool.ToolUrlBuilder;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Test;
 
 // The {os} and {arch} variables are in the form that a given project uses them. We map them from:
@@ -111,12 +113,15 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void provisioningInstallationUsingTarGzStrip() throws Exception {
-    validateInstallationProvisioning("graalvm", "22.3.1", "graalvm-ce-java17-{os}-{arch}-22.3.1.tar.gz",
-        withPaths(
-            "Contents/Home/release",
-            "Contents/Home/GRAALVM-README.md",
-            "Contents/Home/bin/java",
-            "Contents/Home/jmods/java.base.jmod"));
+    List<String> paths = withPaths(
+        "release",
+        "GRAALVM-README.md",
+        "bin/java",
+        "jmods/java.base.jmod");
+    if(OS.equals("Darwin")) {
+      paths = paths.stream().map(p -> "Contents/Home/" + p).collect(Collectors.toList());
+    }
+    validateInstallationProvisioning("graalvm", "22.3.1", "graalvm-ce-java17-{os}-{arch}-22.3.1.tar.gz", paths);
   }
 
   // -----------------------------------------------------------------------------------------------------------------------
@@ -125,13 +130,14 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void provisioningInstallationUsingTarGzStripFromApiEndpoint() throws Exception {
-    // The Adoptium JDKs retrieved from an API endpoint and have no file names that can be gleaned from the url.
-    validateInstallationProvisioning("java", "jdk-17.0.6+10", "OpenJDK17U-jdk_{arch}_{os}_hotspot_17.0.6_10.tar.gz",
-        withPaths(
-            "Contents/Home/release",
-            "Contents/Home/bin/java",
-            // "Contents/Home/bin/unpack200", this was removed in JDK 14
-            "Contents/Home/jmods/java.base.jmod"));
+    List<String> paths = withPaths(
+        "release",
+        "bin/java",
+        "jmods/java.base.jmod");
+    if(OS.equals("Darwin")) {
+      paths = paths.stream().map(p -> "Contents/Home/" + p).collect(Collectors.toList());
+    }
+    validateInstallationProvisioning("java", "jdk-17.0.6+10", "OpenJDK17U-jdk_{arch}_{os}_hotspot_17.0.6_10.tar.gz", paths);
   }
 
   @Test
