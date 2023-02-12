@@ -23,7 +23,7 @@ public class ShellFileModifierTest extends ProvisioTestSupport {
   public void setUp() throws Exception {
     super.setUp();
     homeDirectory = path("homeDirectory");
-    modifier = new BashShellHandler(homeDirectory, ImmutableProvisioningRequest.builder().build());
+    modifier = new BashShellHandler(homeDirectory, request);
   }
 
   @Test
