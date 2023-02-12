@@ -68,7 +68,7 @@ public class SyntheticIntegrationTest {
   }
 
   @Test
-  @Ignore("Issues on Linux")
+  @Ignore
   public void runningFromEndToEnd() throws Exception {
     testModeOn();
     // This needs nice builder to comprehensive archive content
