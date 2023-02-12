@@ -22,7 +22,7 @@ public class ProvisioTestSupport {
   protected Provisio provisio;
   protected Path realProvisioRoot = get(System.getProperty("user.home"), ".provisio");
   protected Path testProvisioRoot = get("target", ".provisio").toAbsolutePath();
-  protected Path testProfiles = get("src/test/profiles").toAbsolutePath();
+  protected Path dotProvisio = get("src/test/.provisio").toAbsolutePath();
   protected String userProfile;
   protected ToolMapper toolMapper;
 
@@ -39,7 +39,7 @@ public class ProvisioTestSupport {
     if (!useRealProvisioRoot && useLocalCache) {
       builder.cacheDirectory(realProvisioRoot.resolve("bin").resolve("cache"));
     }
-    copyFolder(testProfiles, testProvisioRoot.resolve("profiles"));
+    copyFolder(dotProvisio, testProvisioRoot);
     request = builder.build();
     provisio = new Provisio(builder.build());
     toolMapper = new ToolMapper();
