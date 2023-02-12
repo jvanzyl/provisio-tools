@@ -1,19 +1,16 @@
 package ca.vanzyl.provisio.tools;
 
+import static ca.vanzyl.provisio.tools.util.FileUtils.copyFolder;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.writeString;
 import static java.nio.file.Paths.get;
 
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ImmutableProvisioningRequest.Builder;
-import ca.vanzyl.provisio.tools.model.ImmutableToolDescriptor;
 import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
-import ca.vanzyl.provisio.tools.model.ToolProfile;
 import ca.vanzyl.provisio.tools.tool.ToolMapper;
-import ca.vanzyl.provisio.tools.util.YamlMapper;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Before;
 
@@ -25,13 +22,16 @@ public class ProvisioTestSupport {
   protected Provisio provisio;
   protected Path realProvisioRoot = get(System.getProperty("user.home"), ".provisio");
   protected Path testProvisioRoot = get("target", ".provisio").toAbsolutePath();
+  protected Path testProfiles = get("src/test/profiles").toAbsolutePath();
   protected String userProfile;
   protected ToolMapper toolMapper;
 
   @Before
   public void setUp() throws Exception {
     userProfile = "provisio";
-    boolean useLocalCache = false;
+    // On GHA runners this setting doesn't matter until we figure out some caching
+    boolean useLocalCache = true;
+    // Having this be set to true is for provisio developers experimenting locally
     boolean useRealProvisioRoot = false;
     Builder builder = ImmutableProvisioningRequest.builder();
     builder.userProfile(userProfile);
@@ -39,6 +39,7 @@ public class ProvisioTestSupport {
     if (!useRealProvisioRoot && useLocalCache) {
       builder.cacheDirectory(realProvisioRoot.resolve("bin").resolve("cache"));
     }
+    copyFolder(testProfiles, testProvisioRoot.resolve("profiles"));
     request = builder.build();
     provisio = new Provisio(builder.build());
     toolMapper = new ToolMapper();

@@ -26,9 +26,8 @@ mkdir -p ${installLocation}/bin 2>&1
 
 # Krew is packaged oddly, but we want to make a self-contained installation
 # where everything released to krew is in one directory.
-# TODO: The installation shouldn't be mutated, make a symlink to the original
 if [ ! -f "${installLocation}/krew" ]; then
-  mv ${installLocation}/krew-${os}_${arch} ${installLocation}/krew
+  ln -s ${installLocation}/krew-${os}_${arch} ${installLocation}/krew
 fi
 
 for plugin in ${tools_krew_plugins[*]}; do

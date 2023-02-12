@@ -187,7 +187,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
       // yq is layout=file, a single file that is extracted and symlinked to the main provisio path
       // krew is layout=directory and we add the krew installation directory to the path
       //
-      if(toolDescriptor.tarSingleFileToExtract() != null && toolDescriptor.layout().equals("file")) {
+      if(toolDescriptor.tarSingleFileToExtract() != null) {
         executable = interpolateToolPath(toolDescriptor.tarSingleFileToExtract(), toolDescriptor, version, ARCH);
       } else {
         executable = toolDescriptor.executable();

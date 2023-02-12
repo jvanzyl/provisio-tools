@@ -65,7 +65,7 @@ tools:
   eksctl:
     version: 0.77.0
   aws-cli:
-    version: 2.7.20
+    version: 2.7.33
   aws-iam-authenticator:
     version: 0.5.9
   sops:
@@ -77,7 +77,7 @@ tools:
   helm:
     version: 3.9.2
   krew:
-    version: 0.4.2
+    version: 0.4.3
     plugins:
     - cert-manager
     - konfig
