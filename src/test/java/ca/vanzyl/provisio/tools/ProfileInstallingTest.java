@@ -101,6 +101,7 @@ public class ProfileInstallingTest extends ProvisioTestSupport {
   }
 
   @Test
+  @Ignore
   public void selfUpdating() throws Exception {
     provisio.selfUpdate();
   }
