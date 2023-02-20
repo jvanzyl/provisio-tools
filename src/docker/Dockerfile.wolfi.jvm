@@ -1,0 +1,5 @@
+FROM cgr.dev/chainguard/graalvm-native-image-base:latest
+
+ARG MAVEN_VERSION
+
+COPY target/provisio-tools-${MAVEN_VERSION}-runner /root/.provisio/provisio
