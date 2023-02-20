@@ -150,6 +150,11 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
     validateInstallationProvisioning("dimg", "1.0.1", "jvanzyl-dimg-1.0.1-0-g5726729.tar.gz");
   }
 
+  @Test
+  public void provisioningScala() throws Exception {
+    validateInstallationProvisioning("scala", "2.13.10", "scala-2.13.10.tgz");
+  }
+
   // -----------------------------------------------------------------------------------------------------------------------
   // Problems
   // -----------------------------------------------------------------------------------------------------------------------

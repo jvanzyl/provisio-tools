@@ -1,0 +1,15 @@
+---
+id: scala3
+name: scala3
+defaultVersion: 3.2.2
+layout: directory
+paths: bin
+executable: java
+packaging: TARGZ_STRIP
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: amd64
+  arm64: aarch64
+urlTemplate: https://github.com/lampepfl/dotty/releases/download/{version}/scala3-{version}.tar.gz

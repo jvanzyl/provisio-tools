@@ -1,0 +1,15 @@
+---
+id: scala
+name: scala
+defaultVersion: 2.13.10
+layout: directory
+paths: bin
+executable: scalac
+packaging: TARGZ_STRIP
+osMappings:
+  Darwin: darwin
+  Linux: linux
+archMappings:
+  x86_64: amd64
+  arm64: aarch64
+urlTemplate: https://downloads.lightbend.com/scala/{version}/scala-{version}.tgz
