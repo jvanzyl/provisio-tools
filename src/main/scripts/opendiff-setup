@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# https://stackoverflow.com/questions/47563666/how-do-i-open-filemerge-app-on-mac-os-10-13-and-xcode-9
+# https://gist.github.com/kristofferh/2895878
+
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
