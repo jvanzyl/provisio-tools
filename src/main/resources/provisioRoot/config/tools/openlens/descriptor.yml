@@ -12,5 +12,5 @@ osMappings:
 archMappings:
   x86_64: ""
   arm64: "-arm64"
-urlTemplate: "https://github.com/MuhammedKalkan/OpenLens/releases/download/v{version}/OpenLens-6.0.0{arch}.zip"
+urlTemplate: "https://github.com/MuhammedKalkan/OpenLens/releases/download/v{version}/OpenLens-{version}{arch}.zip"
 
