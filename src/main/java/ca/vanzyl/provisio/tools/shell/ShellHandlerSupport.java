@@ -2,6 +2,7 @@ package ca.vanzyl.provisio.tools.shell;
 
 import static ca.vanzyl.provisio.tools.util.FileUtils.line;
 import static java.nio.file.Files.copy;
+import static java.nio.file.Files.createFile;
 
 import ca.vanzyl.provisio.tools.model.ProvisioningRequest;
 import java.io.IOException;
@@ -78,10 +79,18 @@ public abstract class ShellHandlerSupport implements  ShellHandler {
   }
 
   public Path findShellInitializationFile() {
-    return Arrays.stream(shellInitScripts())
+    Path path = Arrays.stream(shellInitScripts())
         .map(userHomeDirectory::resolve)
         .filter(Files::exists)
         .findFirst()
         .orElse(null);
+    if(path == null) {
+      try {
+        createFile(userHomeDirectory.resolve(shellInitScripts()[0]));
+      } catch (IOException e) {
+        throw new RuntimeException("Cannot create files in user home directory.");
+      }
+    }
+    return path;
   }
 }

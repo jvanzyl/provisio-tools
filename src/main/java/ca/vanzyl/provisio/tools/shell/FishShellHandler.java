@@ -17,8 +17,8 @@ public class FishShellHandler extends ShellHandlerSupport {
   public static final String SHELL_TEMPLATE = "fish-template.txt";
 
   private final static String[] fishInitScripts = new String[]{
-      ".config/fish/conf.d",
-      ".config/fish/config.fish"
+      ".config/fish/config.fish",
+      ".config/fish/conf.d"
   };
 
   public FishShellHandler(Path userHome, ProvisioningRequest request) {
