@@ -1,0 +1,16 @@
+---
+id: dbeaver
+name: dbeaver ce client
+defaultVersion: 23.0.2
+layout: directory
+executable: dbeaver
+packaging: TARGZ_STRIP
+osMappings:
+  Darwin: macosx.cocoa
+#  Linux: linux
+archMappings:
+  x86_64: x86_64
+  arm64: aarch64
+# https://dbeaver.io/files/23.0.2/dbeaver-ce-23.0.2-macosx.cocoa.aarch64.tar.gz
+# https://dbeaver.io/files/23.0.2/dbeaver-ce-23.0.2-macosx.cocoa.x86_64.tar.gz
+urlTemplate: https://dbeaver.io/files/{version}/dbeaver-ce-{version}-{os}.{arch}.tar.gz
