@@ -150,6 +150,14 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
     validateInstallationProvisioning("dimg", "1.0.1", "jvanzyl-dimg-1.0.1-0-g5726729.tar.gz");
   }
 
+  @Test
+  public void provisioningDBeaver() throws Exception {
+    List<String> paths = withPaths(
+        "DBeaver.app/Contents/MacOS/dbeaver",
+        "DBeaver.app/Contents/Eclipse/dbeaver.ini");
+    validateInstallationProvisioning("dbeaver", "23.0.2", "dbeaver-ce-{version}-{os}.{arch}.tar.gz", paths);
+  }
+
   // -----------------------------------------------------------------------------------------------------------------------
   // Problems
   // -----------------------------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ name: dbeaver ce client
 defaultVersion: 23.0.2
 layout: directory
 executable: dbeaver
-packaging: TARGZ_STRIP
+packaging: TARGZ
 osMappings:
   Darwin: macosx.cocoa
 #  Linux: linux
