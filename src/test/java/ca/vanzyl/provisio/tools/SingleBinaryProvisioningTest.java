@@ -5,6 +5,8 @@ import static java.util.Objects.requireNonNull;
 import static kr.motd.maven.os.Detector.ARCH;
 import static kr.motd.maven.os.Detector.OS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assume.assumeThat;
 
 import ca.vanzyl.provisio.tools.model.ImmutableToolProfile;
 import ca.vanzyl.provisio.tools.model.ToolDescriptor;
@@ -152,6 +154,7 @@ public class SingleBinaryProvisioningTest extends ProvisioTestSupport {
 
   @Test
   public void provisioningDBeaver() throws Exception {
+    assumeThat(System.getProperty("os.name"), is("Mac OS X"));
     List<String> paths = withPaths(
         "DBeaver.app/Contents/MacOS/dbeaver",
         "DBeaver.app/Contents/Eclipse/dbeaver.ini");
