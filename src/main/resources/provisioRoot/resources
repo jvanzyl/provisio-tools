@@ -22,6 +22,7 @@ config/tools/dive/descriptor.yml
 config/tools/kapp/descriptor.yml
 config/tools/argocd/descriptor.yml
 config/tools/velero/descriptor.yml
+config/tools/ck8s-cli/descriptor.yml
 config/tools/cr/descriptor.yml
 config/tools/colima/descriptor.yml
 config/tools/dbeaver/post-install.sh
@@ -35,6 +36,7 @@ config/tools/graalvm/GRAALVM_SETUP.md
 config/tools/java/descriptor.yml
 config/tools/java/temurin.md
 config/tools/java/README.md
+config/tools/miniconda/descriptor.yml
 config/tools/mustache/descriptor.yml
 config/tools/kind/descriptor.yml
 config/tools/nvm/post-install.sh
@@ -48,7 +50,7 @@ config/tools/upx/descriptor.yml
 config/tools/jbang/descriptor.yml
 config/tools/eksctl/descriptor.yml
 config/tools/mysql/descriptor.yml
-config/tools/dbeaver/descriptor.yml
+config/tools/tomcat/descriptor.yml
 config/tools/cosign/descriptor.yml
 config/tools/mc/descriptor.yml
 config/tools/aws-cli/descriptor.yml
