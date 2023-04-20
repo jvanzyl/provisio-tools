@@ -1,6 +1,8 @@
 ---
 arch: arm64
 tools:
+  dbeaver:
+    version: 23.0.2
   docker-credential-ecr-login:
     version: 0.6.0
   gcloud:
