@@ -22,6 +22,7 @@ config/tools/dive/descriptor.yml
 config/tools/kapp/descriptor.yml
 config/tools/argocd/descriptor.yml
 config/tools/velero/descriptor.yml
+config/tools/ck8s-cli/descriptor.yml
 config/tools/cr/descriptor.yml
 config/tools/colima/descriptor.yml
 config/tools/dbeaver/post-install.sh
