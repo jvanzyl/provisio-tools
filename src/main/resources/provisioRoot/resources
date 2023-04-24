@@ -35,6 +35,7 @@ config/tools/graalvm/GRAALVM_SETUP.md
 config/tools/java/descriptor.yml
 config/tools/java/temurin.md
 config/tools/java/README.md
+config/tools/miniconda/descriptor.yml
 config/tools/mustache/descriptor.yml
 config/tools/kind/descriptor.yml
 config/tools/nvm/post-install.sh
