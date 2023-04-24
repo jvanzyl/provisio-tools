@@ -68,6 +68,7 @@ config/tools/jenv/fish-template.txt
 config/tools/jenv/bash-template.txt
 config/tools/jenv/notes.md
 config/tools/sops/descriptor.yml
+config/tools/tomcat/descriptor.yml
 config/tools/gitleaks/descriptor.yml
 config/tools/jq/descriptor.yml
 config/tools/kubectl/descriptor.yml

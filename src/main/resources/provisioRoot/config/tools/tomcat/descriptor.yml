@@ -1,0 +1,9 @@
+---
+id: tomcat
+name: tomcat 8
+defaultVersion: 8.5.88
+layout: directory
+executable: tomcat
+packaging: ZIP
+# https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.88/bin/apache-tomcat-8.5.88.zip
+urlTemplate: https://dlcdn.apache.org/tomcat/tomcat-8/v{version}/bin/apache-tomcat-{version}.zip
