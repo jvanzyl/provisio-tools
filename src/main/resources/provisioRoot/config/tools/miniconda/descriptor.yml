@@ -1,0 +1,16 @@
+---
+id: miniconda
+name: miniconda 3
+defaultVersion: latest
+layout: file
+executable: conda
+packaging: FILE
+osMappings:
+  Darwin: MacOSX
+#  Linux: linux
+archMappings:
+  x86_64: x86_64
+  arm64: arm64
+# https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+# https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+urlTemplate: https://repo.anaconda.com/miniconda/Miniconda3-{version}-{os}-{arch}.sh
